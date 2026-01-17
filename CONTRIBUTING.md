@@ -45,6 +45,7 @@ Never push straight to `main`. Create a branch first.
 git checkout main
 git pull origin main
 git checkout -b type/number-description
+```
 
 ## 🚀 4. Pull Requests (PRs) & Linking
 We use **Draft PRs** so everyone can see what's happening early on.
@@ -55,8 +56,6 @@ We use **Draft PRs** so everyone can see what's happening early on.
     * **Option B (The manual way):** In the right-hand sidebar of the PR page, go to the **Development** section, click the gear icon ⚙️, and search for the issue number to link it manually.
 3. **No Epic Linking:** Never link Epics directly to PRs. Only link the specific User Story, Task, or Bug you are actually coding. The Epic will update its progress bar automatically as we close the stories.
 4. **Get a Review:** Once you're done, hit "Ready for Review" and ping a teammate to check your work. Use **Squash and Merge** to keep our history clean.
-
-
 
 ## ✅ 5. Definition of Done (DoD)
 An issue isn't "Done" until:
