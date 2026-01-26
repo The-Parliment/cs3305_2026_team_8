@@ -5,7 +5,9 @@ from pydantic import BaseModel
 logging.basicConfig(level=logging.INFO, format='[auth_service] %(asctime)s%(levelname)s %(message)s')
 logger = logging.getLogger(__name__)
 
-class User(BasModel):
+app = FastAPI(root_path="/auth")
+
+class User(BaseModel):
     username: str
     password: str
 

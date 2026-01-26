@@ -1,0 +1,18 @@
+services:
+  auth:
+    build: ./backend/auth
+    container_name: auth
+    networks:
+      - circle_network
+  api_gateway:
+    build: ./api_gateway
+    container_name: api_gateway
+    ports:
+      - "80:80"
+    depends_on:
+      - auth
+    networks:
+      - circle_network
+networks:
+  circle_network:
+    driver: bridge
