@@ -1,7 +1,45 @@
 from sqlalchemy import ForeignKey, Column, String, Integer, Float, Boolean, DateTime
 from sqlalchemy.ext.declarative import declarative_base
+from datetime import datetime
 
 Base = declarative_base()
+
+"""
+COLAPSING INTO 1 USERS TABLE - REASON IS THE PREVIOUS 
+I DON'T THINK NEEDS TO BE SPLIT AS THERE IS ALWAYS A
+1:1 RELATIONSHIP BETWEEN A USER AND THEIR DETAILS.
+
+"""
+
+class User(Base):
+    __tablename__ = "users"
+    
+    # Use integer ID as primary key
+    id = Column(Integer, primary_key=True, index=True)
+    username = Column(String, unique=True, nullable=False, index=True)
+    email = Column(String, unique=True, nullable=False, index=True)
+    hashed_password = Column(String, nullable=False)
+    
+    # User details in same table
+    first_name = Column(String, nullable=True)
+    last_name = Column(String, nullable=True)
+    phone_number = Column(String, nullable=True)  # String, not Integer!
+    
+    # Useful metadata
+    created_at = Column(DateTime, default=datetime.utcnow)
+    is_active = Column(Boolean, default=True)
+    
+    # Don't need __init__ - SQLAlchemy handles it
+    # Don't need __repr__ unless you want custom format
+    
+    def __repr__(self):
+        return f"<User(id={self.id}, username='{self.username}')>"
+
+"""
+COMMENTING OUT FOR THE MOMENT.
+SQLALCHEMY THROWING SOME FUNKY ERRORS AROUND FOREIGH KEYS.
+
+
 
 class User(Base):
     __tablename__ = "users"
@@ -130,3 +168,5 @@ class AttendingEvent(Base):
 
     def __repr__(self):
         return f"{self.user} is attending {self.event}"
+
+"""

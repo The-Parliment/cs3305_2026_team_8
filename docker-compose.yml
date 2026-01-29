@@ -1,9 +1,20 @@
 services:
+  # Auth service
   auth:
-    build: ./backend/auth
+    build: 
+      context: ./backend
+      dockerfile: auth/Dockerfile
     container_name: auth
     networks:
       - circle_network
+    environment:
+      - PYTHONPATH=/app
+      - SECRET_KEY=your-secret-key-change-in-production
+    ports:
+      - "8001:8000"
+    volumes:
+      - ./dbdata:/app/data # Persistent storage for auth service
+  #Api gatwy microservice
   api_gateway:
     build: ./api_gateway
     container_name: api_gateway
@@ -11,6 +22,13 @@ services:
       - "80:80"
     depends_on:
       - auth
+      - frontend
+    networks:
+      - circle_network
+  # Frontend microservice
+  frontend:
+    build: ./frontend
+    container_name: frontend
     networks:
       - circle_network
 networks:
