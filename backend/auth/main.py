@@ -1,9 +1,9 @@
 import logging
 from fastapi import FastAPI, HTTPException
-from ..database.tables import User
+from common.DatabaseClasses import User
 from common.JWTSecurity import decode_and_verify
-from .security import mint_access_token, mint_refresh_token, verify_user
-from .structures import LoginRequest, TokenResponse, RefreshRequest
+from security import mint_access_token, mint_refresh_token, verify_user
+from structures import LoginRequest, TokenResponse, RefreshRequest
 
 logging.basicConfig(level=logging.INFO, format='[auth] %(asctime)s%(levelname)s %(message)s')
 logger = logging.getLogger(__name__)
@@ -13,14 +13,6 @@ app = FastAPI(root_path="/auth", title="auth_service")
 @app.get("/")
 async def root():
     return {"message: API called"}
-
-@app.post("/register")
-async def register(user: User):
-    return {
-        "message": f"Register called for {user.username}",
-        "username": user.username,
-        "password": user.hashed_password
-    }
 
 #There is absolute no HTML served in the microservice, this returns a token
 @app.post("/login", response_model=TokenResponse)

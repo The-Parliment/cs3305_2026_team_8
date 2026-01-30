@@ -57,7 +57,7 @@ async def index(request: Request):
     )
 
 
-@app.get("/login", response_class=HTMLResponse)
+@app.get("/login", name="login", response_class=HTMLResponse)
 async def get_login(request: Request):
     form = LoginForm()
     return templates.TemplateResponse(

@@ -1,4 +1,9 @@
 fastapi
 uvicorn
-passlib[bcrypt]
-python-dotenv
+jinja2
+python-multipart
+httpx
+pyjwt
+wtforms
+itsdangerous
+sqlalchemy
