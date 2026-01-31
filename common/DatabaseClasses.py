@@ -56,8 +56,8 @@ class Venue(Base):
 class UserFollows(Base):
     __tablename__ = "user_follows"
 
-    user1 = Column("user1", String, ForeignKey("users.username"))
-    user2 = Column("user2", String, ForeignKey("users.username"))
+    user1 = Column("user1", String, ForeignKey("users.username"), primary_key=True)
+    user2 = Column("user2", String, ForeignKey("users.username"), primary_key=True)
     accepted = Column("accepted", Boolean, default=False)
     
     def __init__(self, user1, user2, accepted=False):
@@ -66,14 +66,14 @@ class UserFollows(Base):
         self.accepted = accepted
 
     def __repr__(self):
-        return f"{self.user1} requests to follow {self.user2}: {"Approved" if self.accepted else "Pending"}"
+        return f"{self.user1} requests to follow {self.user2}:" + "Approved" if self.accepted else "Pending"
 
 
 class Friends(Base):
     __tablename__ = "friends"
 
-    user1 = Column("user1", String, ForeignKey("users.username"))
-    user2 = Column("user2", String, ForeignKey("users.username"))
+    user1 = Column("user1", String, ForeignKey("users.username"), primary_key=True)
+    user2 = Column("user2", String, ForeignKey("users.username"), primary_key=True)
     
     def __init__(self, user1, user2):
         self.user1 = user1
@@ -85,8 +85,8 @@ class Friends(Base):
 class InnerCircle(Base):
     __tablename__ = "inner_circle"
 
-    user = Column("user", String, ForeignKey("users.username"))
-    user_in_circle = Column("user_in_circle", String, ForeignKey("users.username"))
+    user = Column("user", String, ForeignKey("users.username"), primary_key=True)
+    user_in_circle = Column("user_in_circle", String, ForeignKey("users.username"), primary_key=True)
     
     def __init__(self, user, user_in_circle):
         self.user = user
@@ -121,8 +121,8 @@ class Events(Base):
 class AttendingEvent(Base):
     __tablename__ = "attending_event"
 
-    user = Column("user", String, ForeignKey("users.username"))
-    event = Column("event", String, ForeignKey("events.id"))
+    user = Column("user", String, ForeignKey("users.username"), primary_key=True)
+    event = Column("event", String, ForeignKey("events.id"), primary_key=True)
     
     def __init__(self, user, event):
         self.user = user

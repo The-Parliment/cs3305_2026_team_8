@@ -1,0 +1,1 @@
+# Placeholder file to represent other microservices on the client

@@ -4,6 +4,22 @@ services:
     container_name: auth
     networks:
       - circle_network
+    volumes:
+      - ./common:/app/common
+
+  frontend:
+    build: ./frontend
+    container_name: frontend
+    networks:
+      - circle_network
+    environment:
+      - AUTH_INTERNAL_BASE=http://auth:8000
+      - SESSION_SECRET=rosebud
+    depends_on:
+      - auth
+    volumes:
+      - ./common:/app/common
+
   api_gateway:
     build: ./api_gateway
     container_name: api_gateway
@@ -11,8 +27,10 @@ services:
       - "80:80"
     depends_on:
       - auth
+      - frontend
     networks:
       - circle_network
+
 networks:
   circle_network:
     driver: bridge
