@@ -1,0 +1,83 @@
+site_name: Parliament Documentation
+site_description: Social Networking Microservices Platform - Technical Documentation
+site_author: Parliament Team
+
+docs_dir: ./docs
+site_dir: site
+
+theme:
+  name: material
+  # Color scheme
+  # Source: https://squidfunk.github.io/mkdocs-material/setup/changing-the-colors/
+  palette:
+    primary: indigo
+    accent: indigo
+  # Navigation and UI features
+  # Source: https://squidfunk.github.io/mkdocs-material/setup/setting-up-navigation/
+  features:
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - navigation.sections
+    - navigation.expand
+    - navigation.path
+    - navigation.top
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+    - content.code.annotate
+
+markdown_extensions:
+  # Pulled form here for python https://squidfunk.github.io/mkdocs-material/setup/extensions/
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+
+    # Robbed from here - https://squidfunk.github.io/mkdocs-material/reference/diagrams/
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.tabbed:
+      alternate_style: true
+  - admonition
+  - pymdownx.details
+  - attr_list
+  - md_in_html
+  - tables
+  - toc:
+      permalink: true
+
+plugins:
+  - search
+  - mermaid2
+
+extra_javascript:
+  - https://unpkg.com/mermaid@10/dist/mermaid.min.js
+
+# Navigation structure
+nav:
+  - Home: index.md
+  - System Overview:
+      - Architecture: Architecture.md
+      - End-to-End Flow: end_to_end_flow.md
+      - Directory Structure: Directory_structrure.md
+  - Auth Service:
+      - API Reference: auth/auth_api.md
+      - User Management: auth/auth_design.md
+  - Circle Service:
+      - API Reference: circles/circles_api.md
+      - Circle Design: circles/circles_design.md
+  - Events Service:
+      - API Reference: events/events_api.md
+      - Events Design: events/events_design.md
+  - Groups Service:
+      - API Reference: groups/groups_api.md
+      - Groups Design: groups/groups_design.md
+  - Proximity Service:
+      - API Reference: proximity/proximity_api.md
+      - Proximity Design: proximity/proximity_design.md
+
