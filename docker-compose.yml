@@ -23,6 +23,16 @@ services:
     volumes:
       - ./common:/app/common
 
+  events:
+    build: ./backend/events
+    container_name: events 
+    networks:
+      - circle_network
+    depends_on:
+      - auth
+    volumes:
+      - ./common:/app/common
+
   frontend:
     build: ./frontend
     container_name: frontend
@@ -45,6 +55,7 @@ services:
       - "80:80"
     depends_on:
       - auth
+      - events
       - frontend
       - circles
     networks:
