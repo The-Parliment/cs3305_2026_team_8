@@ -16,6 +16,16 @@ services:
       - auth
     volumes:
       - ./common:/app/common
+  
+proximity:
+    build: ./backend/proximity
+    container_name: proximity 
+    networks:
+      - circle_network
+    depends_on:
+      - auth
+    volumes:
+      - ./common:/app/common
 
   frontend:
     build: ./frontend
