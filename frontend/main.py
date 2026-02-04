@@ -1,5 +1,4 @@
 from fastapi import Depends, FastAPI
-from sqlalchemy import create_engine
 from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
@@ -7,15 +6,16 @@ from fastapi.templating import Jinja2Templates
 from starlette.middleware.sessions import SessionMiddleware
 from common.JWTSecurity import decode_and_verify
 from common.clients.auth import auth_login
+from common.db.init import init_db
 from forms import LoginForm
 import os
 
-engine = create_engine("sqlite+pysqlite:///:memory:", echo=True)
 templates = Jinja2Templates(directory="templates")
 
 AUTH_INTERNAL_BASE = os.getenv("AUTH_INTERNAL_BASE", "http://auth:8000")
 
 app = FastAPI(title="frontend_service")
+init_db()
 
 #This basically allows us to hold JWT's in a session, a soft substitute for Flask's "g" object
 app.add_middleware(
@@ -84,6 +84,7 @@ async def post_login(request : Request):
         )
     
     request.session["access_token"] = token_payload["access_token"]
+    request.session["logged_in"] = "true"
     if token_payload.get("refresh_token"):
         request.session["refresh_token"] = token_payload["refresh_token"]
 
