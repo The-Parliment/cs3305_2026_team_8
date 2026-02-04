@@ -27,8 +27,8 @@ def get_circle_id() -> int:
 async def root():
     return {"message": "Circles Service API called"}
 
-@app.post("/invite", response_class = InviteResponse)
-async def invite_to_circle(inbound: InviteRequest) -> InviteResponse:
+@app.post("/invite")
+async def invite_to_circle(inbound: InviteRequest, response_class = InviteResponse) -> InviteResponse:
     logger.info(f"Create endpoint called for Circle: {inbound.inviter}")
     #THIS WILL HAVE CODE FOR CREATING AN ACTUAL INVITE DATABASE-WISE
     invite_response = InviteResponse(
