@@ -1,18 +1,18 @@
 from pydantic import BaseModel
-from datetime import date, time
+from datetime import datetime
 
 class CreateRequest(BaseModel):
     title: str
     description: str
-    date: date
-    time: time
-    location: str
+    datetime_start: datetime
+    datetime_end: datetime
+    venue: str
 
 class CreateResponse(BaseModel):
     event_id: int
     title: str
     description: str
-    date: date
-    time: time
-    location: str
+    datetime_start: datetime
+    datetime_end: datetime
+    venue: str
 
