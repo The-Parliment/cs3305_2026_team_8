@@ -2,6 +2,8 @@
 <html lang="en">
     <head>
         <meta charset="utf-8">
+        <title>GoClub</title>
+        <link rel="stylesheet" href="../static/css/goclub.css"/>
         {% if display_map|default(false) %}
             <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
                 integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
@@ -13,22 +15,40 @@
                 height: 50em;
                 width: 50em;
                         }</style>
-        <title>Test</title> 
+        
         {% endif %}
     </head>
-    <header>
-    </header>
-    <body>
-        <div id="map"></div>
-        {% if display_map|default(false) %}
-            <script type="text/javascript">
-                var x = {{ x|default(53.347878221572344)|tojson }};
-                var y = {{ y|default(-6.275954663866795)|tojson }};
-            </script>
-            <script type="text/javascript" src="{{ url_for('static', path='/js/map.js') }}"></script>
-        {% endif %}
-        {% block main_content %}
+    <nav>
+        <button onclick="myFunction()" class="dropbtn">Nav</button>
+        <div id="myDropdown" class="dropdown-content">
+          <a href="/login">Login</a>
+          <a href="#">Link 2</a>
+          <a href="#">Link 3</a>
+        </div>
+    </nav>
+    <script>
+        /* When the user clicks on the button, 
+        toggle between hiding and showing the dropdown content */
+        function myFunction() {
+          document.getElementById("myDropdown").classList.toggle("show");
+        }
         
+        // Close the dropdown if the user clicks outside of it
+        window.onclick = function(event) {
+          if (!event.target.matches('.dropbtn')) {
+            var dropdowns = document.getElementsByClassName("dropdown-content");
+            var i;
+            for (i = 0; i < dropdowns.length; i++) {
+              var openDropdown = dropdowns[i];
+              if (openDropdown.classList.contains('show')) {
+                openDropdown.classList.remove('show');
+              }
+            }
+          }
+        }
+    </script>
+    <body>
+        {% block main_content %}
         {% endblock %}
     </body>
 </html>
