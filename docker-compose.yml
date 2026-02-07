@@ -51,7 +51,13 @@ services:
     networks:
       - circle_network
 
-
+  groups:
+    build: ./backend/groups
+    container_name: groups
+    depends_on: 
+    - auth
+    networks:
+      - circle_network 
 
 networks:
   circle_network:
