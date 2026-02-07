@@ -50,104 +50,72 @@ async def root():
     return {"message": "Events Service API called"}
 
 #There is absolute no HTML served in the microservice, this returns a token
-@app.post("/create")
-async def create_item(inbound: CreateRequest, user_id: int = Depends(get_current_user), response_model = CreateResponse) -> CreateResponse:
+@app.post("/create", response_class = CreateResponse)
+async def create_item(inbound: CreateRequest, event_id: int= Depends(get_event_id)) -> CreateResponse:
     logger.info(f"Create endpoint called for Event: {inbound.title}")
     create_response = CreateResponse( 
-        event_id = user_id,
+        event_id = event_id,
         title = inbound.title,
         description = inbound.description,
         datetime_start = inbound.datetime_start,
         datetime_end = inbound.datetime_end,
         venue = inbound.venue)
-    events.append(create_response)
+    events.append(create_response) # add to database
     return create_response
 
-@app.post("/eventinfo")
-async def event_info(inbound: CreateRequest, user_id: int = Depends(get_current_user), response_model = CreateResponse) -> CreateResponse:
-    event_info_response = CreateResponse( 
-        event_id = user_id, # this is currently invalid
-        title = inbound.title,
-        description = inbound.description,
-        datetime_start = inbound.datetime_start,
-        datetime_end = inbound.datetime_end,
-        venue = inbound.venue)
-    return event_info_response
+@app.get("/eventinfo", response_class = InfoResponse)
+async def event_info(request: Request) -> InfoResponse:
+    return InfoResponse() #to be filled out later
 
 
-@app.post("/search")
-async def search_events(inbound: CreateRequest, user_id: int = Depends(get_current_user), response_model = CreateResponse) -> CreateResponse:
-    search_response = CreateResponse( 
-        event_id = user_id,
-        title = inbound.title,
-        description = inbound.description,
-        datetime_start = inbound.datetime_start,
-        datetime_end = inbound.datetime_end,
-        venue = inbound.venue)
-    return search_response 
+@app.get("/search", response_class = SearchResponse)
+async def search_events(request:Request) -> SearchResponse:
+    return SearchResponse(SearchEvent(), SearchEvent(), SearchEvent()) # needs to be filled out + restructured for scaling
+    
 
-@app.post("/rsvp")
-async def rsvp_events(inbound: CreateRequest, user_id: int = Depends(get_current_user), response_model = CreateResponse) -> CreateResponse:
-    rsvp_response = CreateResponse( 
-        event_id = user_id,
-        title = inbound.title,
-        description = inbound.description,
-        datetime_start = inbound.datetime_start,
-        datetime_end = inbound.datetime_end,
-        venue = inbound.venue)
+@app.post("/rsvp", response_class = RSVPResponse)
+async def rsvp_events(inbound: RSVPRequest) -> RSVPResponse:
+    rsvp_response = RSVPResponse( 
+        message="foodwise wuz here",
+        status="pending"
+        )
     return rsvp_response 
 
-@app.post("/invitecircle")
-async def invite_circle(inbound: CreateRequest, user_id: int = Depends(get_current_user), response_model = CreateResponse) -> CreateResponse:
-    invite_circle_response = CreateResponse( 
-        event_id = user_id,
-        title = inbound.title,
-        description = inbound.description,
-        datetime_start = inbound.datetime_start,
-        datetime_end = inbound.datetime_end,
-        venue = inbound.venue)
+@app.post("/invitecircle", response_class = InviteResponse)
+async def invite_circle(inbound: InviteRequest) -> InviteResponse:
+    invite_circle_response = InviteResponse( 
+        message="Hello everypony",
+        )
     return invite_circle_response 
 
-@app.post("/invitegroup")
-async def invite_group(inbound: CreateRequest, user_id: int = Depends(get_current_user), response_model = CreateResponse) -> CreateResponse:
-    invite_group_response = CreateResponse( 
-        event_id = user_id,
-        title = inbound.title,
-        description = inbound.description,
-        datetime_start = inbound.datetime_start,
-        datetime_end = inbound.datetime_end,
-        venue = inbound.venue)
+@app.post("/invitegroup", response_class = InviteResponse)
+async def invite_group(inbound: InviteRequest) -> InviteResponse:
+    invite_group_response = InviteResponse( 
+        message="Hi single pony",
+        )
     return invite_group_response 
 
-@app.post("/cancel")
-async def cancel_event(inbound: CreateRequest, user_id: int = Depends(get_current_user), response_model = CreateResponse) -> CreateResponse:
-    cancel_event_response = CreateResponse ( 
-        event_id = user_id,
-        title = inbound.title,
-        description = inbound.description,
-        datetime_start = inbound.datetime_start,
-        datetime_end = inbound.datetime_end,
-        venue = inbound.venue)
+@app.post("/cancel", response_class = CancelResponse)
+async def cancel_event(inbound: CancelRequest) -> CancelResponse:
+    cancel_event_response = CancelResponse( 
+        message="No way!",
+        status="cancelled")
     return cancel_event_response
 
-@app.post("/edit")
-async def edit_event(inbound: CreateRequest, user_id: int = Depends(get_current_user), response_model = CreateResponse) -> CreateResponse:
-    edit_event_response = CreateResponse( 
-        event_id = user_id,
-        title = inbound.title,
-        description = inbound.description,
-        datetime_start = inbound.datetime_start,
-        datetime_end = inbound.datetime_end,
-        venue = inbound.venue)
+@app.put("/edit", response_class = InfoResponse)
+async def edit_event(inbound: EditRequest, event_id: int =Depends(get_event_id), venue: int = Depends(get_venue_id)) -> InfoResponse:
+    edit_event_response = InfoResponse( 
+        event_id=event_id,
+        title=inbound.title,
+        description=inbound.description,
+        datetime_start=inbound.datetime_start,
+        datetime_end=inbound.datetime_end,
+        latitude=inbound.latitude,
+        longitude=inbound.longitude,
+        venue_id=venue)
     return edit_event_response
 
-@app.post("/myevents")
-async def my_events(inbound: CreateRequest, user_id: int = Depends(get_current_user), response_model = CreateResponse) -> CreateResponse:
-    my_events_response = CreateResponse( 
-        event_id = user_id,
-        title = inbound.title,
-        description = inbound.description,
-        datetime_start = inbound.datetime_start,
-        datetime_end = inbound.datetime_end,
-        venue = inbound.venue)
-    return my_events_response
+
+@app.get("/myevents", response_class = MyEventsResponse)
+async def my_events(request:Request) -> MyEventsResponse:
+    return MyEventsResponse(CreateResponse(), CreateResponse(), CreateResponse())
