@@ -1,14 +1,12 @@
 from datetime import datetime, timedelta, timezone
+from sqlalchemy import select
+from common.db.db import get_db
+from common.db.structures.structures import User
 import jwt
 from common.JWTSettings import settings
 from passlib.context import CryptContext
 
 pwd = CryptContext(schemes=["bcrypt"], deprecated="auto")
-
-#THIS MUST BE REPLACED WITH CALL TO USER MANAGEMENT SERVICE FOR DATABASE REQUEST
-_EXAMPLE_USERS = {
-    "admin" : pwd.hash("admin"),
-}
 
 def _now() -> datetime:
     return datetime.now(timezone.utc)
@@ -41,7 +39,8 @@ def mint_refresh_token(subject: str) -> str:
     return jwt.encode(payload, settings.jwt_secret, algorithm=settings.jwt_algorithm)
 
 def verify_user(username: str, password: str) -> bool:
-    hashed = _EXAMPLE_USERS.get(username)
-    if not hashed:
+    db = get_db()
+    user = db.query(User).filter(User.username == username).first()
+    if not user:
         return False
-    return pwd.verify(password, hashed)
+    return pwd.verify(password, user.hashed_password)
