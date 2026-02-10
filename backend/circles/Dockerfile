@@ -11,5 +11,5 @@ COPY . .
 # Ensure /app is on import path so /app/common (volume) can be imported
 ENV PYTHONPATH=/app
 
-EXPOSE 8001
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8001"]
+EXPOSE 8002
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8002"]
