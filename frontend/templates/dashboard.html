@@ -4,7 +4,28 @@
 
 <main>
     <p>
-        {{ user }}
+        {{ user }} <br>
+        <!-- Adding stuff to test the database -->
+        <p>Follow requests</p>
+        <ul>
+            {% for req in user_flwr_reqs %}
+                <li>{{ req }}</li>
+            {% endfor %}
+        </ul>
+        
+        <p>Friends</p>
+        <ul>
+            {% for friend in friends %}
+                <li>{{ friend }}</li>
+            {% endfor %}
+        </ul>
+        
+        <p>Your pending requests</p>
+        <ul>
+            {% for req in user_flw_reqs %}
+                <li>{{ req }}</li>
+            {% endfor %}
+        </ul>
     </p>
 </main>
 

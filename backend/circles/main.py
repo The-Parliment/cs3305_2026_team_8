@@ -2,7 +2,7 @@ import logging
 from fastapi import FastAPI, Request, Header, Depends
 from circles_model import InviteRequest, InviteResponse, GetResponse, InviteActionRequest, AcceptResponse, MessageResponse, ViewCircleResponse
 from common.JWTSecurity import decode_and_verify                    # Importing cillians Security libs.
-from common.DatabaseClasses import Events, AttendingEvent, Venue    # Importing cillians DB models.
+from common.db.structures.structures import Events, Venue    # Importing cillians DB models.
 
 logging.basicConfig(level=logging.INFO, format='[circles] %(asctime)s%(levelname)s %(message)s')
 logger = logging.getLogger(__name__)

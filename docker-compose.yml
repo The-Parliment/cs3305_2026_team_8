@@ -44,9 +44,6 @@ services:
     depends_on:
       - auth
       - frontend
-      - proximity
-      - circles
-      - valkey
     networks:
       - circle_network
 

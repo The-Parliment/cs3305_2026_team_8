@@ -7,9 +7,17 @@ conceptualize how frontend and backend interact.
 
 import httpx
 
-async def post(microservice_url: str, route: str, json: dict) -> dict | None:
+async def get(microservice_url: str, route: str, json: dict, params: dict | None=None) -> dict | None:
     async with httpx.AsyncClient(timeout=5.0) as client:
-        r = await client.post(f"{microservice_url}/{route}", json=json)
+        r: httpx.Response = await client.get(f"{microservice_url}/{route}", json=json, params=params)
+    if r.status_code == 401:
+        return None
+    r.raise_for_status()
+    return r.json()
+
+async def post(microservice_url: str, route: str, json: dict, params: dict | None=None) -> dict | None:
+    async with httpx.AsyncClient(timeout=5.0) as client:
+        r: httpx.Response = await client.post(f"{microservice_url}/{route}", json=json, params=params)
     if r.status_code == 401:
         return None
     r.raise_for_status()

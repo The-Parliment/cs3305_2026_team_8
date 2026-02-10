@@ -1,5 +1,4 @@
 from datetime import datetime, timedelta, timezone
-from sqlalchemy import select
 from common.db.db import get_db
 from common.db.structures.structures import User
 import jwt
