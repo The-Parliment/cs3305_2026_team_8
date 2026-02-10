@@ -51,8 +51,6 @@ services:
     networks:
       - circle_network
 
-
-
   groups:
     build: ./backend/groups
     container_name: groups
