@@ -5,14 +5,15 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from starlette.middleware.sessions import SessionMiddleware
 from common.JWTSecurity import decode_and_verify
-from common.clients.auth import auth_login
+from common.clients.client import post
 from common.db.init import init_db
 from forms import LoginForm
 import os
 
 templates = Jinja2Templates(directory="templates")
 
-AUTH_INTERNAL_BASE = os.getenv("AUTH_INTERNAL_BASE", "http://auth:8000")
+AUTH_INTERNAL_BASE = os.getenv("AUTH_INTERNAL_BASE", "http://auth:8001")
+CIRCLES_INTERNAL_BASE = os.getenv("CIRCLES_INTERNAL_BASE", "http://circles:8002")
 
 app = FastAPI(title="frontend_service")
 init_db()
@@ -76,7 +77,8 @@ async def post_login(request : Request):
         )
     
     # Run auth microservice to get token
-    token_payload = await auth_login(AUTH_INTERNAL_BASE, form.username.data, form.password.data)
+    token_payload = await post(AUTH_INTERNAL_BASE, "login", json={"username": form.username.data, 
+                                                                  "password": form.password.data})
     if token_payload is None:
         form.username.errors.append("Invalid username or password.")
         return templates.TemplateResponse(
@@ -84,7 +86,6 @@ async def post_login(request : Request):
         )
     
     request.session["access_token"] = token_payload["access_token"]
-    request.session["logged_in"] = "true"
     if token_payload.get("refresh_token"):
         request.session["refresh_token"] = token_payload["refresh_token"]
 

@@ -6,6 +6,14 @@ services:
       - circle_network
     volumes:
       - ./common:/app/common
+      
+  circles:
+    build: ./backend/circles
+    container_name: circles
+    networks:
+      - circle_network
+    volumes:
+      - ./common:/app/common
 
   frontend:
     build: ./frontend
@@ -13,7 +21,7 @@ services:
     networks:
       - circle_network
     environment:
-      - AUTH_INTERNAL_BASE=http://auth:8000
+      - AUTH_INTERNAL_BASE=http://auth:8001
       - SESSION_SECRET=rosebud
     depends_on:
       - auth
@@ -28,6 +36,9 @@ services:
     depends_on:
       - auth
       - frontend
+      - proximity
+      - circles
+      - valkey
     networks:
       - circle_network
 
