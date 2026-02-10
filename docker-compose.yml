@@ -1,4 +1,12 @@
 services:
+  valkey:
+    image: valkey/valkey:latest
+    container_name: valkey
+    ports:
+      - "6379:6379"
+    networks:
+      - circle_network
+  
   auth:
     build: ./backend/auth
     container_name: auth
@@ -30,6 +38,20 @@ services:
       - frontend
     networks:
       - circle_network
+
+  proximity:
+    build: ./backend/proximity
+    environment:
+      - VALKEY_HOST=valkey  # ✅ Use the service name, not localhost
+      - VALKEY_PORT=6379
+    container_name: proximity
+    depends_on:
+      - auth
+      - valkey
+    networks:
+      - circle_network
+
+
 
 networks:
   circle_network:
