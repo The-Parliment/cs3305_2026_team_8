@@ -482,6 +482,17 @@
 </li>
 <li class="md-nav__item md-nav__item--active">
 <input class="md-nav__toggle md-toggle" id="__toc" type="checkbox"/>
+<label class="md-nav__link md-nav__link--active" for="__toc">
+<span class="md-ellipsis">
+    
+  
+    Proximity Design
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
 <a class="md-nav__link md-nav__link--active" href="./">
 <span class="md-ellipsis">
     
@@ -492,6 +503,63 @@
     
   </span>
 </a>
+<nav aria-label="Table of contents" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#why-valkey-over-standard-database">
+<span class="md-ellipsis">
+      
+        Why Valkey Over Standard Database?
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#sequence-diagrams">
+<span class="md-ellipsis">
+      
+        Sequence Diagrams
+      
+    </span>
+</a>
+<nav aria-label="Sequence Diagrams" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#update-location">
+<span class="md-ellipsis">
+      
+        Update Location
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#get-friends-inside-radius">
+<span class="md-ellipsis">
+      
+        Get Friends Inside Radius
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#notes">
+<span class="md-ellipsis">
+      
+        Notes
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
 </li>
 </ul>
 </nav>
@@ -505,6 +573,61 @@
 <div class="md-sidebar__scrollwrap">
 <div class="md-sidebar__inner">
 <nav aria-label="Table of contents" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#why-valkey-over-standard-database">
+<span class="md-ellipsis">
+      
+        Why Valkey Over Standard Database?
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#sequence-diagrams">
+<span class="md-ellipsis">
+      
+        Sequence Diagrams
+      
+    </span>
+</a>
+<nav aria-label="Sequence Diagrams" class="md-nav">
+<ul class="md-nav__list">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#update-location">
+<span class="md-ellipsis">
+      
+        Update Location
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#get-friends-inside-radius">
+<span class="md-ellipsis">
+      
+        Get Friends Inside Radius
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#notes">
+<span class="md-ellipsis">
+      
+        Notes
+      
+    </span>
+</a>
+</li>
+</ul>
 </nav>
 </div>
 </div>
@@ -530,32 +653,75 @@
 </nav>
 <article class="md-content__inner md-typeset">
 <h1 id="proximity-service">Proximity Service<a class="headerlink" href="#proximity-service" title="Permanent link">¶</a></h1>
-<p>The Proximity Service offers the ability to a user, to update its geolocation.
+<p>The Proximity Service offers the ability to a user to update its geolocation.
 Holding all the locations of all users, the proximity service allows a specific user to retrieve the location
 of friends in their circle.</p>
-<h1 id="sequence-diagrams">Sequence Diagrams<a class="headerlink" href="#sequence-diagrams" title="Permanent link">¶</a></h1>
-<h2 id="update-location">Update location<a class="headerlink" href="#update-location" title="Permanent link">¶</a></h2>
-<h2 id="get-friends-inside-radius">Get friend's inside radius<a class="headerlink" href="#get-friends-inside-radius" title="Permanent link">¶</a></h2>
+<h2 id="why-valkey-over-standard-database">Why Valkey Over Standard Database?<a class="headerlink" href="#why-valkey-over-standard-database" title="Permanent link">¶</a></h2>
+<p><strong>Valkey is chosen for the Proximity Service due to its specialized geospatial capabilities:</strong></p>
+<ol>
+<li>
+<p><strong>Built-in Geospatial Commands</strong>: Valkey provides native <code>GEOADD</code>, <code>GEORADIUS</code>, and <code>GEODIST</code> commands optimized for location-based queries. A standard relational database would require complex mathematical formulas (like calculating distances on a sphere) or special plugins. Basically, you'd have to do a lot of extra work that Valkey already handles for you.</p>
+</li>
+<li>
+<p><strong>Sub-millisecond Performance</strong>: In-memory storage enables extremely fast reads/writes for location updates. Users update locations frequently (every few seconds while moving), the more users updating, the more of a bottleneck writing to the db on disk would becom..</p>
+</li>
+<li>
+<p><strong>High Write Throughput</strong>: Location updates are write-heavy. Valkey handles millions of writes/second, whereas traditional databases would require more elaborate solutions like connection pooling to handle.</p>
+</li>
+<li>
+<p><strong>TTL Support</strong>: Locations can auto-expire if users go offline (using <code>EXPIRE</code>), keeping data fresh without manual cleanup jobs.</p>
+</li>
+</ol>
+<h2 id="sequence-diagrams">Sequence Diagrams<a class="headerlink" href="#sequence-diagrams" title="Permanent link">¶</a></h2>
+<h3 id="update-location">Update Location<a class="headerlink" href="#update-location" title="Permanent link">¶</a></h3>
 <pre class="mermaid"><code>sequenceDiagram
-    participant Client
-    participant Gateway
+    participant Proximity
+    participant Auth
+    participant Valkey
+
+    Note right of Proximity: POST /updatelocation received&lt;br/&gt;{user_id, lat, lon}
+
+    alt Username NOT in local cache
+        Proximity-&gt;&gt;Auth: POST /getusername&lt;br/&gt;{user_id}
+        Auth--&gt;&gt;Proximity: {username}
+        Proximity-&gt;&gt;Proximity: Store in local cache
+    end
+
+    Proximity-&gt;&gt;Valkey: GEOADD locations:live &lt;lon&gt; &lt;lat&gt; &lt;user_id&gt;
+    Valkey--&gt;&gt;Proximity: OK
+
+    Note right of Proximity: 200 OK returned</code></pre>
+<p><strong>Key Design:</strong>
+- <strong>Geospatial key</strong>: <code>locations:live</code> (global sorted set storing all user locations)
+- <strong>Username cache key</strong>: <code>user:phonebook</code> (hash mapping user_id → username)
+- Valkey command: <code>GEOADD user:locations &lt;longitude&gt; &lt;latitude&gt; &lt;user_id&gt;</code>
+  - Note: GEO commands expect longitude first, then latitude
+  - user_id serves as the member identifier in the sorted set</p>
+<h3 id="get-friends-inside-radius">Get Friends Inside Radius<a class="headerlink" href="#get-friends-inside-radius" title="Permanent link">¶</a></h3>
+<pre class="mermaid"><code>sequenceDiagram
     participant Proximity
     participant Circle
     participant Valkey
 
-    Client-&gt;&gt;Gateway: GET /friendslocation?radius=500Authorization: JWT
-    Gateway-&gt;&gt;Proximity: Forward request + JWT
+    Note right of Proximity: GET /friendslocation received&lt;br/&gt;{user_id, lat, lon, radius}
 
-    Proximity-&gt;&gt;Proximity: user_id = decode_jwt()
-    Proximity-&gt;&gt;Circle: GET /mycircle
-    Circle--&gt;&gt;Proximity: [{user_id, user_name}]
+    Proximity-&gt;&gt;Circle: GET /mycircle&lt;br/&gt;{user_id}
+    Circle--&gt;&gt;Proximity: [{user_id, username}]
 
-    Proximity-&gt;&gt;Valkey: GEORADIUS (radius)
-    Valkey--&gt;&gt;Proximity: [{user_id, lat, lon}]
+    Proximity-&gt;&gt;Valkey: GEORADIUS live_locations &lt;lon&gt; &lt;lat&gt; &lt;radius&gt; m
+    Valkey--&gt;&gt;Proximity: [user_id_1, user_id_2, ...]
 
     Proximity-&gt;&gt;Proximity: Filter: circle ∩ nearby
-    Proximity--&gt;&gt;Gateway: Friends within radius
-    Gateway--&gt;&gt;Client: 200 OK</code></pre>
+
+    Proximity-&gt;&gt;Proximity: Return friends within radus
+
+    Note right of Proximity: 200 OK&lt;br/&gt;[{user_id, username, lat, lon, distance}]</code></pre>
+<p>```</p>
+<h2 id="notes">Notes<a class="headerlink" href="#notes" title="Permanent link">¶</a></h2>
+<ul>
+<li>Location updates should include timestamp expiry (e.g., <code>EXPIRE user:locations:&lt;user_id&gt; 3600</code>) to auto-remove stale locations</li>
+<li>Local username cache in Proximity service reduces Auth service calls</li>
+</ul>
 </article>
 </div>
 <script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
