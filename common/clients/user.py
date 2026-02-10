@@ -1,7 +1,7 @@
 
 from ..db.db import get_db
 from ..db.structures.structures import User, Request, RequestTypes, Status
-from sqlalchemy import select
+from sqlalchemy import select, insert, delete, update
 import json
 
 '''
