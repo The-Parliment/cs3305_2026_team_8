@@ -6,8 +6,9 @@ from fastapi.templating import Jinja2Templates
 from starlette.middleware.sessions import SessionMiddleware
 from common.JWTSecurity import decode_and_verify
 from common.clients.client import post
-from common.db.init import init_db
+from common.clients.user import user_follow_requests, user_follower_requests, user_followers, user_following, user_friends
 from forms import LoginForm
+from common.db.init import init_db
 import os
 
 templates = Jinja2Templates(directory="templates")
@@ -93,6 +94,12 @@ async def post_login(request : Request):
 
 @app.get("/dashboard", response_class=HTMLResponse)
 async def get_dashboard(request : Request, claims : dict = Depends(require_frontend_auth)):
+    user_flw_reqs = user_follow_requests(claims.get("sub"))
+    user_flwr_reqs = user_follower_requests(claims.get("sub"))
+    friends = user_friends(claims.get("sub"))
     return templates.TemplateResponse(
-            request=request, name="dashboard.html", context={"user" : claims.get("sub")}
+            request=request, name="dashboard.html", context={"user" : claims.get("sub"),
+                                                             "user_flw_reqs" : user_flw_reqs,
+                                                             "user_flwr_reqs" : user_flwr_reqs,
+                                                             "friends" : friends}
         )
