@@ -50,17 +50,27 @@ def require_frontend_auth(request: Request) -> dict:
 
     return claims
 
-@app.get("/", response_class=HTMLResponse)
-async def index(request: Request):
-    return templates.TemplateResponse(
-        request=request, name="index.html", context={"display_map": True}
-    )
 
 @app.get("/home", response_class=HTMLResponse)
 async def index(request: Request):
     return templates.TemplateResponse(
         request=request, name="home.html", context={"display_map": True}
     )
+
+
+@app.get("/events", response_class=HTMLResponse)
+async def index(request: Request):
+    return templates.TemplateResponse(
+        request=request, name="events.html"
+    )
+
+@app.get("/friends", response_class=HTMLResponse)
+async def index(request: Request):
+    return templates.TemplateResponse(
+        request=request, name="friends.html"
+    )
+
+
 
 @app.get("/login", name="login", response_class=HTMLResponse)
 async def get_login(request: Request):
