@@ -56,6 +56,11 @@ async def index(request: Request):
         request=request, name="index.html", context={"display_map": True}
     )
 
+@app.get("/home", response_class=HTMLResponse)
+async def index(request: Request):
+    return templates.TemplateResponse(
+        request=request, name="home.html", context={"display_map": True}
+    )
 
 @app.get("/login", name="login", response_class=HTMLResponse)
 async def get_login(request: Request):

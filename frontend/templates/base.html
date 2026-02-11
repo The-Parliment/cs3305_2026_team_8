@@ -22,31 +22,29 @@
         <button onclick="myFunction()" class="dropbtn">Nav</button>
         <div id="myDropdown" class="dropdown-content">
           <a href="/login">Login</a>
-          <a href="#">Link 2</a>
+          <a href="/home">Map</a>
           <a href="#">Link 3</a>
         </div>
-    </nav>
-    <script>
-        /* When the user clicks on the button, 
-        toggle between hiding and showing the dropdown content */
-        function myFunction() {
-          document.getElementById("myDropdown").classList.toggle("show");
-        }
-        
-        // Close the dropdown if the user clicks outside of it
-        window.onclick = function(event) {
-          if (!event.target.matches('.dropbtn')) {
-            var dropdowns = document.getElementsByClassName("dropdown-content");
-            var i;
-            for (i = 0; i < dropdowns.length; i++) {
-              var openDropdown = dropdowns[i];
-              if (openDropdown.classList.contains('show')) {
-                openDropdown.classList.remove('show');
+      <script>
+          
+          function myFunction() {
+            document.getElementById("myDropdown").classList.toggle("show");
+          }
+          
+          window.onclick = function(event) {
+            if (!event.target.matches('.dropbtn')) {
+              var dropdowns = document.getElementsByClassName("dropdown-content");
+              var i;
+              for (i = 0; i < dropdowns.length; i++) {
+                var openDropdown = dropdowns[i];
+                if (openDropdown.classList.contains('show')) {
+                  openDropdown.classList.remove('show');
+                }
               }
             }
           }
-        }
-    </script>
+      </script>
+    </nav>
     <body>
         {% block main_content %}
         {% endblock %}
