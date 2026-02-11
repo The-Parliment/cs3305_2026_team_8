@@ -19,7 +19,7 @@ class Status(enum.Enum):
     For instance, to find out if two users are friends, query if User A's follow request to User B
     has been accepted, and vice versa. 
 '''
-class Request(Base):
+class UserRequest(Base):
     __tablename__ = "requests"
 
     field1 = Column("field1", String, primary_key=True) # Sender
