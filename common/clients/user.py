@@ -6,7 +6,15 @@ import json
 
 '''
     Common functions to do with Users
+
 '''
+
+def user_exists(user):
+    db = get_db()
+    stmt = select(User).filter_by(username=user).limit(1)
+    result = db.scalar(stmt)
+    return result is not None
+
 def user_follows(user1, user2):
     db = get_db()
     stmt = select(Request).filter_by(field1=user1, field2=user2, 
