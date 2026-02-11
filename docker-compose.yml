@@ -53,12 +53,13 @@ services:
 
   groups:
     build:
-      context: .                    # ← Build from project root
+      context: .
       dockerfile: backend/groups/Dockerfile
-    ports:
-      - "8003:8003"
+    container_name: groups
+    networks:
+      - circle_network
     volumes:
-      - ./common:/app/common        # Optional: for development
+      - ./common:/app/common   
 
 networks:
   circle_network:

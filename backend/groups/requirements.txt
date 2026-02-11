@@ -3,5 +3,4 @@ uvicorn
 python-dotenv
 pydantic
 sqlalchemy
--e ./common
 

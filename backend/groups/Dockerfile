@@ -1,4 +1,4 @@
-                                                                                                                 FROM python:3.11-slim
+FROM python:3.11-slim
 
 WORKDIR /app
 
@@ -6,13 +6,13 @@ WORKDIR /app
 COPY common/ /app/common/
 
 # Copy groups service requirements
-COPY backend/groups/requirements.txt .
+COPY requirements.txt .
 
 # Install Python dependencies (this will install common as editable package)
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy groups service code
-COPY backend/groups/ /app/
+COPY backend/groups/ .
 
 # Ensure /app is on import path
 ENV PYTHONPATH=/app
