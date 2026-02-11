@@ -1,4 +1,5 @@
 from pydantic import BaseModel
+from datetime import datetime
 
 class RegisterRequest(BaseModel):
     user_id: int
@@ -17,6 +18,7 @@ class Friend(BaseModel):
     latitude: float
     longitude: float
     distance: float
+    datetime: datetime
 
 class FriendsList(BaseModel):
     friends: list[Friend]

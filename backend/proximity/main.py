@@ -5,6 +5,7 @@ from .structures import RegisterRequest, GetFriendsRequest, UpdateLocationReques
 import redis 
 from common.clients.user import user_friends
 from tokens import get_username
+from datetime import datetime
 
 VALKEY_HOST = os.getenv("VALKEY_HOST", "localhost")
 VALKEY_PORT = int(os.getenv("VALKEY_PORT", 6379))
@@ -52,5 +53,5 @@ async def get_friends(request: GetFriendsRequest) -> FriendsList:
             friend_latitude = friend[2][1]
             friend_longitude = friend[2][0]
             friends_list.append(Friend(username=friend_username, latitude=friend_latitude, 
-                                    longitude=friend_longitude, distance=friend_distance))
+                                    longitude=friend_longitude, distance=friend_distance, datetime=datetime.now()))
     return FriendsList(friends=friends_list, count=len(friends_list))
