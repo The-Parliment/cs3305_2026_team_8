@@ -15,7 +15,7 @@ templates = Jinja2Templates(directory="templates")
 
 AUTH_INTERNAL_BASE = os.getenv("AUTH_INTERNAL_BASE", "http://auth:8001")
 CIRCLES_INTERNAL_BASE = os.getenv("CIRCLES_INTERNAL_BASE", "http://circles:8002")
-
+PROXIMITY_INTERNAL_BASE = os.getenv("PROXIMITY_INTERNAL_BASE", "http://proximity:8004")
 app = FastAPI(title="frontend_service")
 init_db()
 

@@ -31,6 +31,7 @@ services:
     environment:
       - AUTH_INTERNAL_BASE=http://auth:8001
       - CIRCLES_INTERNAL_BASE=http://circles:8002
+      - PROXIMITY_INTERNAL_BASE=http://proximity:8004
       - SESSION_SECRET=rosebud
     depends_on:
       - auth
