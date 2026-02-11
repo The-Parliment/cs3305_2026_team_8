@@ -14,18 +14,6 @@ logger = logging.getLogger(__name__)
 # invite_id in this must be figured out + fleshed out later when db is working
 app = FastAPI(root_path="/circles", title="circles_service")
 
-def get_current_user() -> str:
-    return "pee"
-
-def get_user() -> str:
-    return "poo"
-
-def get_invite_id() -> int:
-    return 1234
-
-def get_circle_id() -> int:
-    return 7890
-
 @app.get("/")
 async def root():
     return {"message": "Circles Service API called"}
