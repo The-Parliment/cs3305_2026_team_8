@@ -52,12 +52,13 @@ services:
       - circle_network
 
   groups:
-    build: ./backend/groups
-    container_name: groups
-    depends_on: 
-    - auth
-    networks:
-      - circle_network 
+    build:
+      context: .                    # ← Build from project root
+      dockerfile: backend/groups/Dockerfile
+    ports:
+      - "8003:8003"
+    volumes:
+      - ./common:/app/common        # Optional: for development
 
 networks:
   circle_network:

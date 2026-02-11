@@ -80,6 +80,28 @@ class Friends(Base):
     def __repr__(self):
         return f"{self.user1} and {self.user2} are friends."
 
+class Groups(Base):
+    __tablename__ = "groups"
+
+    group_id = Column(Integer, primary_key=True, index=True)
+    group_name = Column( String, nullable=False, index=True)
+    group_desc = Column(String, index=True)
+    is_private = Column(Boolean, index=True, default=False)   # True = Private, False = Public.
+    owner = Column(String, ForeignKey("users.username"), index=True)  # Will change on cillians push
+    dob = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+
+    def __init__(self, group_id, group_name, group_desc, is_private, owner, dob):
+        self.group_id = group_id
+        self.group_name = group_name
+        self.group_desc = group_desc
+        self.is_private = is_private
+        self.owner = owner
+        self.dob = dob
+
+    def __repr__(self):
+        return f"<User(group_id={self.group_id}, group_name='{self.group_name}')>"
+
+
 class InnerCircle(Base):
     __tablename__ = "inner_circle"
 
