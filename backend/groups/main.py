@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 from models import *
 import crud
 
-logging.basicConfig(level=logging.INFO, format='[proximity] %(asctime)s%(levelname)s %(message)s')
+logging.basicConfig(level=logging.INFO, format='[groups] %(asctime)s%(levelname)s %(message)s')
 logger = logging.getLogger(__name__)
 
 from common.db.db import get_db
