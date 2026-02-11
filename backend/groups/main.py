@@ -8,21 +8,19 @@ import crud
 logging.basicConfig(level=logging.INFO, format='[proximity] %(asctime)s%(levelname)s %(message)s')
 logger = logging.getLogger(__name__)
 
-from sqlalchemy.orm import Session
-from schema import DBGroup
-from db import SessionLocal
+from common.db.db import get_db
+from common.db.init import init_db
+from common.db.structures.structures import Group  # Import the Group model
 
 app = FastAPI(root_path="/groups", title="groups_service")
 
 # Pydantic models inbound request 
 # class GroupCreate(BaseModel):
 
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
+@app.on_event("startup")
+def startup_groups():
+    """Initialize database tables on Groups startup"""
+    init_db()
 
 @app.get("/")
 async def root():
