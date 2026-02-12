@@ -62,7 +62,15 @@ services:
     networks:
       - circle_network
 
-
+  groups:
+    build:
+      context: .
+      dockerfile: backend/groups/Dockerfile
+    container_name: groups
+    networks:
+      - circle_network
+    volumes:
+      - ./common:/app/common   
 
 networks:
   circle_network:
