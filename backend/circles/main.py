@@ -1,8 +1,12 @@
 import logging
-from fastapi import FastAPI, Request, Header, Depends
-from circles_model import InviteRequest, InviteResponse, GetResponse, InviteActionRequest, AcceptResponse, MessageResponse, ViewCircleResponse
+from fastapi import FastAPI, HTTPException, Request, Header, Depends
+from circles_model import MessageResponse, UsernameListResponse, CircleRequest
 from common.JWTSecurity import decode_and_verify                    # Importing cillians Security libs.
-from common.db.structures.structures import Events, Venue    # Importing cillians DB models.
+from common.db.structures.structures import Events, Venue, UserRequest, RequestTypes, Status    # Importing cillians DB models.
+from common.db.db import get_db
+from common.clients.user import user_exists
+from sqlalchemy import select, insert, delete, update
+import json
 
 logging.basicConfig(level=logging.INFO, format='[circles] %(asctime)s%(levelname)s %(message)s')
 logger = logging.getLogger(__name__)
@@ -10,63 +14,121 @@ logger = logging.getLogger(__name__)
 # invite_id in this must be figured out + fleshed out later when db is working
 app = FastAPI(root_path="/circles", title="circles_service")
 
-def get_current_user() -> str:
-    return "pee"
+def get_user_claims(request: Request) -> dict:
+    access = request.cookies.get("access_token")
+    if not access:
+        raise HTTPException(status_code=401)
 
-def get_user() -> str:
-    return "poo"
+    return decode_and_verify(token=access, expected_type="access")
 
-
-def get_invite_id() -> int:
-    return 1234
-
-def get_circle_id() -> int:
-    return 7890
+def invitations_sent(user):
+    db = get_db()
+    result = select(UserRequest.field2).filter_by(field1=user, 
+                                             type=RequestTypes.CIRCLE_INVITE, status=Status.PENDING)
+    return db.scalars(result).all()
 
 @app.get("/")
 async def root():
     return {"message": "Circles Service API called"}
 
-@app.post("/invite", response_class = InviteResponse)
-async def invite_to_circle(inbound: InviteRequest) -> InviteResponse:
-    logger.info(f"Create endpoint called for Circle: {inbound.inviter}")
-    #THIS WILL HAVE CODE FOR CREATING AN ACTUAL INVITE DATABASE-WISE
-    invite_response = InviteResponse(
-        invite_id=get_invite_id(), # to be fleshed out later, placeholder
-        status="pending"
+@app.post("/invite", response_model=MessageResponse)
+async def invite_to_circle(inbound: CircleRequest) -> MessageResponse:
+    db = get_db()
+    if not user_exists(inbound.inviter):
+        return MessageResponse(f"User {inbound.inviter} does not exist.")
+    if not user_exists(inbound.invitee):
+        return MessageResponse(f"User {inbound.invitee} does not exist.")
+    stmt = insert(UserRequest).values(
+        field1=inbound.inviter,
+        field2=inbound.invitee,
+        type=RequestTypes.CIRCLE_INVITE,
+        status=Status.PENDING
     )
-    return invite_response
-
-@app.get("/get_invites", response_class = GetResponse)
-async def get_invites(request: Request) -> GetResponse:
-    return GetResponse([get_invite_id(), get_invite_id()+1, get_invite_id()+2])
-
-@app.post("/accept", response_class = AcceptResponse)
-async def accept_invite(inbound: InviteActionRequest) -> AcceptResponse:
-    #Will add person to circle
-    accept_response=AcceptResponse(
-        circle_id=get_circle_id()
+    db.execute(stmt)
+    db.commit()
+    return MessageResponse(
+        message=f"Invited {inbound.invitee} to circle."
     )
-    return accept_response
 
-@app.post("/decline", response_class = MessageResponse)
-async def decline_invite(inbound: InviteActionRequest) -> MessageResponse:
-    #This will have logic for deleting an invite from the database
-    decline_response=MessageResponse(
-        message="foodwise wuz here"
+@app.get("/get_invites", response_model=UsernameListResponse)
+async def get_invites(request: Request) -> UsernameListResponse:
+    db = get_db()
+    user = get_user_claims(request).get("sub")
+    result = select(UserRequest.field1).filter_by(field2=user, 
+                                                type=RequestTypes.CIRCLE_INVITE, status=Status.PENDING)
+    users = db.scalars(result).all()
+    return UsernameListResponse(user_names=users)
+
+@app.get("/get_invites_sent", response_model=UsernameListResponse)
+async def get_invites_sent(request: Request) -> UsernameListResponse:
+    user = get_user_claims(request).get("sub")
+    users = invitations_sent(user)
+    return UsernameListResponse(user_names=users)
+
+@app.post("/accept", response_model=MessageResponse)
+async def accept_invite(inbound: CircleRequest) -> MessageResponse:
+    db = get_db()
+    if not user_exists(inbound.inviter):
+        return MessageResponse(f"User {inbound.inviter} does not exist.")
+    if not user_exists(inbound.invitee):
+        return MessageResponse(f"User {inbound.invitee} does not exist.")
+    stmt = update(UserRequest).values(
+        field1=inbound.inviter,
+        field2=inbound.invitee,
+        type=RequestTypes.CIRCLE_INVITE,
+        status=Status.ACCEPTED
+    ).where(
+        UserRequest.field1 == inbound.inviter, 
+        UserRequest.field2 == inbound.invitee, 
+        UserRequest.type == RequestTypes.CIRCLE_INVITE,
+        UserRequest.status == Status.PENDING)
+    db.execute(stmt)
+    db.commit()
+    return MessageResponse(
+        message=f"Joined {inbound.inviter}'s circle."
     )
-    return decline_response
 
-@app.get("/mycircle", response_class = ViewCircleResponse)
-async def view_circle(request:Request) -> ViewCircleResponse:
-    return ViewCircleResponse([get_user(), get_user()+"1", get_user()+"2"])
-
-@app.post("/remove", response_class = MessageResponse)
-async def remove_from_circle(inbound:InviteRequest) -> MessageResponse:
-    #This will have logic for removing an individual from a circle
-    remove_response=MessageResponse(
-        message="haha!"
+@app.post("/decline", response_model=MessageResponse)
+async def decline_invite(inbound: CircleRequest) -> MessageResponse:
+    db = get_db()
+    if not user_exists(inbound.inviter):
+        return MessageResponse(f"User {inbound.inviter} does not exist.")
+    if not user_exists(inbound.invitee):
+        return MessageResponse(f"User {inbound.invitee} does not exist.")
+    stmt = delete(UserRequest).where(
+        UserRequest.field1 == inbound.inviter,
+        UserRequest.field2 == inbound.invitee,
+        UserRequest.type == RequestTypes.CIRCLE_INVITE,
+        UserRequest.status == Status.PENDING)
+    db.execute(stmt)
+    db.commit()
+    return MessageResponse(
+        message=f"Invite to join {inbound.inviter}'s circle has been rejected."
     )
-    return remove_response
 
+@app.get("/mycircle", response_model=UsernameListResponse)
+async def get_circle(request:Request) -> UsernameListResponse:
+    db = get_db()
+    user = get_user_claims(request).get("sub")
+    result = select(UserRequest.field2).filter_by(field1=user, 
+                                            type=RequestTypes.CIRCLE_INVITE, status=Status.ACCEPTED)
+    names = db.scalars(result).all()
+    return UsernameListResponse(user_names=names)
 
+@app.post("/remove", response_model=MessageResponse)
+async def remove_from_circle(inbound:CircleRequest) -> MessageResponse:
+    db = get_db()
+    if not user_exists(inbound.inviter):
+        return MessageResponse(f"User {inbound.inviter} does not exist.")
+    if not user_exists(inbound.invitee):
+        return MessageResponse(f"User {inbound.invitee} does not exist.")
+    stmt = delete(UserRequest).where(
+        UserRequest.field1 == inbound.inviter,
+        UserRequest.field2 == inbound.invitee,
+        UserRequest.type == RequestTypes.CIRCLE_INVITE,
+        UserRequest.status == Status.ACCEPTED)
+    db.execute(stmt)
+    db.commit()
+    return MessageResponse(
+        message=f"{inbound.invitee} has been removed from your circle."
+    )

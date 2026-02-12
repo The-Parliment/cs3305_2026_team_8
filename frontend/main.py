@@ -1,11 +1,10 @@
-from fastapi import Depends, FastAPI
-from fastapi import FastAPI, Request
+from fastapi import Depends, FastAPI, HTTPException, status, Request
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from starlette.middleware.sessions import SessionMiddleware
 from common.JWTSecurity import decode_and_verify
-from common.clients.client import post
+from common.clients.client import post, get
 from common.clients.user import user_follow_requests, user_follower_requests, user_followers, user_following, user_friends
 from forms import LoginForm
 from common.db.init import init_db
@@ -22,7 +21,7 @@ init_db()
 #This basically allows us to hold JWT's in a session, a soft substitute for Flask's "g" object
 app.add_middleware(
     SessionMiddleware,
-    secret_key=os.getenv("SESSION_SECRET", "rosebud"),
+    secret_key=os.getenv("JWT_SECRET", "rosebud"),
     same_site="lax",
     https_only=False,  # True in production behind HTTPS
 )
@@ -35,22 +34,24 @@ app.mount(
 )
 
 def require_frontend_auth(request: Request) -> dict:
-    '''
-    Protects frontend routes.
-    Reads JWT from frontend session cookie, verifies with common.decode_and_verify.
-    Redirects to /login if invalid/expired.
-    '''
-    access = request.session.get("access_token")
-    if not access:
-        raise RedirectResponse(url="/login", status_code=303)
+    token = request.cookies.get("access_token")
+    
+    if not token:
+        print("DEBUG: No access_token found in cookies")
+        raise HTTPException(
+            status_code=status.HTTP_303_SEE_OTHER,
+            headers={"Location": f"/login?next={request.url.path}"}
+        )
 
     try:
-        claims = decode_and_verify(access, expected_type="access")
-    except ValueError:
-        request.session.clear()
-        raise RedirectResponse(url="/login", status_code=303)
-
-    return claims
+        return decode_and_verify(token=token, expected_type="access")
+    except Exception as e:
+        # This print statement is the most important part for debugging!
+        print(f"DEBUG: Token verification failed: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_303_SEE_OTHER,
+            headers={"Location": f"/login?next={request.url.path}"}
+        )
 
 @app.get("/", response_class=HTMLResponse)
 async def index(request: Request):
@@ -85,15 +86,29 @@ async def post_login(request : Request):
         return templates.TemplateResponse(
             request=request, name="forms/login.html", context={"form" : form}, status_code=401
         )
-    
-    request.session["access_token"] = token_payload["access_token"]
-    if token_payload.get("refresh_token"):
-        request.session["refresh_token"] = token_payload["refresh_token"]
+    response = RedirectResponse(url=request.query_params.get("next", "/dashboard"), status_code=303)
 
-    return RedirectResponse(url="/dashboard", status_code=303)
+    response.set_cookie(
+        key="access_token",
+        value=token_payload["access_token"],
+        httponly=True,
+        path="/",
+        samesite="lax",
+    )
+    if token_payload.get("refresh_token"):
+        response.set_cookie(
+        key="refresh_token",
+        value=token_payload["refresh_token"],
+        httponly=True,
+        path="/",
+        samesite="lax",
+    )
+
+    return response
 
 @app.get("/dashboard", response_class=HTMLResponse)
 async def get_dashboard(request : Request, claims : dict = Depends(require_frontend_auth)):
+    #All temp for testing
     user_flw_reqs = user_follow_requests(claims.get("sub"))
     user_flwr_reqs = user_follower_requests(claims.get("sub"))
     friends = user_friends(claims.get("sub"))
@@ -103,3 +118,41 @@ async def get_dashboard(request : Request, claims : dict = Depends(require_front
                                                              "user_flwr_reqs" : user_flwr_reqs,
                                                              "friends" : friends}
         )
+
+@app.get("/circle", response_class=HTMLResponse)
+async def get_circle(request: Request, claims: dict = Depends(require_frontend_auth)):
+    token = request.cookies.get("access_token")
+    friends = user_friends(claims.get("sub"))
+    mycircle_data = await get(CIRCLES_INTERNAL_BASE, "mycircle", headers={"Cookie" : f"access_token={token}"})
+    circle = mycircle_data.get("user_names", []) if mycircle_data else []
+    pending_invites_data = await get(CIRCLES_INTERNAL_BASE, "get_invites", headers={"Cookie" : f"access_token={token}"})
+    pending_invites = pending_invites_data.get("user_names", []) if pending_invites_data else []
+    invitations_sent_data = await get(CIRCLES_INTERNAL_BASE, "get_invites_sent", headers={"Cookie" : f"access_token={token}"})
+    invitations_sent = invitations_sent_data.get("user_names", []) if invitations_sent_data else [] 
+    return templates.TemplateResponse(
+        request=request, name="circle.html", context={"friends": friends, "circle": circle, "pending_invites": pending_invites, "invitations_sent": invitations_sent}
+    )
+
+@app.get("/circle/invite_to_circle/{username}", response_class=HTMLResponse)
+async def invite_to_circle(request: Request, username: str, claims: dict = Depends(require_frontend_auth)):
+    token = request.cookies.get("access_token")
+    await post(CIRCLES_INTERNAL_BASE, "invite", headers={"Cookie" : f"access_token={token}"}, json={"inviter": claims.get("sub"), "invitee": username})
+    return RedirectResponse(url="/circle", status_code=303)
+
+@app.get("/circle/accept/{username}", response_class=HTMLResponse)
+async def accept_invite(request: Request, username: str, claims: dict = Depends(require_frontend_auth)):
+    token = request.cookies.get("access_token")
+    await post(CIRCLES_INTERNAL_BASE, "accept", headers={"Cookie" : f"access_token={token}"}, json={"inviter": username, "invitee": claims.get("sub")})
+    return RedirectResponse(url="/circle", status_code=303)
+
+@app.get("/circle/remove_from_circle/{username}", response_class=HTMLResponse)
+async def remove_from_circle(request: Request, username: str, claims: dict = Depends(require_frontend_auth)):
+    token = request.cookies.get("access_token")
+    await post(CIRCLES_INTERNAL_BASE, "remove", headers={"Cookie" : f"access_token={token}"}, json={"inviter": claims.get("sub"), "invitee": username})
+    return RedirectResponse(url="/circle", status_code=303) 
+
+@app.get("/circle/decline/{username}", response_class=HTMLResponse)
+async def decline_invite(request: Request, username: str, claims: dict = Depends(require_frontend_auth)):
+    token = request.cookies.get("access_token")
+    await post(CIRCLES_INTERNAL_BASE, "decline", headers={"Cookie" : f"access_token={token}"}, json={"inviter": username, "invitee": claims.get("sub")})
+    return RedirectResponse(url="/circle", status_code=303)

@@ -14,12 +14,16 @@ services:
       - circle_network
     volumes:
       - ./common:/app/common
+    environment:
+      - JWT_SECRET=rosebud
       
   circles:
     build: ./backend/circles
     container_name: circles
     networks:
       - circle_network
+    environment:
+      - JWT_SECRET=rosebud
     volumes:
       - ./common:/app/common
 
@@ -31,7 +35,7 @@ services:
     environment:
       - AUTH_INTERNAL_BASE=http://auth:8001
       - CIRCLES_INTERNAL_BASE=http://circles:8002
-      - SESSION_SECRET=rosebud
+      - JWT_SECRET=rosebud
     depends_on:
       - auth
       - circles

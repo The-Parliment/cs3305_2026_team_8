@@ -21,11 +21,11 @@ class Status(enum.Enum):
     For instance, to find out if two users are friends, query if User A's follow request to User B
     has been accepted, and vice versa. 
 '''
-class Request(Base):
+class UserRequest(Base):
     __tablename__ = "requests"
 
-    field1 = Column("field1", String, primary_key=True)
-    field2 = Column("field2", String, primary_key=True)
+    field1 = Column("field1", String, primary_key=True) # Sender
+    field2 = Column("field2", String, primary_key=True) # Receiver
     field3 = Column("field3", String, primary_key=True, default="") # Only used contextually
     type = Column("type", Enum(RequestTypes, create_constraint=True), primary_key=True)
     status = Column("status", Enum(Status, create_constraint=True), nullable=False, default=Status.PENDING)
@@ -124,10 +124,11 @@ class Events(Base):
     __tablename__ = "events"
 
     id = Column("id", Integer, autoincrement=True, primary_key=True)
-    venue = Column("venue", String)
+    venue = Column("venue", String, nullable=True)
     latitude = Column("latitude", Float, nullable=True)
     longitude = Column("longitude", Float, nullable=True)
-    datetime = Column("datetime", DateTime)
+    datetime_start = Column("datetime_start", DateTime)
+    datetime_end = Column("datetime_end", DateTime)
     title = Column("title", String)
     description = Column("description", String)
     host = Column("host", String, nullable=True)
