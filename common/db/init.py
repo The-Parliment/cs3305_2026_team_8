@@ -1,6 +1,6 @@
 from common.db.engine import engine
 from common.db.base import Base
-from common.db.structures.structures import User, Request, RequestTypes, Status
+from common.db.structures.structures import User, UserRequest, RequestTypes, Status
 from passlib.context import CryptContext
 from .db import get_db
 import common.db.structures
@@ -29,29 +29,35 @@ def temp_remove_in_production():
     user5 = User(
         username="joana", hashed_password=pwd.hash("mafra")
     )
-    req1 = Request(
+    req1 = UserRequest(
         field1="cillian", field2="darren", type=RequestTypes.FOLLOW_REQUEST, status=Status.ACCEPTED
     )
-    req2 = Request(
+    req2 = UserRequest(
         field1="darren", field2="cillian", type=RequestTypes.FOLLOW_REQUEST, status=Status.ACCEPTED
     )
-    req3 = Request(
+    req3 = UserRequest(
         field1="cillian", field2="roisin", type=RequestTypes.FOLLOW_REQUEST, status=Status.ACCEPTED
     )
-    req4 = Request(
+    req4 = UserRequest(
         field1="roisin", field2="cillian", type=RequestTypes.FOLLOW_REQUEST, status=Status.ACCEPTED
     )
-    req5 = Request(
+    req5 = UserRequest(
         field1="cillian", field2="joana", type=RequestTypes.FOLLOW_REQUEST, status=Status.ACCEPTED
     )
-    req6 = Request(
+    req6 = UserRequest(
         field1="joana", field2="cillian", type=RequestTypes.FOLLOW_REQUEST, status=Status.PENDING
     )
-    req7 = Request(
+    req7 = UserRequest(
         field1="cillian", field2="foodwise", type=RequestTypes.FOLLOW_REQUEST, status=Status.PENDING
     )
-    req8 = Request(
+    req8 = UserRequest(
         field1="foodwise", field2="cillian", type=RequestTypes.FOLLOW_REQUEST, status=Status.ACCEPTED
+    )
+    req9 = UserRequest(
+        field1="cillian", field2="darren", type=RequestTypes.CIRCLE_INVITE, status=Status.ACCEPTED
+    )
+    req10 = UserRequest(
+        field1="darren", field2="cillian", type=RequestTypes.CIRCLE_INVITE, status=Status.PENDING
     )
     db.add(user1)
     db.add(user2)
@@ -66,4 +72,6 @@ def temp_remove_in_production():
     db.add(req6)
     db.add(req7)
     db.add(req8)
+    db.add(req9)
+    db.add(req10)
     db.commit()
