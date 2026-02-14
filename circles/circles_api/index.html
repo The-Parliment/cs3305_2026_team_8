@@ -593,37 +593,43 @@ The pier <em>GROUP SERVICE</em> will allow users to join multiple groupings of i
 <tr>
 <td>POST</td>
 <td><code>/invite</code></td>
-<td><strong>Head:</strong> <code>Authorization</code> <strong>Body:</strong> <code>username</code></td>
-<td><code>invite_id ,status (Accepted, Rejected, Pending, No-User)</code></td>
+<td><strong>Head:</strong> <code>Authorization</code> <strong>Body:</strong> <code>inviter, invitee</code></td>
+<td><code>message</code></td>
 </tr>
 <tr>
 <td>GET</td>
-<td><code>/getinvites</code></td>
+<td><code>/get_invites</code></td>
 <td><strong>Head:</strong> <code>Authorization</code></td>
-<td>Array of: <code>invite_id</code>, <code>inviters_username</code></td>
+<td>Array of: <code>inviter_usernames</code></td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/get_invites_sent</code></td>
+<td><strong>Head:</strong> <code>Authorization</code></td>
+<td>Array of: <code>inviter_usernames</code></td>
 </tr>
 <tr>
 <td>POST</td>
 <td><code>/accept</code></td>
-<td><strong>Head:</strong> <code>Authorization</code> <strong>Body:</strong> <code>invite_id</code></td>
-<td><code>circle_id</code></td>
+<td><strong>Head:</strong> <code>Authorization</code> <strong>Body:</strong> <code>inviter, invitee</code></td>
+<td><code>message</code></td>
 </tr>
 <tr>
 <td>POST</td>
 <td><code>/decline</code></td>
-<td><strong>Head:</strong> <code>Authorization</code> <strong>Body:</strong> <code>invite_id</code></td>
+<td><strong>Head:</strong> <code>Authorization</code> <strong>Body:</strong> <code>inviter, invitee</code></td>
 <td><code>message</code></td>
 </tr>
 <tr>
 <td>GET</td>
 <td><code>/mycircle</code></td>
 <td><strong>Head:</strong> <code>Authorization</code></td>
-<td>Array of: <code>user_id</code>, <code>user_name</code></td>
+<td>Array of: <code>invitee_usernames</code></td>
 </tr>
 <tr>
 <td>POST</td>
 <td><code>/remove</code></td>
-<td><strong>Head:</strong> <code>Authorization</code> <strong>Body:</strong> <code>username</code></td>
+<td><strong>Head:</strong> <code>Authorization</code> <strong>Body:</strong> <code>inviter, invitee</code></td>
 <td><code>message</code></td>
 </tr>
 </tbody>

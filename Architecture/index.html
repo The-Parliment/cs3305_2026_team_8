@@ -594,57 +594,34 @@
 <h1 id="architecture-diagram">Architecture Diagram<a class="headerlink" href="#architecture-diagram" title="Permanent link">¶</a></h1>
 <p>This diagram represents the high-level architecture of the system. </p>
 <p>Each box is a service or component, and arrows indicate REST data flow.</p>
-<pre class="mermaid"><code>graph TD
-    subgraph Frontend
-        HTML_APP["HTML APP"]
-    end
-    subgraph Gateway
-        API_GATEWAY["API GATEWAY"]
-    end
-    subgraph Micro-services
-        AUTH["AUTH SERVICE"]
-        PROXIMITY["PROXIMITY SERVICE"]
-        EVENT_MANAGEMENT["EVENT MANAGEMENT SERVICE"]
-        GROUP_MANAGEMENT["GROUP MANAGEMENT SERVICE"]
-        CIRCLE_MANAGEMENT["CIRCLE MANAGEMENT SERVICE"]
-        EVENT_NOTIFICATION["EVENT NOTIFICATION BUS"]
-    end
-
-    HTML_APP --&gt; API_GATEWAY
-    API_GATEWAY --&gt; AUTH
-    API_GATEWAY --&gt; EVENT_MANAGEMENT
-    API_GATEWAY --&gt; GROUP_MANAGEMENT
-    API_GATEWAY --&gt; CIRCLE_MANAGEMENT
-    API_GATEWAY --&gt; PROXIMITY
-</code></pre>
+<p><img alt="GoClub Architecture" src="../images/GoClub_Arch.drawio.png"/></p>
 <h2 id="components">Components<a class="headerlink" href="#components" title="Permanent link">¶</a></h2>
 <ul>
-<li><strong>HTML APP</strong>: The frontend application accessed by users.</li>
+<li><strong>Frontend</strong>: Server Side HTML Rendering with Jinja.</li>
 <li><strong>API GATEWAY</strong>: The entry point for all client requests, routes to backend services.</li>
-<li><strong>LOGIN SERVICE</strong>: Handles authentication and user login.</li>
+<li><strong>AUTH SERVICE</strong>: Handles authentication and user login.</li>
 <li><strong>PROXIMITY SERVICE</strong>: Manages proximity-based features.</li>
-<li><strong>EVENT NOTIFICATION BUS</strong>: Distributes event notifications to interested services.</li>
 <li><strong>EVENT MANAGEMENT SERVICE</strong>: Manages events and interacts with notification bus.</li>
 <li><strong>GROUP MANAGEMENT SERVICE</strong>: Handles group-related features and interacts with event management.</li>
 <li><strong>CIRCLE MANAGEMENT SERVICE</strong>: Handles circle-related features and interacts with event management.</li>
 </ul>
-<p>Arrows represent the main flows and dependencies between the gateway and each service. The Event Notification Bus (Valkey??) is available for pub/sub to all services, but only a subset are shown here for clarity.</p>
+<p>Arrows represent the main flows and dependencies between the gateway and each service.</p>
 <h2 id="architectural-patterns">Architectural Patterns<a class="headerlink" href="#architectural-patterns" title="Permanent link">¶</a></h2>
 <ul>
 <li><strong>Strong Separation of Frontend and Backend:</strong></li>
 <li>The backend services are completely decoupled from the frontend. Backend services do not generate or serve any HTML, CSS, or JavaScript; they only expose APIs for data and business logic.</li>
 <li>
-<p>The frontend (HTML APP) is responsible for all user interface and presentation logic, consuming backend APIs via the API Gateway.</p>
+<p>The frontend (Server Side Renderer) is responsible for all user interface and presentation logic, consuming backend APIs via the API Gateway.</p>
 </li>
 <li>
 <p><strong>Stateless, Loosely Coupled Services:</strong></p>
 </li>
 <li>
-<p>Each backend service is independent and stateless, communicating only through well-defined API contracts or the event notification bus.</p>
+<p>Each backend service is independent and stateless, communicating only through well-defined API contracts.</p>
 </li>
 <li>Services do not share state or implementation details, enabling independent development, deployment, and scaling.</li>
 <li>
-<p>Each microservice is responsible for its own database and data model. There are no foreign key constraints or direct database links between services; all relationships are managed at the application/API level. This ensures loose coupling, independent scaling, and clear service boundaries.</p>
+<p>Each microservice is responsible for its own database schema. There are no foreign key constraints or direct database links between services; all relationships are managed at the application/API level. This ensures loose coupling, independent scaling, and clear service boundaries.</p>
 </li>
 <li>
 <p><strong>Authentication and User Identity:</strong></p>

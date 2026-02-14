@@ -531,8 +531,9 @@
 </nav>
 <article class="md-content__inner md-typeset">
 <h1 id="circles-service-design">Circles Service Design<a class="headerlink" href="#circles-service-design" title="Permanent link">¶</a></h1>
-<p>Fill this document with design details regarding Circle Service.
-Most likely will be orientated around database structure.</p>
+<p>The Circles microservice handles everything related to Circles.
+A circle is an exclusive group. Each user has their own circle, and they can invite any of their friends to the circle. It is a group for close friends.</p>
+<p>NOTE: For all GET requests to Circle API endpoints, claims from Depends(decode_and_verify) must be included.</p>
 </article>
 </div>
 <script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
