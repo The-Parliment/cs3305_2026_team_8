@@ -1,4 +1,5 @@
 from sqlalchemy.orm import Session
+from sqlalchemy import select
 from models import GroupCreate
 from common.db.structures.structures import Group  # Import Group from common structures
 
@@ -32,3 +33,6 @@ def create_group(db_handle: Session, new_group: GroupCreate):
     
     return db_group.group_id
 
+def list_all_groups(db_handle: Session):
+    result = db_handle.execute(select(Group)).scalars().all()
+    return result
