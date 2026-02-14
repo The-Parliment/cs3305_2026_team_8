@@ -1,5 +1,5 @@
 
-> **⚠ NOTE **
+> ** NOTE **
 >
 > I had a look through a few chapters of The AOSA — worth a glance if you have not seen it. 
 > The thing that struck me is that it is not an architecture spec. The system gets 
@@ -13,10 +13,24 @@
 
 # Introduction
 
-> **Intent:** Distinguish GoClub from a typical student project, name the three engineering problems the report covers, and signal that this is a story about decisions — not a feature description.
+Most student software projects, at their core, end up being a single service sitting on top of a database.
+GoClub is not that.
 
+It is a location-aware social platform that depends on real-time data from active users, an event system with flexible visibility controls, a friend-circle model built around invitation state, and a wider community layer for broader group membership. All of these pieces need to work together, built by a team of four students under academic time pressure, across development environments that ranged from one laptop to another.
 
----
+At the centre of the application is the idea of the **inner circle**: a small group of close contacts who share live location, making it possible to answer a simple spontaneous question — who is nearby right now, and do they want to meet?
+Layered on top of this are Groups (communities based on shared interests) and Events (structured gatherings with RSVP and configurable visibility, similar in concept to Eventbrite but aimed at a university setting).
+
+However, the most interesting part of this project is not the feature set.
+It is the engineering decisions the team was pushed into making by three problems that turned out to be far more difficult than expected:
+
+- coordinating parallel development across multiple services
+
+- achieving reproducible environments and deployments
+
+- handling high-frequency, real-time GPS data that did not fit the assumptions of a traditional relational database
+
+This report tells the story of those three problems, and how the architecture evolved in response to them.
 
 # Requirements and Constraints
 
@@ -32,14 +46,11 @@
 > **Intent:** Cover team size, deployment environment, privacy, and scope — each linked forward to where it becomes a real decision.
 
 
----
-
 # System Overview
 
-> **Intent:** Give the reader a map of the full stack before the detailed sections begin.
+GoClub is composed of five backend microservices, an API gateway, a shared common library, a Valkey in-memory cache, and a Jinja-templated frontend. All components are orchestrated by Docker Compose into a single deployable stack. The service decomposition maps directly to the five functional domains: Frontend, Auth, Circles, Groups, and Proximity.
 
-
----
+![GoClub Archiecture](images/GoClub.drawio.png)
 
 # Challenge One — Coordinating Parallel Development
 
@@ -79,6 +90,21 @@
 
 > **Intent:** Explain why a single gateway — single origin, extensible by addition — was the right choice.
 
+```bash
+server {
+    listen 80;
+    server_name _;
+
+    # Auth service: /auth/* -> auth container, strip /auth prefix
+    location /auth/ {
+        rewrite ^/auth/(.*)$ /$1 break;
+        proxy_pass http://auth:8000/;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+```
 
 ## The Two-Phase Development Loop
 
@@ -90,30 +116,62 @@
 > **Intent:** Frame the full state-reset command as a first-class operational tool, not an admission of failure.
 
 
----
-
 # The Core Services
 
-> **Intent:** Describe each service through the lens of its boundary decisions and notable design choices — not its API.
+Four of the five services — Auth, Circles, Groups, and Events — share a common
+character: they manage entities that change infrequently, have clear relational
+structure, and benefit from transactional consistency. This section describes
+each concisely, focusing on boundary decisions and architecturally notable
+design choices. Full API references and data model details are available at the
+MkDocs documentation site.
 
 ## Auth Service
 
-> **Intent:** Explain the identity-only scope and why local JWT verification removes both a latency cost and a single point of failure.
+The Auth service owns user identity: registration, login, and profile management. Its core architectural responsibility is JWT issuance. Token verification is local — each service validates the JWT signature using the shared secret from the common library, without a network call back to Auth on every request. This removes both a single point of failure and a latency cost that would otherwise appear on every authenticated API call across the system.
 
+The scope boundary is deliberate: Auth answers "who are you?" It does not answer "what are you allowed to do here?" Keeping authorisation logic in the relevant domain service means Auth stays small and focused, and avoids becoming a bottleneck as the system grows.
 
 ## Circles Service
 
-> **Intent:** Explain the invitation state machine as the core design decision and why the circle boundary is also the privacy boundary.
+Circles are the social core of the application: small, invitation-based groups representing close friendships. The defining data model decision is the invitation state machine. A circle membership passes through explicit states — invited, accepted, declined, removed — and the service enforces valid transitions. This prevents a user from appearing in circle queries before their invitation is accepted.
 
+The circle boundary is also the privacy boundary for location sharing. Onlyaccepted circle members can see each other's positions in the Proximity service. The Circles service is the authority on membership; the Proximity service delegates that question rather than reimplementing it.
+
+```mermaid
+stateDiagram-v2
+    direction LR
+
+    [*] --> PENDING : send_invite
+
+    PENDING --> ACCEPTED : accept
+    PENDING --> DECLINED : decline
+
+    ACCEPTED --> REMOVED : remove
+
+    DECLINED --> [*]
+    REMOVED --> [*]
+```
 
 ## Groups Service
 
-> **Intent:** Contrast Groups with Circles and explain the public/private flag and the deliberately simple owner-only permission model.
+Groups serve a different social function from Circles. Where a Circle is intimate and invitation-only, a Group is a community of shared interest that can be public or private.
+The distinction is set by the creator at the time of group creation. 
 
+A public group is discoverable by any user via `/list` and open to join without any approval — any authenticated user can add themselves. 
+
+A private group is invisible to non-members entirely; it does not appear in discovery at all. Rather than a request-and-approve flow, membership in a private group is entirely owner-controlled: only the creator can add users via `/join` on their behalf. This keeps the permission model simple — there is no pending state, no invite negotiation, the owner either adds someone or they are not in the group.
+
+The same owner authority extends to removal. The `/removemember` endpoint is restricted to the group owner — members cannot remove each other, only the creator can manage the roster. This binary owner/member model is intentionally lightweight for the scope of the project; a production system might introduce moderator roles, but for GoClub the distinction was sufficient.
+
+The public/private flag also propagates into the Events service: an event scoped to a group is only visible to its members, so the Events service must resolve group membership at query time. The Groups service remains the single source of truth for membership, and the Events service defers to it rather than duplicating that logic.
 
 ## Events Service
 
-> **Intent:** Describe the visibility model and how Events delegates membership resolution rather than duplicating it.
+Roisin to add.......
+
+## Frontend Service
+
+Cillian to add - benefit of server side html rendering with jinja
 
 
 ---

@@ -1,0 +1,46 @@
+---
+title: "GoClub"
+subtitle: "Architecture of a Location-Aware Social Platform"
+author: CS3305 Team Software Project --- Team 8 University College Cork
+date: "February 2026"
+abstract: |
+  This report documents the architecture of GoClub, a location-aware
+  social platform built as part of CS3305 Team Software Project at University
+  College Cork. It is written in the style of \textit{The Architecture of Open
+  Source Applications} (AOSA) — a format that asks not what a system does, but
+  why it was built the way it was. That distinction is the lens through which
+  every section of this report should be read.
+
+  Full service descriptions, API references, data models, and endpoint
+  documentation are maintained as a living artefact at the project documentation
+  site: \href{https://the-parliment.github.io/cs3305_2026_team_8/}{the-parliment.github.io/cs3305\_2026\_team\_8}.
+  Readers seeking the internals of any individual service should go there. This
+  report does not reproduce that material. It explains the thinking behind the
+  architecture that documentation describes.
+
+  Three decisions shaped this project more than any others. First, how a team
+  of four coordinated parallel development across five services without
+  integration becoming a bottleneck — the answer involves Agile process, Git
+  discipline, and documentation used as a development contract rather than a
+  retrospective deliverable. Second, how a seven-container system was made to
+  run identically on every developer's machine and demo reliably under pressure
+  — the answer is Docker Compose, but the interesting part is the discipline
+  behind it. Third, what happened when the team discovered that GPS coordinate
+  data is fundamentally incompatible with a relational database under real-time
+  load — the answer is Valkey, an in-memory geospatial store arrived at through
+  deliberate research and tool selection rather than custom implementation.
+  These three decisions are where the depth of this report lies. Everything
+  else is supporting context, written concisely.
+header-includes:
+  - \usepackage{hyperref}
+geometry:
+  - top=2.5cm
+  - bottom=2.5cm
+  - left=2.5cm
+  - right=2.5cm
+fontsize: 11pt
+linestretch: 1.15
+toc: true
+toc-depth: 3
+numbersections: true
+---
