@@ -6,7 +6,7 @@ from starlette.middleware.sessions import SessionMiddleware
 from common.JWTSecurity import decode_and_verify
 from common.clients.client import post, get
 from common.clients.user import user_follow_requests, user_follower_requests, user_followers, user_following, user_friends
-from forms import LoginForm
+from forms import LoginForm, RegisterForm
 from common.db.init import init_db
 import os
 
@@ -46,7 +46,6 @@ def require_frontend_auth(request: Request) -> dict:
     try:
         return decode_and_verify(token=token, expected_type="access")
     except Exception as e:
-        # This print statement is the most important part for debugging!
         print(f"DEBUG: Token verification failed: {e}")
         raise HTTPException(
             status_code=status.HTTP_303_SEE_OTHER,
@@ -59,8 +58,43 @@ async def index(request: Request):
         request=request, name="index.html", context={"display_map": True}
     )
 
+@app.get("/register", response_class=HTMLResponse)
+async def get_register(request: Request):
+    form = RegisterForm()
+    return templates.TemplateResponse(
+        request=request, name="forms/register.html", context={"form" : form}
+    )
 
-@app.get("/login", name="login", response_class=HTMLResponse)
+@app.post("/register", response_class=HTMLResponse)
+async def post_register(request : Request):
+    data = await request.form()
+    form = RegisterForm(data=data)
+
+    if not form.validate():
+        print("DEBUG: Form validation failed with errors:", form.errors)
+        for field, errors in form.errors.items():
+            form.form_errors.extend(f"{field}: {error}" for error in errors)
+        return templates.TemplateResponse(
+            request=request, name="forms/register.html", context={"form" : form}, status_code=400
+        )
+    print("DEBUG: Form validated successfully with data:", form.data)
+    response = await post(AUTH_INTERNAL_BASE, "register", json={"username": form.username.data, 
+                                                                  "password": form.password.data, 
+                                                                  "email": form.email.data,
+                                                                  "phone_number": form.phone_number.data})
+    print("DEBUG: Received response from auth service:", response)
+    if response is None or not response.get("valid", True):
+        print("DEBUG: Registration failed, no response from auth service")
+        form.form_errors.append(response.get("message", "Registration failed."))
+        return templates.TemplateResponse(
+            request=request, name="forms/register.html", context={"form" : form}, status_code=401
+        )
+    print("DEBUG: Registration successful, redirecting to login")
+    response = RedirectResponse(url=request.query_params.get("next", "/login"), status_code=303)
+
+    return response
+
+@app.get("/login", response_class=HTMLResponse)
 async def get_login(request: Request):
     form = LoginForm()
     return templates.TemplateResponse(

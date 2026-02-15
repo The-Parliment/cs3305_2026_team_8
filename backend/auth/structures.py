@@ -6,7 +6,9 @@ class RegisterRequest(BaseModel):
     username: str
     password: str
     email : str
-    phone_number : str | None = None
+    phone_number : str
+    first_name : str | None = ""
+    last_name : str | None = ""
 
 class LoginRequest(BaseModel):
     username: str
@@ -31,6 +33,7 @@ class TokenResponse(BaseModel):
 
 class MessageResponse(BaseModel):
     message: str
+    valid: bool | None = True
 
 class UsernameResponse(BaseModel):
     username: str
