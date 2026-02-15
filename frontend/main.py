@@ -140,6 +140,15 @@ async def post_login(request : Request):
 
     return response
 
+@app.get("/logout")
+async def logout(request: Request):
+    if not request.cookies.get("access_token") and not request.cookies.get("refresh_token"):
+        return RedirectResponse(url="/login", status_code=303)
+    response = RedirectResponse(url="/login", status_code=303)
+    response.delete_cookie(key="access_token", path="/")
+    response.delete_cookie(key="refresh_token", path="/")
+    return response
+
 @app.get("/dashboard", response_class=HTMLResponse)
 async def get_dashboard(request : Request, claims : dict = Depends(require_frontend_auth)):
     #All temp for testing
