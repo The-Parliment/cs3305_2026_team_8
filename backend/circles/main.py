@@ -1,25 +1,17 @@
 import logging
-from fastapi import FastAPI, HTTPException, Request, Header, Depends
+from fastapi import FastAPI, Request
 from circles_model import MessageResponse, UsernameListResponse, CircleRequest
-from common.JWTSecurity import decode_and_verify                    # Importing cillians Security libs.
-from common.db.structures.structures import Events, Venue, UserRequest, RequestTypes, Status    # Importing cillians DB models.
+from common.db.structures.structures import UserRequest, RequestTypes, Status    # Importing cillians DB models.
 from common.db.db import get_db
 from common.clients.user import user_exists
 from sqlalchemy import select, insert, delete, update
-import json
+from common.clients.user import get_user_claims
 
 logging.basicConfig(level=logging.INFO, format='[circles] %(asctime)s%(levelname)s %(message)s')
 logger = logging.getLogger(__name__)
 
 # invite_id in this must be figured out + fleshed out later when db is working
 app = FastAPI(root_path="/circles", title="circles_service")
-
-def get_user_claims(request: Request) -> dict:
-    access = request.cookies.get("access_token")
-    if not access:
-        raise HTTPException(status_code=401)
-
-    return decode_and_verify(token=access, expected_type="access")
 
 def invitations_sent(user):
     db = get_db()

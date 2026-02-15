@@ -1,13 +1,21 @@
 
+from common.JWTSecurity import decode_and_verify
 from ..db.db import get_db
 from ..db.structures.structures import User, UserRequest, RequestTypes, Status
 from sqlalchemy import select, insert, delete, update
-import json
+from fastapi import Request, HTTPException
 
 '''
     Common functions to do with Users
 
 '''
+
+def get_user_claims(request: Request) -> dict:
+    access = request.cookies.get("access_token")
+    if not access:
+        raise HTTPException(status_code=401)
+
+    return decode_and_verify(token=access, expected_type="access")
 
 def user_exists(user):
     db = get_db()
