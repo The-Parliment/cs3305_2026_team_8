@@ -38,44 +38,59 @@ This report tells the story of those three problems, and how the architecture ev
 
 ## Functional Requirements
 
-> **Intent:** Name the five capabilities and flag proximity as the one that breaks the standard assumptions.
+> **Intent:** Name the five functions  and flag proximity as the one that breaks the standard assumptions.
 
 
 ## Non-Functional Constraints
 
-> **Intent:** Cover team size, deployment environment, privacy, and scope — each linked forward to where it becomes a real decision.
+> **Intent:** Cover team size, deployment environment, privacy/security, and scope — each linked forward to where it becomes a real decision.
 
 
 # System Overview
 
-GoClub is composed of five backend microservices, an API gateway, a shared common library, a Valkey in-memory cache, and a Jinja-templated frontend. All components are orchestrated by Docker Compose into a single deployable stack. The service decomposition maps directly to the five functional domains: Frontend, Auth, Circles, Groups, and Proximity.
+GoClub is composed of five backend microservices, an API gateway, a shared common library, a Valkey in-memory cache, and a Jinja-templated frontend. All components are orchestrated by Docker Compose into a single deployable stack. The service decomposition maps directly to the six functional domains: Frontend, Auth, Circles, Groups, Events and Proximity.
 
-![GoClub Archiecture](images/GoClub.drawio.png)
+![GoClub Archiecture](images/GoClub.drawio.png){ width=90% }
+
+Each service is a self-contained Python FastAPI application packaged as a Docker container, communicating with the outside world exclusively through the NGINX gateway. The common library is not a service; it is a shared Python package mounted into each service container at runtime, providing database session management, SQLAlchemy base models, and JWT processing utilities.
+
+The gateway routes requests by URL path prefix: any request to `/auth/*` is forwarded to the Auth service, `/circles/*` to the Circles service, and so on. This design means adding a new service requires one additional to the NGINX configuration block. 
+
+Valkey sits alongside the relational database as a second data tier, serving exclusively the Proximity service. Its role and the reasoning behind its selection are the subject of Section XXX.
 
 # Challenge One — Coordinating Parallel Development
 
-> **Intent:** Tell the story of how four developers built five services in parallel without integration becoming a bottleneck.
+The microservices decomposition was not chosen because it is architecturally fashionable. It was chosen because the team needed to build six microservices simultaneously without each developer's work becoming a bottleneck for everyone else. That goal is only achievable if the coordination problem is solved. A microservices architecture with poor coordination is worse than a monolith: all the integration headache, none of the parallel development.
+
+The team's response was three-layered: Agile process to align work to service boundaries, Git discipline to protect integration points, and documentation as a contract that enabled work to proceed before all services existed.
 
 ## Agile Process and the Mapping of Stories to Services
 
-> **Intent:** Show how keeping story boundaries inside service boundaries enabled parallel work — and what went wrong before that discipline existed.
+The team used Google [Projects](https://github.com/orgs/The-Parliment/projects/3) to track work using epics and user stories. Effort was made to ensure story boundaries matched service boundaries. An epic for "Proximity Feature" decomposed into stories that could each be owned by a single developer: the Valkey integration, the location update endpoint, the nearby-users query, and the frontend map component. These stories could be worked on in parallel because their integration points were defined upfront as API contracts, not discovered at the end as merge conflicts.
 
+![Agile Epics and Stories](images/Epic_to_Stories.png)
 
 ## Git Discipline and the Pull Request as Integration Gate
 
-> **Intent:** Explain why the PR was the integration gate and why maintaining that discipline under deadline pressure mattered.
+Each story lived on its own feature branch. Code only reached main through a pull request, which acted as the team's integration gate — the point where a change went from "works on my machine" to "works in the system." With 50+ tracked issues across the project, this wasn't optional. Branch names followed the story structure, so there was always a clear line from a tracked issue to the code that closed it. Keeping this up consistently across four people over 8 weeks, especially under deadline pressure, was harder than it sounds.
 
+![Example PR](images/PR_Example.png){ width=80% }
 
 ## MkDocs as a Development Contract
 
-> **Intent:** Argue that documentation written during development is a design tool that enables parallel work — not a deliverable produced at the end.
+This is the most underappreciated decision in the project's process story. The team adopted MkDocs not as a documentation deliverable to be produced at the end, but as a coordination tool used during development. Each service owner documented their API design — endpoints, request schemas, response structures — before or alongside implementation.
+
+As the team had already been documenting APIs and designs in a docs/ folder, adding a mkdocs.yaml took minutes — but the benefits far outweighed the effort.
+
+![GoClub Website](images/WebSite.png)
+
+The real power of MkDocs here was that it packaged everyone's APIs and designs into a single searchable site — one place to check rather than hunting through files or waiting on a teammate to reply.
+The consequence was significant: a developer building the Events service could code against the Circles API without the Circles service being complete, because the contract was written down and easily searchable. The documentation site became a substitute for a developer being physically available to answer questions. In a team working across different schedules and locations, this is not a minor convenience — it is the difference between parallel work and sequential work.
 
 
 > **Key insight:** Documentation written *during* development is a design
 > tool. Documentation written *after* development is a historical record.
 > Only the former enables parallel work.
-
----
 
 # Challenge Two — Reproducible Deployment of a Multi-Service Stack
 
@@ -115,6 +130,11 @@ server {
 
 > **Intent:** Frame the full state-reset command as a first-class operational tool, not an admission of failure.
 
+```bash
+docker compose down --volumes --remove-orphans
+docker system prune -af
+sudo rm common/app.db
+```
 
 # The Core Services
 
@@ -200,7 +220,7 @@ Cillian to add - benefit of server side html rendering with jinja
 > **Intent:** Name the pattern and summarise the role of each tier.
 
 
-> **The transferable lesson:** The most valuable engineering move in this
+> **The transferable lesson:** Valuable engineering move in this
 > project was the decision not to write code. Recognising that a problem has
 > prior art — and knowing how to search for it — is a more valuable skill
 > than the ability to implement a solution from scratch.
@@ -209,7 +229,7 @@ Cillian to add - benefit of server side html rendering with jinja
 
 # Cross-Cutting Concerns
 
-> **Intent:** Cover the two elements that span all services and explain the trade-offs of each choice.
+> **Intent:** Cover the two elements that span all services and explain the trade-offs of each choice. Perhaps we present the schema?
 
 ## The Common Library
 
@@ -218,17 +238,17 @@ Cillian to add - benefit of server side html rendering with jinja
 
 ## JWT and Distributed Authentication
 
-> **Intent:** Explain local token verification and what was deliberately left out of scope.
+> **Intent:** Explain local token verification and the benefits as a shared library - aka the verify & decode commonality.
 
 
 ---
 
 # Future Improvements
 
-> **Intent:** Record the honest backlog as evidence the team understands the gap between academic scope and production readiness — not as apologies.
+> **Intent:** Record chapter per future work — not as apologies.
 
 
-## User Lifecycle Event Bus
+## User Lifecycle Event Bus and DB per service
 
 > **Intent:** Identify the user-deletion cleanup problem and describe an event bus as the correct solution using existing infrastructure.
 

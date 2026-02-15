@@ -11,3 +11,6 @@ pandoc meta.yaml report.md -o report.pdf \
   --lua-filter=$SCRIPTS/tabwidths.lua \
   --highlight-style=kate \
   -V monofont="Noto Sans Mono" \
+
+rm *.mmd
+rm *.png

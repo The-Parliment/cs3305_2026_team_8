@@ -2,7 +2,7 @@
 -- Requires: @mermaid-js/mermaid-cli (mmdc) on PATH.
 
 local counter = 0
-local puppeteer_cfg = "puppeteer.json"  -- <-- we’ll pass this file
+local puppeteer_cfg = "scripts/puppeteer.json"  -- <-- we’ll pass this file
 
 local function has_class(el, class)
   if not el.classes then return false end

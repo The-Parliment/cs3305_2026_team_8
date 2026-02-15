@@ -30,14 +30,14 @@ abstract: |
   load — the answer is Valkey, an in-memory geospatial store arrived at through
   deliberate research and tool selection rather than custom implementation.
   These three decisions are where the depth of this report lies. Everything
-  else is supporting context, written concisely.
+  else is supporting context.
 header-includes:
   - \usepackage{hyperref}
 geometry:
   - top=2.5cm
   - bottom=2.5cm
-  - left=2.5cm
-  - right=2.5cm
+  - left=3.0cm
+  - right=3.0cm
 fontsize: 11pt
 linestretch: 1.15
 toc: true
