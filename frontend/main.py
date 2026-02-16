@@ -2,16 +2,19 @@ from fastapi import Depends, FastAPI, HTTPException, status, Request
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
+from httpcore import request
 from sqlalchemy import insert
 from starlette.middleware.sessions import SessionMiddleware
 from common.JWTSecurity import decode_and_verify
 from common.clients.client import post, get
 from common.db.db import get_db
 from common.db.structures.structures import RequestTypes, Status, UserRequest
-from forms import LoginForm, RegisterForm
+from forms import ChangeDetailsForm, ChangePasswordForm, LoginForm, RegisterForm
 from common.db.init import init_db
 import os
+from passlib.context import CryptContext
 
+pwd = CryptContext(schemes=["bcrypt"], deprecated="auto")
 templates = Jinja2Templates(directory="templates")
 
 AUTH_INTERNAL_BASE = os.getenv("AUTH_INTERNAL_BASE", "http://auth:8001")
@@ -150,6 +153,105 @@ async def logout(request: Request):
     response = RedirectResponse(url="/login", status_code=303)
     response.delete_cookie(key="access_token", path="/")
     response.delete_cookie(key="refresh_token", path="/")
+    return response
+
+@app.get("/profile", response_class=HTMLResponse)
+async def get_profile(request: Request, claims: dict = Depends(require_frontend_auth)):
+    authorized_user = claims.get("sub")
+    user_details_data = await get(AUTH_INTERNAL_BASE, "users/me", headers={"Cookie" : f"access_token={request.cookies.get('access_token')}"})
+    user_details = user_details_data if user_details_data else None
+    return templates.TemplateResponse(
+        request=request, name="profile.html", context={"authorized_user": authorized_user, 
+                                                       "user_details": user_details}
+    )
+
+@app.get("/change_details", response_class=HTMLResponse)
+async def get_change_details(request: Request, claims: dict = Depends(require_frontend_auth)):
+    form = ChangeDetailsForm()
+    user_details_data = await get(AUTH_INTERNAL_BASE, "users/me", headers={"Cookie" : f"access_token={request.cookies.get('access_token')}"})
+    user_details = user_details_data if user_details_data else None
+    if user_details:
+        form.new_username.data = user_details.get("username", "")
+        form.first_name.data = user_details.get("first_name", "")
+        form.last_name.data = user_details.get("last_name", "")
+        form.email.data = user_details.get("email", "")
+        form.phone_number.data = user_details.get("phone_number", "")
+    return templates.TemplateResponse(
+        request=request, name="forms/change_details.html", context={"form" : form}
+    )
+
+@app.post("/change_details", response_class=HTMLResponse)
+async def post_change_details(request: Request, claims: dict = Depends(require_frontend_auth)):
+    data = await request.form()
+    form = ChangeDetailsForm(data=data)
+
+    if not form.validate():
+        for field, errors in form.errors.items():
+            form.form_errors.extend(f"{field}: {error}" for error in errors)
+        return templates.TemplateResponse(
+            request=request, name="forms/change_details.html", context={"form" : form}, status_code=400
+        )
+    
+    response = await post(AUTH_INTERNAL_BASE, "users/me", headers={"Cookie" : f"access_token={request.cookies.get('access_token')}"}, 
+                                                          json={"new_username": form.new_username.data, 
+                                                                  "first_name": form.first_name.data,
+                                                                  "last_name": form.last_name.data,
+                                                                  "email": form.email.data,
+                                                                  "phone_number": form.phone_number.data})
+    
+    if response is None or not response.get("valid", True):
+        form.form_errors.append(response.get("message", "Update failed."))
+        return templates.TemplateResponse(
+            request=request, name="forms/change_details.html", context={"form" : form}, status_code=401
+        )
+    
+    if form.new_username.data != claims.get("sub"):
+        response = RedirectResponse(url=request.query_params.get("next", "/logout"), status_code=303)
+    else:
+        response = RedirectResponse(url=request.query_params.get("next", "/profile"), status_code=303)
+
+    return response
+
+@app.get("/change_password", response_class=HTMLResponse)
+async def get_change_password(request: Request, claims: dict = Depends(require_frontend_auth)):
+    form = ChangePasswordForm()
+    return templates.TemplateResponse(
+        request=request, name="forms/change_password.html", context={"form" : form}
+    )
+
+@app.post("/change_password", response_class=HTMLResponse)
+async def post_change_password(request: Request, claims: dict = Depends(require_frontend_auth)):
+    data = await request.form()
+    form = ChangePasswordForm(data=data)
+
+    if not form.validate():
+        for field, errors in form.errors.items():
+            form.form_errors.extend(f"{field}: {error}" for error in errors)
+        return templates.TemplateResponse(
+            request=request, name="forms/change_password.html", context={"form" : form}, status_code=400
+        )
+    
+    if (form.new_password.data == form.old_password.data):
+        form.form_errors.append("Passwords cannot be the same.")
+        return templates.TemplateResponse(
+            request=request, name="forms/change_password.html", context={"form" : form}, status_code=400
+        )
+
+    new_password_hash = pwd.hash(form.new_password.data)
+    
+    response = await post(AUTH_INTERNAL_BASE, "users/me/password", headers={"Cookie" : f"access_token={request.cookies.get('access_token')}"}, 
+                                                          json={
+                                                                "old_password": form.old_password.data,
+                                                                "new_password": new_password_hash})
+    
+    if response is None or not response.get("valid", True):
+        form.form_errors.append(response.get("message", "Update failed."))
+        return templates.TemplateResponse(
+            request=request, name="forms/change_password.html", context={"form" : form}, status_code=401
+        )
+    
+    response = RedirectResponse(url=request.query_params.get("next", "/logout"), status_code=303)
+
     return response
 
 @app.get("/community", response_class=HTMLResponse)

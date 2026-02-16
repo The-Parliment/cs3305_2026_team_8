@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, StrictStr
 
 # Requests
 
@@ -6,7 +6,7 @@ class RegisterRequest(BaseModel):
     username: str
     password: str
     email : str
-    phone_number : str
+    phone_number : StrictStr
     first_name : str | None = ""
     last_name : str | None = ""
 
@@ -19,6 +19,17 @@ class RefreshRequest(BaseModel):
 
 class UsernameRequest(BaseModel):
     username: str
+    
+class ResetPasswordRequest(BaseModel):
+    old_password: str
+    new_password: str
+    
+class UserDetailsRequest(BaseModel):
+    new_username : str
+    first_name : str | None = ""
+    last_name : str | None = ""  
+    email : str
+    phone_number : StrictStr
     
 class ResetPasswordRequest(BaseModel):
     old_password: str
@@ -43,7 +54,7 @@ class UserDetailsResponse(BaseModel):
     first_name: str | None = None
     last_name: str | None = None
     email: str
-    phone_number: str | None = None
+    phone_number: StrictStr | None = None
     
 class UsernameListResponse(BaseModel):
     user_names: list
