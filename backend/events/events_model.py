@@ -26,7 +26,7 @@ class MessageResponse(BaseModel):
 class ListResponse(BaseModel):
     list: list
 
-class InfoResponse():
+class InfoResponse(BaseModel):
     id: int
     title: str
     description: str

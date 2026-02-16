@@ -22,7 +22,6 @@ class Status(enum.Enum):
     has been accepted, and vice versa. 
 '''
 class UserRequest(Base):
-class UserRequest(Base):
     __tablename__ = "requests"
 
     field1 = Column("field1", String, primary_key=True) # Sender

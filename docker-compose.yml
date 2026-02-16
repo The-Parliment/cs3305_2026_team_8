@@ -59,6 +59,7 @@ services:
     environment:
       - AUTH_INTERNAL_BASE=http://auth:8001
       - CIRCLES_INTERNAL_BASE=http://circles:8002
+      - EVENTS_INTERNAL_BASE=http://events:8005
       - USER_INTERNAL_BASE=http://user:8005
       - JWT_SECRET=rosebud
     depends_on:

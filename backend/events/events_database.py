@@ -1,5 +1,5 @@
 from common.db.db import get_db
-from common.db.structures.structures import Events, Request, RequestTypes, Status
+from common.db.structures.structures import Events, UserRequest, RequestTypes, Status
 from sqlalchemy import select, insert, delete, update
 import json
 
