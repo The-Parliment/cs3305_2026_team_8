@@ -6,7 +6,6 @@ from sqlalchemy import insert
 from starlette.middleware.sessions import SessionMiddleware
 from common.JWTSecurity import decode_and_verify
 from common.clients.client import post, get
-from common.clients.user import user_follow_requests, user_follower_requests, user_followers, user_following, user_friends
 from common.db.db import get_db
 from common.db.structures.structures import RequestTypes, Status, UserRequest
 from forms import LoginForm, RegisterForm
@@ -124,7 +123,7 @@ async def post_login(request : Request):
         return templates.TemplateResponse(
             request=request, name="forms/login.html", context={"form" : form}, status_code=401
         )
-    response = RedirectResponse(url=request.query_params.get("next", "/dashboard"), status_code=303)
+    response = RedirectResponse(url=request.query_params.get("next", "/community"), status_code=303)
 
     response.set_cookie(
         key="access_token",
@@ -153,44 +152,52 @@ async def logout(request: Request):
     response.delete_cookie(key="refresh_token", path="/")
     return response
 
-@app.get("/dashboard", response_class=HTMLResponse)
-async def get_dashboard(request : Request, claims : dict = Depends(require_frontend_auth)):
-    #All temp for testing
-    user_flw_reqs = user_follow_requests(claims.get("sub"))
-    user_flwr_reqs = user_follower_requests(claims.get("sub"))
-    friends = user_friends(claims.get("sub"))
-    return templates.TemplateResponse(
-            request=request, name="dashboard.html", context={"user" : claims.get("sub"),
-                                                             "user_flw_reqs" : user_flw_reqs,
-                                                             "user_flwr_reqs" : user_flwr_reqs,
-                                                             "friends" : friends}
-        )
-
 @app.get("/community", response_class=HTMLResponse)
 async def get_community(request : Request, claims : dict = Depends(require_frontend_auth)):
-    #All temp for testing
-    user_flw_reqs = user_follow_requests(claims.get("sub"))
-    user_flwr_reqs = user_follower_requests(claims.get("sub"))
-    friends = user_friends(claims.get("sub"))
+    follow_requests_sent_data = await get(USER_INTERNAL_BASE, "get_follow_requests_sent", 
+                              headers={"Cookie" : f"access_token={request.cookies.get('access_token')}"})
+    follow_requests_sent = follow_requests_sent_data.get("user_names", []) if follow_requests_sent_data is not None else []
+
+    follow_requests_received_data = await get(USER_INTERNAL_BASE, "get_follow_requests_received", 
+                               headers={"Cookie" : f"access_token={request.cookies.get('access_token')}"})
+    follow_requests_received = follow_requests_received_data.get("user_names", []) if follow_requests_received_data is not None else []
+    
+    friends_list_data = await get(USER_INTERNAL_BASE, "friends", 
+                        headers={"Cookie" : f"access_token={request.cookies.get('access_token')}"})
+    friends_list = friends_list_data.get("user_names", []) if friends_list_data is not None else []
+
+    all_users_data = await get(USER_INTERNAL_BASE, "list_users", headers={"Cookie" : f"access_token={request.cookies.get('access_token')}"})
+    all_users = all_users_data.get("user_names", []) if all_users_data is not None else []
+
+    authorized_user = claims.get("sub")
+    
     return templates.TemplateResponse(
-            request=request, name="community.html", context={"user" : claims.get("sub"),
-                                                             "user_flw_reqs" : user_flw_reqs,
-                                                             "user_flwr_reqs" : user_flwr_reqs,
-                                                             "friends" : friends}
-        )
+            request=request, name="community.html", context={"authorized_user" : authorized_user,
+                                                             "follow_requests_sent" : follow_requests_sent,
+                                                             "follow_requests_received" : follow_requests_received,
+                                                             "friends_list" : friends_list,
+                                                             "all_users" : all_users}
+    )
 
 @app.get("/circle", response_class=HTMLResponse)
 async def get_circle(request: Request, claims: dict = Depends(require_frontend_auth)):
     token = request.cookies.get("access_token")
-    friends = user_friends(claims.get("sub"))
+
+    friends_list_data = await get(USER_INTERNAL_BASE, "friends", 
+                        headers={"Cookie" : f"access_token={request.cookies.get('access_token')}"})
+    friends_list = friends_list_data.get("user_names", []) if friends_list_data is not None else []
+
     mycircle_data = await get(CIRCLES_INTERNAL_BASE, "mycircle", headers={"Cookie" : f"access_token={token}"})
     circle = mycircle_data.get("user_names", []) if mycircle_data else []
+
     pending_invites_data = await get(CIRCLES_INTERNAL_BASE, "get_invites", headers={"Cookie" : f"access_token={token}"})
     pending_invites = pending_invites_data.get("user_names", []) if pending_invites_data else []
+
     invitations_sent_data = await get(CIRCLES_INTERNAL_BASE, "get_invites_sent", headers={"Cookie" : f"access_token={token}"})
     invitations_sent = invitations_sent_data.get("user_names", []) if invitations_sent_data else [] 
+
     return templates.TemplateResponse(
-        request=request, name="circle.html", context={"friends": friends, "circle": circle, "pending_invites": pending_invites, "invitations_sent": invitations_sent}
+        request=request, name="circle.html", context={"friends_list": friends_list, "circle": circle, "pending_invites": pending_invites, "invitations_sent": invitations_sent}
     )
 
 @app.get("/circle/invite_to_circle/{username}", response_class=HTMLResponse)
@@ -218,11 +225,33 @@ async def decline_invite(request: Request, username: str, claims: dict = Depends
     return RedirectResponse(url="/circle", status_code=303)
 
 # User Management Endpoints
-@app.post("/follow/{username}")
+
+@app.get("/follow/{username}")
 async def follow_user(request: Request, username: str, claims: dict = Depends(require_frontend_auth)):
     token = request.cookies.get("access_token")
+    referer = request.headers.get("referer", "/")
     this_user = claims.get("sub")
-    await post(AUTH_INTERNAL_BASE, "follow", headers={"Cookie" : f"access_token={token}"}, 
+    await post(USER_INTERNAL_BASE, "send_follow_request", headers={"Cookie" : f"access_token={token}"}, 
                                              json={"inviter": this_user, "invitee": username}
                                              )
-    return RedirectResponse(url=request.url, status_code=303)
+    return RedirectResponse(url=referer, status_code=303)
+
+@app.get("/accept_follow/{username}")
+async def accept_follow(request: Request, username: str, claims: dict = Depends(require_frontend_auth)):
+    token = request.cookies.get("access_token")
+    referer = request.headers.get("referer", "/")
+    this_user = claims.get("sub")
+    await post(USER_INTERNAL_BASE, "accept_follow_request", headers={"Cookie" : f"access_token={token}"}, 
+                                             json={"inviter": username, "invitee": this_user}
+                                             )
+    return RedirectResponse(url=referer, status_code=303)
+
+@app.get("/withdraw/{username}")
+async def withdraw_follow(request: Request, username: str, claims: dict = Depends(require_frontend_auth)):
+    token = request.cookies.get("access_token")
+    referer = request.headers.get("referer", "/")
+    authorized_user = claims.get("sub")
+    await post(USER_INTERNAL_BASE, "withdraw_follow_request", headers={"Cookie" : f"access_token={token}"}, 
+                                             json={"inviter": authorized_user, "invitee": username}
+                                             )
+    return RedirectResponse(url=referer, status_code=303)

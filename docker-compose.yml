@@ -24,6 +24,8 @@ services:
       - circle_network
     environment:
       - JWT_SECRET=rosebud
+    depends_on:
+      - auth
     volumes:
       - ./common:/app/common
       
@@ -34,6 +36,8 @@ services:
       - circle_network
     environment:
       - JWT_SECRET=rosebud
+    depends_on:
+      - auth
     volumes:
       - ./common:/app/common
 

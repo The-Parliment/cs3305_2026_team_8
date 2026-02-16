@@ -16,10 +16,9 @@ class LoginRequest(BaseModel):
 
 class RefreshRequest(BaseModel):
     refresh_token: str
-    
-class FollowRequest(BaseModel):
-    inviter: str
-    invitee: str
+
+class UsernameRequest(BaseModel):
+    username: str
     
 class ResetPasswordRequest(BaseModel):
     old_password: str

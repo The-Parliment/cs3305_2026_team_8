@@ -6,6 +6,7 @@ class UsersRequest(BaseModel):
 
 class MessageResponse(BaseModel):
     message: str
+    valid : bool | None = True
 
 class UsernameListResponse(BaseModel):
     user_names: list
