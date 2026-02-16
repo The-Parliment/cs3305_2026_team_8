@@ -22,6 +22,7 @@ class Status(enum.Enum):
     has been accepted, and vice versa. 
 '''
 class UserRequest(Base):
+class UserRequest(Base):
     __tablename__ = "requests"
 
     field1 = Column("field1", String, primary_key=True) # Sender
@@ -74,6 +75,8 @@ class Events(Base):
     venue = Column("venue", String, default="") 
     latitude = Column("latitude", Float, nullable=True)
     longitude = Column("longitude", Float, nullable=True)
+    datetime_start = Column("datetime_start", DateTime)
+    datetime_end = Column("datetime_end", DateTime)
     datetime_start = Column("datetime_start", DateTime)
     datetime_end = Column("datetime_end", DateTime)
     title = Column("title", String)
