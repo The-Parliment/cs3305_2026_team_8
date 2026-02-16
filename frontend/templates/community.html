@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+
+{% block main_content %}
+
+<main>
+    <p>Logged in as {{ authorized_user }}</p>
+    <table>
+        <!-- Adding stuff to test the database -->
+        <tr>
+            <th>Your Community</th>
+            <th>Users</th>
+        </tr>
+        <tr>
+            <td>
+            <p>Follow requests</p>
+            <ul>
+                {% for user in follow_requests_received %}
+                    <li>
+                    {{ user }}
+                    <a href="/accept_follow/{{ user }}">Accept</a>
+                    </li>
+                {% endfor %}
+            </ul>
+            </td>
+            {% if all_users %}
+            <td>
+            <p>All Users</p>
+            <ul>
+                {% for user in all_users %}
+                    <li>
+                        {{ user }}
+                        {% if user in follow_requests_sent %}
+                            <span>Requested</span>
+                        {% endif %}
+                        {% if user in friends_list %}
+                            <span>Friend</span>
+                        {% endif %}
+                        {% if user in follow_requests_received %}
+                            <a href="/accept_follow/{{ user }}">Accept</a>
+                        {% endif %}
+                        {% if user not in friends_list and user not in follow_requests_sent and user != authorized_user %}
+                            <a href="/follow/{{ user }}">Follow</a>
+                        {% endif %}
+                    </li>
+                {% endfor %}
+            </ul>
+            </td>
+            {% endif %}
+        </tr>
+        <tr>
+            <td>
+            <p>Friends</p>
+            <ul>
+                {% for friend in friends_list %}
+                    <li>
+                    {{ friend }}
+                    </li>
+                {% endfor %}
+            </ul>
+            </td>
+        </tr>
+        <tr>
+            <td>
+            <p>Your pending requests</p>
+            <ul>
+                {% for user in follow_requests_sent %}
+                    <li>
+                    {{ user }}
+                    <a href="/withdraw/{{ user }}">Withdraw</a>
+                    </li>
+                {% endfor %}
+            </ul>
+            </td>
+        </tr>
+    </table>
+</main>
+
+{% endblock %}
