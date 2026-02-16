@@ -1,6 +1,6 @@
 import logging
 from fastapi import FastAPI, Request
-from circles_model import MessageResponse, UsernameListResponse, UsersRequest
+from backend.user.user_model import MessageResponse, UsernameListResponse, UsersRequest
 from common.db.structures.structures import UserRequest, RequestTypes, Status
 from common.db.db import get_db
 from sqlalchemy import select, insert, delete, update

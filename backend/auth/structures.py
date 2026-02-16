@@ -17,8 +17,9 @@ class LoginRequest(BaseModel):
 class RefreshRequest(BaseModel):
     refresh_token: str
     
-class UsernameRequest(BaseModel):
-    username: str
+class FollowRequest(BaseModel):
+    inviter: str
+    invitee: str
     
 class ResetPasswordRequest(BaseModel):
     old_password: str
@@ -44,3 +45,6 @@ class UserDetailsResponse(BaseModel):
     last_name: str | None = None
     email: str
     phone_number: str | None = None
+    
+class UsernameListResponse(BaseModel):
+    user_names: list

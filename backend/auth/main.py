@@ -1,12 +1,13 @@
 import logging
-from fastapi import FastAPI, HTTPException, Response, status
-from fastapi.responses import RedirectResponse
+from common.JWTSecurity import decode_and_verify
+from sqlalchemy import select, insert, delete, update
+from fastapi import FastAPI, HTTPException
 from common.JWTSecurity import decode_and_verify
 from common.clients.user import email_exists, phone_number_exists, user_exists
 from common.db.db import get_db
-from common.db.structures.structures import User, UserDetails
+from common.db.structures.structures import RequestTypes, RequestTypes, Status, User, UserDetails, UserRequest
 from security import mint_access_token, mint_refresh_token, verify_user
-from structures import LoginRequest, MessageResponse, RegisterRequest, TokenResponse, RefreshRequest
+from structures import FollowRequest, LoginRequest, MessageResponse, RegisterRequest, TokenResponse, RefreshRequest, UsernameListResponse, UsernameResponse
 from passlib.context import CryptContext
 
 pwd = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -59,4 +60,4 @@ async def refresh(req: RefreshRequest) -> TokenResponse:
 
     # 2) Mint new access token
     access = mint_access_token(subject=payload["sub"], extra_claims={"roles": payload.get("roles", ["user"])})
-    return TokenResponse(access_token=access)
+    return TokenResponse(access_token=access, refresh_token=req.refresh_token)

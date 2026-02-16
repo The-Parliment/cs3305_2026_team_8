@@ -17,6 +17,7 @@ templates = Jinja2Templates(directory="templates")
 
 AUTH_INTERNAL_BASE = os.getenv("AUTH_INTERNAL_BASE", "http://auth:8001")
 CIRCLES_INTERNAL_BASE = os.getenv("CIRCLES_INTERNAL_BASE", "http://circles:8002")
+USER_INTERNAL_BASE = os.getenv("USER_INTERNAL_BASE", "http://user:8005")
 
 app = FastAPI(title="frontend_service")
 init_db()
@@ -217,20 +218,11 @@ async def decline_invite(request: Request, username: str, claims: dict = Depends
     return RedirectResponse(url="/circle", status_code=303)
 
 # User Management Endpoints
-@app.get("/follow/{username}")
+@app.post("/follow/{username}")
 async def follow_user(request: Request, username: str, claims: dict = Depends(require_frontend_auth)):
     token = request.cookies.get("access_token")
     this_user = claims.get("sub")
-    if this_user == username:
-        raise HTTPException(status_code=400, detail="Cannot follow yourself")
-    db = get_db()
-    stmt = insert(UserRequest).values(field1=claims.get("sub"), 
-                                      field2=username, 
-                                      type=RequestTypes.FOLLOW_REQUEST, 
-                                      status=Status.PENDING)
-    db.execute(stmt)
-    return RedirectResponse(
-        url=request.url, 
-        status_code=status.HTTP_303_SEE_OTHER,
-        headers={"Cookie" : f"access_token={token}"}
-    )
+    await post(AUTH_INTERNAL_BASE, "follow", headers={"Cookie" : f"access_token={token}"}, 
+                                             json={"inviter": this_user, "invitee": username}
+                                             )
+    return RedirectResponse(url=request.url, status_code=303)
