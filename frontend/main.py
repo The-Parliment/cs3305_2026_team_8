@@ -2,10 +2,13 @@ from fastapi import Depends, FastAPI, HTTPException, status, Request
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
+from sqlalchemy import insert
 from starlette.middleware.sessions import SessionMiddleware
 from common.JWTSecurity import decode_and_verify
 from common.clients.client import post, get
 from common.clients.user import user_follow_requests, user_follower_requests, user_followers, user_following, user_friends
+from common.db.db import get_db
+from common.db.structures.structures import RequestTypes, Status, UserRequest
 from forms import LoginForm, RegisterForm
 from common.db.init import init_db
 import os
@@ -162,6 +165,19 @@ async def get_dashboard(request : Request, claims : dict = Depends(require_front
                                                              "friends" : friends}
         )
 
+@app.get("/community", response_class=HTMLResponse)
+async def get_community(request : Request, claims : dict = Depends(require_frontend_auth)):
+    #All temp for testing
+    user_flw_reqs = user_follow_requests(claims.get("sub"))
+    user_flwr_reqs = user_follower_requests(claims.get("sub"))
+    friends = user_friends(claims.get("sub"))
+    return templates.TemplateResponse(
+            request=request, name="community.html", context={"user" : claims.get("sub"),
+                                                             "user_flw_reqs" : user_flw_reqs,
+                                                             "user_flwr_reqs" : user_flwr_reqs,
+                                                             "friends" : friends}
+        )
+
 @app.get("/circle", response_class=HTMLResponse)
 async def get_circle(request: Request, claims: dict = Depends(require_frontend_auth)):
     token = request.cookies.get("access_token")
@@ -199,3 +215,22 @@ async def decline_invite(request: Request, username: str, claims: dict = Depends
     token = request.cookies.get("access_token")
     await post(CIRCLES_INTERNAL_BASE, "decline", headers={"Cookie" : f"access_token={token}"}, json={"inviter": username, "invitee": claims.get("sub")})
     return RedirectResponse(url="/circle", status_code=303)
+
+# User Management Endpoints
+@app.get("/follow/{username}")
+async def follow_user(request: Request, username: str, claims: dict = Depends(require_frontend_auth)):
+    token = request.cookies.get("access_token")
+    this_user = claims.get("sub")
+    if this_user == username:
+        raise HTTPException(status_code=400, detail="Cannot follow yourself")
+    db = get_db()
+    stmt = insert(UserRequest).values(field1=claims.get("sub"), 
+                                      field2=username, 
+                                      type=RequestTypes.FOLLOW_REQUEST, 
+                                      status=Status.PENDING)
+    db.execute(stmt)
+    return RedirectResponse(
+        url=request.url, 
+        status_code=status.HTTP_303_SEE_OTHER,
+        headers={"Cookie" : f"access_token={token}"}
+    )

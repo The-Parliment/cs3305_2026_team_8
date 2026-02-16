@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% block main_content %}
+
+<main>
+    <table>
+        <!-- Adding stuff to test the database -->
+        <tr>
+            <th>Your Community</th>
+            <th>Users</th>
+        </tr>
+        <tr>
+            <td>
+            <p>Follow requests</p>
+            <ul>
+                {% for req in user_flwr_reqs %}
+                    <li>{{ req }}</li>
+                {% endfor %}
+            </ul>
+            </td>
+            <td>
+            <p>All Users</p>
+            <ul>
+                {% for user in all_users %}
+                    <li>{{ user }}</li>
+                    {% if user not in friends and user != this_user %}
+                        <a href="/follow/{{ user }}">Follow</a>
+                    {% endif %}
+                {% endfor %}
+            </ul>
+            </td>
+        </tr>
+        <tr>
+            <td>
+            <p>Friends</p>
+            <ul>
+                {% for friend in friends %}
+                    <li>{{ friend }}</li>
+                {% endfor %}
+            </ul>
+            </td>
+        </tr>
+        <tr>
+            <td>
+            <p>Your pending requests</p>
+            <ul>
+                {% for req in user_flw_reqs %}
+                    <li>{{ req }}</li>
+                {% endfor %}
+            </ul>
+            </td>
+        </tr>
+    </table>
+</main>
+
+{% endblock %}
