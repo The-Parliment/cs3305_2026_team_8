@@ -143,6 +143,8 @@ async def invite_circle(inbound: InviteRequest) -> MessageResponse:
     db.commit()
     return MessageResponse("invited " + len(circle_members) +" to your event!")
 
+
+#cannot complete group code without darrens code
 @app.post("/invitegroup", response_model = MessageResponse)
 async def invite_group(inbound: InviteRequest) -> MessageResponse:
     invite_group_response = MessageResponse( 
@@ -152,9 +154,16 @@ async def invite_group(inbound: InviteRequest) -> MessageResponse:
 
 @app.post("/cancel", response_model = MessageResponse)
 async def cancel_event(inbound: CancelRequest) -> MessageResponse:
+    db = get_db()
+    if not event_exists(inbound.event_id):
+        return MessageResponse(message="There is no such event")
+    stmt=delete(Events).where(
+        id=inbound.event_id
+    )
+    db.execute(stmt)
+    db.commit()
     cancel_event_response = MessageResponse( 
-        message="No way!",
-        status="cancelled")
+        message="Event deleted :(")
     return cancel_event_response
 
 @app.put("/edit", response_model = MessageResponse)
