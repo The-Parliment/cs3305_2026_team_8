@@ -22,6 +22,7 @@ class CreateResponse(BaseModel):
 
 class MessageResponse(BaseModel):
     message: str
+    valid : bool | None = True
 
 class ListResponse(BaseModel):
     list: list

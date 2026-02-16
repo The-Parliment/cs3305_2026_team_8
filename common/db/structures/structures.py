@@ -76,8 +76,6 @@ class Events(Base):
     longitude = Column("longitude", Float, nullable=True)
     datetime_start = Column("datetime_start", DateTime)
     datetime_end = Column("datetime_end", DateTime)
-    datetime_start = Column("datetime_start", DateTime)
-    datetime_end = Column("datetime_end", DateTime)
     title = Column("title", String)
     description = Column("description", String)
     host = Column("host", String, default="")
