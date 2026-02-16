@@ -25,15 +25,11 @@ class ResetPasswordRequest(BaseModel):
     new_password: str
     
 class UserDetailsRequest(BaseModel):
-    new_username : str
     first_name : str | None = ""
     last_name : str | None = ""  
     email : str
     phone_number : StrictStr
     
-class ResetPasswordRequest(BaseModel):
-    old_password: str
-    new_password: str
 
 # Responses
 

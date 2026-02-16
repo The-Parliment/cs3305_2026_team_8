@@ -112,35 +112,16 @@ async def get_user_details(request: Request, authorized_user : str = Depends(get
 async def update_user_details(request: UserDetailsRequest, authorized_user : str = Depends(get_username_from_request)) -> MessageResponse:
     db = get_db()
     user_details = db.scalar(select(UserDetails).filter_by(username=authorized_user).limit(1))
-    new_username = request.new_username if (request.new_username and request.new_username != user_details.username) else user_details.username
     first_name = request.first_name if request.first_name else user_details.first_name
     last_name = request.last_name if request.last_name else user_details.last_name
     email = request.email if request.email else user_details.email
     phone_number = request.phone_number if request.phone_number else user_details.phone_number
     stmt = update(UserDetails).values(
-        username=new_username,
         first_name=first_name,
         last_name=last_name,
         email=email,
         phone_number=phone_number
     ).where(UserDetails.username == authorized_user)
-    db.execute(stmt)
-    db.commit()
-    stmt = update(User).values(
-        username=new_username
-    ).where(User.username == authorized_user)
-    db.execute(stmt)
-    db.commit()
-    return MessageResponse(message=f"User {authorized_user} updated successfully.", valid=True)
-
-@app.post("/users/me/password", response_model=MessageResponse)
-async def update_user_password(request: ResetPasswordRequest, authorized_user : str = Depends(get_username_from_request)) -> MessageResponse:
-    db = get_db()
-    if not verify_user(authorized_user, request.old_password):
-        return MessageResponse(message="Old password is incorrect.", valid=False)
-    stmt = update(User).values(
-        hashed_password=request.new_password
-    ).where(User.username == authorized_user)
     db.execute(stmt)
     db.commit()
     return MessageResponse(message=f"User {authorized_user} updated successfully.", valid=True)
