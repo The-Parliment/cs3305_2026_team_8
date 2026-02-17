@@ -31,10 +31,6 @@ def get_current_user(authorization: str =  Header(...)) -> int:
     return 1234
 """
 
-events = []
-
-events = []
-
 def get_user_claims(request: Request) -> dict:
     access = request.cookies.get("access_token")
     if not access:
@@ -42,24 +38,17 @@ def get_user_claims(request: Request) -> dict:
 
     return decode_and_verify(token=access, expected_type="access")
 
-def get_venue_id() -> int:
-    return 1234
-
-def get_event_id() -> int:
-    return 3456
-
 @app.get("/")
 async def root():
-    return {"message": "Events Service API called"}
     return {"message": "Events Service API called"}
 
 #There is absolute no HTML served in the microservice, this returns a token
 @app.post("/create", response_model = MessageResponse)
-async def create_item(inbound: CreateRequest, event_id: int= Depends(get_event_id)) -> MessageResponse:
+async def create_item(inbound: CreateRequest) -> MessageResponse:
     logger.info(f"Create endpoint called for Event: {inbound.title}")
     db = get_db()
     stmt= insert(Events).values(
-        id=event_id,
+        id=inbound.id,
         venue=inbound.venue,
         latitude=inbound.latitude,
         longitude=inbound.longitude,
@@ -157,16 +146,16 @@ async def cancel_event(inbound: CancelRequest) -> MessageResponse:
     return cancel_event_response
 
 @app.put("/edit", response_model = MessageResponse)
-async def edit_event(inbound: EditRequest, event_id: int =Depends(get_event_id), venue: int = Depends(get_venue_id)) -> MessageResponse:
+async def edit_event(inbound: EditRequest) -> MessageResponse:
     edit_event_response = MessageResponse( 
-        event_id=event_id,
+        event_id=inbound.event_id,
         title=inbound.title,
         description=inbound.description,
         datetime_start=inbound.datetime_start,
         datetime_end=inbound.datetime_end,
         latitude=inbound.latitude,
         longitude=inbound.longitude,
-        venue_id=venue)
+        venue_id=inbound.venue_id)
     return edit_event_response
 
 
