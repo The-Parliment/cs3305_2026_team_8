@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 from sqlalchemy import select
-from models import GroupCreate
+from models import GroupCreate, GroupsList
 from common.db.structures.structures import Group  # Import Group from common structures
 
 
@@ -19,7 +19,7 @@ def create_group(db_handle: Session, new_group: GroupCreate):
     # Note: Adjust the Group constructor based on how it's defined in common/db/structures/structures.py
     db_group = Group(
         group_name=new_group.group_name,
-        group_desc=new_group.group_description,
+        group_desc=new_group.group_desc,
         is_private=new_group.is_private,
         owner=new_group.owner
     )
