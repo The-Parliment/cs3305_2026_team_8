@@ -24,8 +24,8 @@ async def root():
 @app.post("/create")
 async def create_group(new_group: GroupCreate, db_handle: Session = Depends(get_db)):
     logger.info(f"create_group called: {new_group}")
-    group_id = crud.create_group(db_handle, new_group)
-    return group_id
+    group_instance = crud.create_group(db_handle, new_group)
+    return group_instance
 
 @app.get("/list")  # GET, no body
 async def list_all_groups(db_handle: Session = Depends(get_db)):

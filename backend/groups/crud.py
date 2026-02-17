@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 from sqlalchemy import select
-from models import GroupCreate, GroupsList
+from models import GroupCreate, GroupsList, Group as PydanticGroup # Needed this last one because of nameclash with sqlalchemy model.
 from common.db.structures.structures import Group  # Import Group from common structures
 
 
@@ -30,9 +30,9 @@ def create_group(db_handle: Session, new_group: GroupCreate):
     
     # Refresh to get the auto-generated primary key
     db_handle.refresh(db_group)
-    
-    return db_group.group_id
+    # Use sqlalchemy magic to auto convert into the pydantic world
+    return PydanticGroup.model_validate(db_group)
 
 def list_all_groups(db_handle: Session):
     result = db_handle.execute(select(Group)).scalars().all()
-    return result
+    return GroupsList(group_list=result)
