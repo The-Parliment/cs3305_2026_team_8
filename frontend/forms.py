@@ -12,3 +12,10 @@ class RegisterForm(Form):
     email = StringField("Email", validators=[DataRequired(), Length(min=2, max=128)])
     phone_number = StringField("Phone Number", validators=[DataRequired(), Length(min=10, max=15)])
     submit = SubmitField("Submit")
+    
+class ChangeDetailsForm(Form):
+    first_name = StringField("First Name")
+    last_name = StringField("Last Name")
+    email = StringField("Email", validators=[Length(min=2, max=128)])
+    phone_number = StringField("Phone Number", validators=[Length(min=10, max=15)])
+    submit = SubmitField("Submit")
