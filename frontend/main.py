@@ -63,7 +63,7 @@ async def index(request: Request):
 @app.get("/events", response_class=HTMLResponse)
 async def index(request: Request):
     return templates.TemplateResponse(
-        request=request, name="events.html"
+        request=request, name="events.html", context={"display_map": True}
     )
 
 @app.get("/friends", response_class=HTMLResponse)

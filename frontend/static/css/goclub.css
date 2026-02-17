@@ -36,10 +36,10 @@ main {
 .sidenav .closebtn {
   position: absolute;
   top: 0;
-  left: 25px;
   font-size: 36px;
-  margin-right: 50px;
+  margin-right: 70px;
 }
+
   
 .sidenav a {
   padding: 8px 8px 8px 32px;
