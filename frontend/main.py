@@ -16,7 +16,7 @@ templates = Jinja2Templates(directory="templates")
 
 AUTH_INTERNAL_BASE = os.getenv("AUTH_INTERNAL_BASE", "http://auth:8001")
 CIRCLES_INTERNAL_BASE = os.getenv("CIRCLES_INTERNAL_BASE", "http://circles:8002")
-EVENTS_INTERNAL_BASE = os.getenv("USER_INTERNAL_BASE", "http://events:8005")
+EVENTS_INTERNAL_BASE = os.getenv("EVENTS_INTERNAL_BASE", "http://events:8005")
 USER_INTERNAL_BASE = os.getenv("USER_INTERNAL_BASE", "http://user:8005")
 
 app = FastAPI(title="frontend_service")
@@ -256,3 +256,32 @@ async def withdraw_follow(request: Request, username: str, claims: dict = Depend
                                              json={"inviter": authorized_user, "invitee": username}
                                              )
     return RedirectResponse(url=referer, status_code=303)
+
+# Event Management Endpoints
+
+@app.get("/eventinfo/{event_id}", response_class=HTMLResponse)
+async def event_info(request: Request, event_id: int, claims: dict = Depends(require_frontend_auth)):
+    token = request.cookies.get("access_token")
+    event_info_data = await get(EVENTS_INTERNAL_BASE, f"eventinfo/{event_id}", headers={"Cookie" : f"access_token={token}"})
+    if event_info_data is None or event_info_data.get("valid", True) == False:
+        return templates.TemplateResponse(
+            request=request, name="event_info.html", context={"error": "Event not found."}
+        )
+    event_name = event_info_data.get("title", "Unknown Event")
+    event_venue = event_info_data.get("venue", "Unknown Venue")
+    event_host = event_info_data.get("host", "Unknown Host")
+    event_latitude = event_info_data.get("latitude", "Unknown Latitude")
+    event_longitude = event_info_data.get("longitude", "Unknown Longitude")
+    event_start_time = event_info_data.get("datetime_start", "Unknown Start Time")
+    event_end_time = event_info_data.get("datetime_end", "Unknown End Time")   
+    event_description = event_info_data.get("description", "No Description Available")
+    return templates.TemplateResponse(
+        request=request, name="event_info.html", context={"event_title": event_name, 
+                                                          "event_venue": event_venue, 
+                                                          "event_host": event_host, 
+                                                          "event_latitude": event_latitude, 
+                                                          "event_longitude": event_longitude, 
+                                                          "event_start_time": event_start_time, 
+                                                          "event_end_time": event_end_time, 
+                                                          "event_description": event_description}
+    )

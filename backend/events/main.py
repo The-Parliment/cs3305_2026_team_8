@@ -12,37 +12,21 @@ logger = logging.getLogger(__name__)
 
 app = FastAPI(root_path="/events", title="events_service")
 
-# all placeholder code until it is possible to work with db
-# code is currently so vague it is identical
-
-
-"""
-def get_current_user(authorization: str =  Header(...)) -> int:
-    this is where we would call cillians verify_and_decode function.
-    to extract the user_id from the JWToken.
-
-    Note - the issue at the moment is cillian's token does not contain a user_id
-    Note - the issue at the moment is cillian's token does not contain a user_id
-    because the db work has to be done first...
-    would also be nice if we packed in the username/handle into that token too.
-    would prevent a lot of cross-service chatter
-    would also be nice if we packed in the username/handle into that token too.
-    would prevent a lot of cross-service chatter
-    return 1234
-"""
-
-def get_user_claims(request: Request) -> dict:
-    access = request.cookies.get("access_token")
-    if not access:
-        raise HTTPException(status_code=401)
-
-    return decode_and_verify(token=access, expected_type="access")
+def get_username_from_request(request: Request) -> str | None:
+    token = request.cookies.get("access_token")
+    if not token:
+        return None
+    try:
+        claims = decode_and_verify(token, expected_type="access")
+        return claims.get("sub")
+    except Exception as e:
+        logger.error(f"Error decoding token: {e}")
+        return None
 
 @app.get("/")
 async def root():
     return {"message": "Events Service API called"}
 
-#There is absolute no HTML served in the microservice, this returns a token
 @app.post("/create", response_model = MessageResponse)
 async def create_item(inbound: CreateRequest) -> MessageResponse:
     logger.info(f"Create endpoint called for Event: {inbound.title}")
@@ -66,15 +50,21 @@ async def create_item(inbound: CreateRequest) -> MessageResponse:
     return create_response
 
 @app.get("/eventinfo/{event_id}", response_model = InfoResponse)
-async def event_info(request: Request, event_id:int) -> InfoResponse:
+async def event_info(request: Request, event_id:int):
     db=get_db()
-    result=select(Events
-                  ).filter_by(
-                      id=event_id
-                  ).limit(1)
+    result=select(Events).filter_by(id=event_id).limit(1)
     event=db.scalar(result)
-    
-    return InfoResponse(event)
+    if not event:
+        return MessageResponse(message="Event not found", valid=False)
+    return InfoResponse(id=event.id, 
+                        venue=event.venue, 
+                        latitude=event.latitude, 
+                        longitude=event.longitude,
+                        datetime_start=event.datetime_start, 
+                        datetime_end=event.datetime_end, 
+                        title=event.title, 
+                        description=event.description, 
+                        host=event.host)
 
 # too complicated to fill out with rest of them
 @app.get("/search", response_model = ListResponse)

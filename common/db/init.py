@@ -1,9 +1,10 @@
 from common.db.engine import engine
 from common.db.base import Base
-from common.db.structures.structures import User, UserRequest, RequestTypes, Status
+from common.db.structures.structures import Events, User, UserRequest, RequestTypes, Status
 from passlib.context import CryptContext
 from .db import get_db
 import common.db.structures
+import datetime
 
 pwd = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
@@ -28,6 +29,17 @@ def temp_remove_in_production():
     )
     user5 = User(
         username="joana", hashed_password=pwd.hash("mafra")
+    )
+    event = Events(
+        id=1,
+        title="Test Event",
+        venue="Test Venue",
+        host="cillian",
+        latitude=53.3498,
+        longitude=-6.2603,
+        datetime_start=datetime.datetime(2024, 1, 1, 0, 0, tzinfo=datetime.timezone.utc),
+        datetime_end=datetime.datetime(2024, 1, 1, 1, 0, tzinfo=datetime.timezone.utc),
+        description="This is a test event."
     )
     req1 = UserRequest(
         field1="cillian", field2="darren", type=RequestTypes.FOLLOW_REQUEST, status=Status.ACCEPTED
@@ -64,6 +76,7 @@ def temp_remove_in_production():
     db.add(user3)
     db.add(user4)
     db.add(user5)
+    db.add(event)
     db.add(req1)
     db.add(req2)
     db.add(req3)
