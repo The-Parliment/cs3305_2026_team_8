@@ -34,13 +34,13 @@ async def root():
 
 @app.post("/register", response_model=MessageResponse)
 async def register(request: RegisterRequest) -> MessageResponse:
-    if user_exists(request.username):
+    if get_user_exists(request.username):
         print(f"DEBUG: Registration failed - username {request.username} already exists")
         return MessageResponse(message=f"Username {request.username} already exists.", valid=False)
-    if email_exists(request.email):
+    if get_email_exists(request.email):
         print(f"DEBUG: Registration failed - email {request.email} already exists")
         return MessageResponse(message=f"Email {request.email} already exists.", valid=False)
-    if phone_number_exists(request.phone_number):
+    if get_phone_number_exists(request.phone_number):
         print(f"DEBUG: Registration failed - phone number {request.phone_number} already exists")
         return MessageResponse(message=f"Phone number {request.phone_number} already exists.", valid=False)
     db = get_db()
@@ -74,26 +74,38 @@ async def refresh(req: RefreshRequest) -> TokenResponse:
     access = mint_access_token(subject=payload["sub"], extra_claims={"roles": payload.get("roles", ["user"])})
     return TokenResponse(access_token=access, refresh_token=req.refresh_token)
 
+def get_user_exists(username):
+    db = get_db()
+    stmt = select(User).filter_by(username=username).limit(1)
+    result = db.scalar(stmt)
+    return result is not None
+
+def get_email_exists(email):
+    db = get_db()
+    stmt = select(UserDetails).filter_by(email=email).limit(1)
+    result = db.scalar(stmt)
+    return result is not None
+
+def get_phone_number_exists(phone_number):
+    db = get_db()
+    stmt = select(UserDetails).filter_by(phone_number=phone_number).limit(1)
+    result = db.scalar(stmt)
+    return result is not None
+
 @app.get("/user_exists", response_model=MessageResponse)
 async def user_exists(user: UsernameRequest) -> MessageResponse:
-    db = get_db()
-    stmt = select(User).filter_by(username=user.username).limit(1)
-    result = db.scalar(stmt)
-    return MessageResponse(message=f"User {user.username} exists: {result is not None}", valid=result is not None)
+    result = get_user_exists(user.username)
+    return MessageResponse(message=f"User {user.username} exists: {result}", valid=result)
 
 @app.get("/email_exists", response_model=MessageResponse)
 async def email_exists(email: UsernameRequest) -> MessageResponse:
-    db = get_db()
-    stmt = select(UserDetails).filter_by(email=email.username).limit(1)
-    result = db.scalar(stmt)
-    return MessageResponse(message=f"Email {email.username} exists: {result is not None}", valid=result is not None)
+    result = get_email_exists(email.username)
+    return MessageResponse(message=f"Email {email.username} exists: {result}", valid=result)
 
 @app.get("/phone_number_exists", response_model=MessageResponse)
 async def phone_number_exists(phone_number: UsernameRequest) -> MessageResponse:
-    db = get_db()
-    stmt = select(UserDetails).filter_by(phone_number=phone_number.username).limit(1)
-    result = db.scalar(stmt)
-    return MessageResponse(message=f"Phone number {phone_number.username} exists: {result is not None}", valid=result is not None)
+    result = get_phone_number_exists(phone_number.username)
+    return MessageResponse(message=f"Phone number {phone_number.username} exists: {result}", valid=result)
 
 @app.get("/users/me", response_model=UserDetailsResponse)
 async def get_user_details(request: Request, authorized_user : str = Depends(get_username_from_request)) -> UserDetailsResponse:
