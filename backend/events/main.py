@@ -4,7 +4,7 @@ from events_model import CreateRequest, InfoResponse, ListEventResponse, Message
 from common.JWTSecurity import decode_and_verify                    # Importing cillians Security libs.
 from common.db.structures.structures import Events, Venue, UserRequest, RequestTypes, Status    # Importing cillians DB models.
 from common.db.db import get_db
-from events_database import event_exists, is_user_invited
+from events_database import event_exists, is_user_attending, is_user_invited
 from sqlalchemy import select, insert, delete, update
 
 logging.basicConfig(level=logging.INFO, format='[events] %(asctime)s%(levelname)s %(message)s')
@@ -175,6 +175,23 @@ async def attend_event(inbound: Request, event_id: int, authorized_user=Depends(
         db.execute(stmt)
         db.commit()
         return MessageResponse(message="You are now attending the event!")
+    
+@app.post("/decline/{event_id}", response_model=MessageResponse)
+async def decline_event(inbound: Request, event_id: int, authorized_user=Depends(get_username_from_request)) -> MessageResponse:
+    db = get_db()
+    if not event_exists(event_id):
+        return MessageResponse(message="There is no such event")
+    if is_user_invited(event_id, authorized_user):
+        stmt = delete(UserRequest).where(
+            field2=authorized_user,
+            field3=event_id,
+            type=RequestTypes.EVENT_INVITE
+        )
+        db.execute(stmt)
+        db.commit()
+        return MessageResponse(message="Invitation declined, you are not attending the event.")
+    else:
+        return MessageResponse(message="You were not invited to this event, so you cannot decline it. If you do not wish to attend, simply ignore the invitation.")
 
 @app.get("/myevents", response_model=ListEventResponse)
 async def my_events(request:Request, authorized_user=Depends(get_username_from_request)) -> ListEventResponse:
