@@ -6,7 +6,7 @@ from events_model import BooleanResponse, CreateRequest, InfoResponse, ListEvent
 from common.JWTSecurity import decode_and_verify                    # Importing cillians Security libs.
 from common.db.structures.structures import Events, Venue, UserRequest, RequestTypes, Status    # Importing cillians DB models.
 from common.db.db import get_db
-from events_database import event_exists, is_user_attending, is_user_invited
+from events_database import event_exists, is_user_attending_event, is_user_invited_event, is_user_invited_event_pending, user_is_host
 from sqlalchemy import select, insert, delete, update
 
 logging.basicConfig(level=logging.INFO, format='[events] %(asctime)s%(levelname)s %(message)s')
@@ -136,7 +136,7 @@ async def cancel_event(inbound: Request, event_id: int, authorized_user=Depends(
 @app.put("/edit", response_model=MessageResponse)
 async def edit_event(inbound: EditRequest) -> MessageResponse:
     edit_event_response = MessageResponse( 
-        event_id=inbound.event_id,
+        id=inbound.event_id,
         title=inbound.title,
         description=inbound.description,
         datetime_start=inbound.datetime_start,
@@ -151,7 +151,7 @@ async def attend_event(inbound: Request, event_id: int, authorized_user=Depends(
     db = get_db()
     if not event_exists(event_id):
         return MessageResponse(message="There is no such event")
-    if is_user_invited(event_id, authorized_user):
+    if is_user_invited_event(event_id, authorized_user):
         stmt = update(UserRequest).values(
             status=Status.ACCEPTED
         ).where(
@@ -179,7 +179,7 @@ async def decline_event(inbound: Request, event_id: int, authorized_user=Depends
     db = get_db()
     if not event_exists(event_id):
         return MessageResponse(message="There is no such event")
-    if is_user_invited(event_id, authorized_user):
+    if is_user_invited_event(event_id, authorized_user):
         stmt = delete(UserRequest).where(
             field2=authorized_user,
             field3=event_id,
@@ -254,6 +254,8 @@ async def all_events(request:Request) -> ListEventResponse:
 
 @app.get("/get_attendees/{event_id}", response_model=ListResponse)
 async def get_attendees(event_id: int) -> ListResponse:
+    if not event_exists(event_id):
+        return BooleanResponse(value=False)
     db = get_db()
     stmt = select(UserRequest.field2).filter_by(
         field3=event_id,
@@ -265,28 +267,36 @@ async def get_attendees(event_id: int) -> ListResponse:
 
 @app.get("/is_attending/{event_id}/{username}", response_model=BooleanResponse)
 async def is_user_attending(request:Request, event_id: int, username: str) -> BooleanResponse:
-    if is_user_attending(event_id, username):
+    if not event_exists(event_id):
+        return BooleanResponse(value=False)
+    if is_user_attending_event(event_id, username):
         return BooleanResponse(value=True)
     else:
         return BooleanResponse(value=False)
     
 @app.get("/is_invited/{event_id}/{username}", response_model=BooleanResponse)
 async def is_user_invited(request:Request, event_id: int, username: str) -> BooleanResponse:
-    if is_user_invited(event_id, username):
+    if not event_exists(event_id):
+        return BooleanResponse(value=False)
+    if is_user_invited_event(event_id, username):
         return BooleanResponse(value=True)
     else:
         return BooleanResponse(value=False)
     
 @app.get("/is_invited_pending/{event_id}/{username}", response_model=BooleanResponse)
 async def is_user_invited_pending(request:Request, event_id: int, username: str) -> BooleanResponse:
-    if is_user_invited_pending(event_id, username):
+    if not event_exists(event_id):
+        return BooleanResponse(value=False)
+    if is_user_invited_event_pending(event_id, username):
         return BooleanResponse(value=True)
     else:
         return BooleanResponse(value=False)
     
 @app.get("/is_host/{event_id}/{username}", response_model=BooleanResponse)
 async def is_user_host(request:Request, event_id: int, username: str) -> BooleanResponse:
-    if is_user_host(event_id, username):
+    if not event_exists(event_id):
+        return BooleanResponse(value=False)
+    if user_is_host(event_id, username):
         return BooleanResponse(value=True)
     else:
         return BooleanResponse(value=False)
