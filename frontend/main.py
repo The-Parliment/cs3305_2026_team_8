@@ -16,6 +16,7 @@ templates = Jinja2Templates(directory="templates")
 AUTH_INTERNAL_BASE = os.getenv("AUTH_INTERNAL_BASE", "http://auth:8001")
 CIRCLES_INTERNAL_BASE = os.getenv("CIRCLES_INTERNAL_BASE", "http://circles:8002")
 USER_INTERNAL_BASE = os.getenv("USER_INTERNAL_BASE", "http://user:8005")
+EVENTS_INTERNAL_BASE = os.getenv("EVENTS_INTERNAL_BASE", "http://events:8005")
 
 app = FastAPI(title="frontend_service")
 init_db()
@@ -320,3 +321,36 @@ async def withdraw_follow(request: Request, username: str, claims: dict = Depend
                                              json={"inviter": authorized_user, "invitee": username}
                                              )
     return RedirectResponse(url=referer, status_code=303)
+
+# Invites
+
+@app.get("/invites", response_class=HTMLResponse)
+@app.get("/invites/{invite_type}", response_class=HTMLResponse)
+async def get_invites(request: Request, invite_type: str | None = "all", claims: dict = Depends(require_frontend_auth)):
+    token = request.cookies.get("access_token")
+    if not invite_type:
+        invite_type = "all"
+    if invite_type not in ["follow_requests", "circle_invites", "group_invites", "event_invites", "all"]:
+        invite_type = "all"
+    follow_requests = []
+    circle_invites = []
+    group_invites = []
+    event_invites = []
+    if invite_type == "follow_requests" or invite_type == "all":
+        follow_request_data = await get(USER_INTERNAL_BASE, "get_follow_requests_received", headers={"Cookie" : f"access_token={token}"})
+        follow_requests = follow_request_data.get("user_names", []) if follow_request_data is not None else []
+    if invite_type == "circle_invites" or invite_type == "all":
+        circle_invites_data = await get(CIRCLES_INTERNAL_BASE, "get_invites", headers={"Cookie" : f"access_token={token}"})
+        circle_invites = circle_invites_data.get("user_names", []) if circle_invites_data is not None else []
+    if invite_type == "group_invites" or invite_type == "all":
+        group_invites_data = [] # await get(GROUP_INTERNAL_BASE, "get_group_invites", headers={"Cookie" : f"access_token={token}"})
+        group_invites = [] #group_invites_data.get("group_names", []) if group_invites_data is not None else []
+    if invite_type == "event_invites" or invite_type == "all":
+        event_invites_data = [] #await get(EVENTS_INTERNAL_BASE, "get_invites", headers={"Cookie" : f"access_token={token}"})
+        event_invites = [] #event_invites_data.get("event_names", []) if event_invites_data is not None else []
+    return templates.TemplateResponse(
+        request=request, name="invites.html", context={"follow_requests": follow_requests, 
+                                                       "circle_invites": circle_invites, 
+                                                       "group_invites": group_invites, 
+                                                       "event_invites": event_invites}
+    )
