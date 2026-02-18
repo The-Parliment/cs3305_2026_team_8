@@ -35,7 +35,6 @@ async def root():
 async def create_event(inbound: CreateRequest) -> MessageResponse:
     db = get_db()
     stmt= insert(Events).values(
-        id=inbound.id,
         venue=inbound.venue,
         latitude=inbound.latitude,
         longitude=inbound.longitude,
