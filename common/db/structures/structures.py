@@ -69,9 +69,10 @@ class Group(Base):
 
 class GroupMembers(Base):
     __tablename__ = "groupjoins"
-    username = Column(String, primary_key=True, foreign_key=True, index=True)
-    group_id = Column(Integer, foreign_key=True, index=True)
-    date_joined= Column(DateTime, default=lambda: datetime.now(timezone.utz))
+    join_id = Column(Integer, primary_key=True, autoincrement=True)  # need a real PK
+    username = Column(String, ForeignKey("users.username"), index=True)
+    group_id = Column(Integer, ForeignKey("groups.group_id"), index=True)
+    date_joined = Column(DateTime, default=lambda: datetime.now(timezone.utc))
 
     def __repr__(self):
         return f"Joined group {group_id}!" 
