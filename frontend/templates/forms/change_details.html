@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block main_content %}
+
+<main>
+    <form action="" method="POST" novalidate>
+
+        {{ form.first_name.label }}
+        {{ form.first_name() }}
+        <br/>
+
+        {{ form.last_name.label }}
+        {{ form.last_name() }}
+        <br/>
+        
+        {{ form.email.label }}
+        {{ form.email() }}
+        <br/>
+        
+        {{ form.phone_number.label }}
+        {{ form.phone_number() }}
+        <br/>
+        
+        {% if form.form_errors %}
+            <ul class="error-list">
+                {% for error in form.form_errors %}
+                    <li>{{ error }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+        
+        {{ form.submit() }}
+    </form>
+</main>
+
+{% endblock %}
