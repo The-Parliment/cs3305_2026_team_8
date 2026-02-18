@@ -339,7 +339,7 @@ async def event_info(request: Request, event_id: int, claims: dict = Depends(req
                                                           "event_description": event_description}
     )
 
-@app.get("/all_events", response_class=HTMLResponse)
+@app.get("/events", response_class=HTMLResponse)
 async def all_events(request: Request, claims: dict = Depends(require_frontend_auth)):
     token = request.cookies.get("access_token")
     all_events_data = await get(EVENTS_INTERNAL_BASE, "all_events", headers={"Cookie" : f"access_token={token}"})

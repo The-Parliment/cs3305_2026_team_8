@@ -3,6 +3,14 @@
 {% block main_content %}
 
 <main>
+    <div id="map"></div>
+        {% if display_map|default(false) %}
+            <script type="text/javascript">
+                var x = {{ x|default(53.347878221572344)|tojson }};
+                var y = {{ y|default(-6.275954663866795)|tojson }};
+            </script>
+            <script type="text/javascript" src="{{ url_for('static', path='/js/map.js') }}"></script>
+        {% endif %}
     <script type="text/javascript">
         var events = {{ all_events|tojson }};
     </script>
