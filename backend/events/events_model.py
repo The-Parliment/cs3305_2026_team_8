@@ -2,7 +2,6 @@ from pydantic import BaseModel
 from datetime import datetime
 
 class CreateRequest(BaseModel):
-    id: int
     title: str
     description: str
     latitude: float
@@ -11,6 +10,7 @@ class CreateRequest(BaseModel):
     datetime_end: datetime
     venue: str
     host:str
+    public: bool | None = False
 
 class CreateResponse(BaseModel):
     event_id: int
@@ -25,7 +25,7 @@ class MessageResponse(BaseModel):
     valid : bool | None = True
 
 class ListResponse(BaseModel):
-    list: list
+    lst: list
 
 class InfoResponse(BaseModel):
     id: int
@@ -38,12 +38,17 @@ class InfoResponse(BaseModel):
     venue: str
     host:str
 
+class ListEventResponse(BaseModel):
+    events: list[InfoResponse]
+
 class InviteRequest(BaseModel):
-    inviter:str
     event_id: int
 
 class CancelRequest(BaseModel):
     event_id: int
+    
+class BooleanResponse(BaseModel):
+    value: bool
 
 class EditRequest(BaseModel):
     event_id: int

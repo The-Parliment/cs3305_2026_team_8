@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block main_content %}
+
+<main>
+    <p>
+        <a href="/invites/all">All</a>
+        <a href="/invites/follow_requests">Follow Requests</a>
+        <a href="/invites/circle_invites">Circle Invites</a>
+        <a href="/invites/group_invites">Group Invites</a>
+        <a href="/invites/event_invites">Event Invites</a>
+        <!-- Everything in the <a href=> elements below might change going forward, dont press! -->
+        <ul>
+            {% for invite in follow_requests %}
+                <li>Follow Request from {{ invite }} - <a href="/accept_follow/{{ invite }}">Accept</a> | <a href="/decline_follow/{{ invite }}">Decline</a></li>
+            {% endfor %}
+            {% for invite in circle_invites %}
+                <li>Circle Invite from {{ invite }} - <a href="/accept_circle_invite/{{ invite }}">Accept</a> | <a href="/decline_circle_invite/{{ invite }}">Decline</a></li>
+            {% endfor %}
+            {% for invite in group_invites %}
+                <li>Group Invite to {{ invite }} - <a href="/accept_group_invite/{{ invite }}">Accept</a> | <a href="/decline_group_invite/{{ invite }}">Decline</a></li>
+            {% endfor %}
+            {% for invite in event_invites %}
+                <li>Event Invite to {{ invite }} - <a href="/accept_event_invite/{{ invite }}">Accept</a> | <a href="/decline_event_invite/{{ invite }}">Decline</a></li>
+            {% endfor %}
+        </ul>
+    </p>
+</main>
+
+{% endblock %}

@@ -2,22 +2,22 @@ from fastapi import Depends, FastAPI, HTTPException, status, Request
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
-from sqlalchemy import insert
 from starlette.middleware.sessions import SessionMiddleware
 from common.JWTSecurity import decode_and_verify
 from common.clients.client import post, get
-from common.db.db import get_db
-from common.db.structures.structures import RequestTypes, Status, UserRequest
-from forms import LoginForm, RegisterForm
+from forms import ChangeDetailsForm, LoginForm, RegisterForm
 from common.db.init import init_db
 import os
+from passlib.context import CryptContext
 
+pwd = CryptContext(schemes=["bcrypt"], deprecated="auto")
 templates = Jinja2Templates(directory="templates")
 
 AUTH_INTERNAL_BASE = os.getenv("AUTH_INTERNAL_BASE", "http://auth:8001")
 CIRCLES_INTERNAL_BASE = os.getenv("CIRCLES_INTERNAL_BASE", "http://circles:8002")
 EVENTS_INTERNAL_BASE = os.getenv("EVENTS_INTERNAL_BASE", "http://events:8005")
 USER_INTERNAL_BASE = os.getenv("USER_INTERNAL_BASE", "http://user:8005")
+EVENTS_INTERNAL_BASE = os.getenv("EVENTS_INTERNAL_BASE", "http://events:8005")
 
 app = FastAPI(title="frontend_service")
 init_db()
@@ -57,9 +57,10 @@ def require_frontend_auth(request: Request) -> dict:
         )
 
 @app.get("/", response_class=HTMLResponse)
+@app.get("/home", response_class=HTMLResponse)
 async def index(request: Request):
     return templates.TemplateResponse(
-        request=request, name="index.html", context={"display_map": True}
+        request=request, name="home.html", context={"display_map": True}
     )
 
 @app.get("/register", response_class=HTMLResponse)
@@ -151,6 +152,59 @@ async def logout(request: Request):
     response = RedirectResponse(url="/login", status_code=303)
     response.delete_cookie(key="access_token", path="/")
     response.delete_cookie(key="refresh_token", path="/")
+    return response
+
+@app.get("/profile", response_class=HTMLResponse)
+async def get_profile(request: Request, claims: dict = Depends(require_frontend_auth)):
+    authorized_user = claims.get("sub")
+    user_details_data = await get(AUTH_INTERNAL_BASE, "users/me", headers={"Cookie" : f"access_token={request.cookies.get('access_token')}"})
+    user_details = user_details_data if user_details_data else None
+    return templates.TemplateResponse(
+        request=request, name="profile.html", context={"authorized_user": authorized_user, 
+                                                       "user_details": user_details}
+    )
+
+@app.get("/change_details", response_class=HTMLResponse)
+async def get_change_details(request: Request, claims: dict = Depends(require_frontend_auth)):
+    form = ChangeDetailsForm()
+    user_details_data = await get(AUTH_INTERNAL_BASE, "users/me", headers={"Cookie" : f"access_token={request.cookies.get('access_token')}"})
+    user_details = user_details_data if user_details_data else None
+    if user_details:
+        form.first_name.data = user_details.get("first_name", "")
+        form.last_name.data = user_details.get("last_name", "")
+        form.email.data = user_details.get("email", "")
+        form.phone_number.data = user_details.get("phone_number", "")
+    return templates.TemplateResponse(
+        request=request, name="forms/change_details.html", context={"form" : form}
+    )
+
+@app.post("/change_details", response_class=HTMLResponse)
+async def post_change_details(request: Request, claims: dict = Depends(require_frontend_auth)):
+    data = await request.form()
+    form = ChangeDetailsForm(data=data)
+
+    if not form.validate():
+        for field, errors in form.errors.items():
+            form.form_errors.extend(f"{field}: {error}" for error in errors)
+        return templates.TemplateResponse(
+            request=request, name="forms/change_details.html", context={"form" : form}, status_code=400
+        )
+    
+    response = await post(AUTH_INTERNAL_BASE, "users/me", headers={"Cookie" : f"access_token={request.cookies.get('access_token')}"}, 
+                                                          json={
+                                                                  "first_name": form.first_name.data,
+                                                                  "last_name": form.last_name.data,
+                                                                  "email": form.email.data,
+                                                                  "phone_number": form.phone_number.data})
+    
+    if response is None or not response.get("valid", True):
+        form.form_errors.append(response.get("message", "Update failed."))
+        return templates.TemplateResponse(
+            request=request, name="forms/change_details.html", context={"form" : form}, status_code=401
+        )
+
+    response = RedirectResponse(url=request.query_params.get("next", "/profile"), status_code=303)
+
     return response
 
 @app.get("/community", response_class=HTMLResponse)
@@ -257,6 +311,39 @@ async def withdraw_follow(request: Request, username: str, claims: dict = Depend
                                              )
     return RedirectResponse(url=referer, status_code=303)
 
+# Invites
+
+@app.get("/invites", response_class=HTMLResponse)
+@app.get("/invites/{invite_type}", response_class=HTMLResponse)
+async def get_invites(request: Request, invite_type: str | None = "all", claims: dict = Depends(require_frontend_auth)):
+    token = request.cookies.get("access_token")
+    if not invite_type:
+        invite_type = "all"
+    if invite_type not in ["follow_requests", "circle_invites", "group_invites", "event_invites", "all"]:
+        invite_type = "all"
+    follow_requests = []
+    circle_invites = []
+    group_invites = []
+    event_invites = []
+    if invite_type == "follow_requests" or invite_type == "all":
+        follow_request_data = await get(USER_INTERNAL_BASE, "get_follow_requests_received", headers={"Cookie" : f"access_token={token}"})
+        follow_requests = follow_request_data.get("user_names", []) if follow_request_data is not None else []
+    if invite_type == "circle_invites" or invite_type == "all":
+        circle_invites_data = await get(CIRCLES_INTERNAL_BASE, "get_invites", headers={"Cookie" : f"access_token={token}"})
+        circle_invites = circle_invites_data.get("user_names", []) if circle_invites_data is not None else []
+    if invite_type == "group_invites" or invite_type == "all":
+        group_invites_data = [] # await get(GROUP_INTERNAL_BASE, "get_group_invites", headers={"Cookie" : f"access_token={token}"})
+        group_invites = [] #group_invites_data.get("group_names", []) if group_invites_data is not None else []
+    if invite_type == "event_invites" or invite_type == "all":
+        event_invites_data = [] #await get(EVENTS_INTERNAL_BASE, "get_invites", headers={"Cookie" : f"access_token={token}"})
+        event_invites = [] #event_invites_data.get("event_names", []) if event_invites_data is not None else []
+    return templates.TemplateResponse(
+        request=request, name="invites.html", context={"follow_requests": follow_requests, 
+                                                       "circle_invites": circle_invites, 
+                                                       "group_invites": group_invites, 
+                                                       "event_invites": event_invites}
+    )
+
 # Event Management Endpoints
 
 @app.get("/eventinfo/{event_id}", response_class=HTMLResponse)
@@ -284,4 +371,27 @@ async def event_info(request: Request, event_id: int, claims: dict = Depends(req
                                                           "event_start_time": event_start_time, 
                                                           "event_end_time": event_end_time, 
                                                           "event_description": event_description}
+    )
+
+@app.get("/events", response_class=HTMLResponse)
+async def all_events(request: Request, claims: dict = Depends(require_frontend_auth)):
+    token = request.cookies.get("access_token")
+    all_events_data = await get(EVENTS_INTERNAL_BASE, "all_events", headers={"Cookie" : f"access_token={token}"})
+    all_events_info = [] if all_events_data is None else all_events_data.get("events", [])
+    all_events = []
+    for event in all_events_info:
+        all_events.append({
+            "id": event["id"],
+            "title": event["title"],
+            "venue": event["venue"],
+            "latitude": event["latitude"],
+            "longitude": event["longitude"],
+            "start_time": event["datetime_start"],
+            "end_time": event["datetime_end"],
+            "host": event["host"],
+            "description": event["description"]
+        })
+    
+    return templates.TemplateResponse(
+        request=request, name="events_map.html", context={"all_events": all_events, "display_map": True}
     )

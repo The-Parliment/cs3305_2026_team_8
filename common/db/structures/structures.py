@@ -43,7 +43,7 @@ class UserDetails(Base):
     first_name = Column("first_name", String, nullable=True)
     last_name = Column("last_name", String, nullable=True)
     email = Column("email", String, nullable=True)
-    phone_number = Column("phone_number", Integer, nullable=True)
+    phone_number = Column("phone_number", String, nullable=True)
     
 class Venue(Base):
     __tablename__ = "venues"
@@ -79,5 +79,6 @@ class Events(Base):
     title = Column("title", String)
     description = Column("description", String)
     host = Column("host", String, default="")
+    public = Column("public", Boolean, default=True)
     
     host = Column("host", String, ForeignKey("users.username"), nullable=True)

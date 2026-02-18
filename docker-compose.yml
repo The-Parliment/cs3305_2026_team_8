@@ -48,6 +48,9 @@ services:
       - circle_network
     depends_on:
       - auth
+      - circles
+    environment:
+      - CIRCLES_INTERNAL_BASE=http://circles:8002
     volumes:
       - ./common:/app/common
 

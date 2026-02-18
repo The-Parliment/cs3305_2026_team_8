@@ -1,16 +1,19 @@
 import logging
+import os
 from fastapi import FastAPI, Request, HTTPException, Header, Depends
-from events_model import CreateRequest, InfoResponse, MessageResponse, ListResponse, InviteRequest, CancelRequest, EditRequest
+from common.clients.client import get
+from events_model import BooleanResponse, CreateRequest, InfoResponse, ListEventResponse, MessageResponse, ListResponse, InviteRequest, CancelRequest, EditRequest
 from common.JWTSecurity import decode_and_verify                    # Importing cillians Security libs.
 from common.db.structures.structures import Events, Venue, UserRequest, RequestTypes, Status    # Importing cillians DB models.
 from common.db.db import get_db
-from events_database import event_exists
+from events_database import event_exists, is_user_attending, is_user_invited
 from sqlalchemy import select, insert, delete, update
 
 logging.basicConfig(level=logging.INFO, format='[events] %(asctime)s%(levelname)s %(message)s')
 logger = logging.getLogger(__name__)
 
 app = FastAPI(root_path="/events", title="events_service")
+CIRCLES_INTERNAL_BASE = os.getenv("CIRCLES_INTERNAL_BASE", "http://circles:8002")
 
 def get_username_from_request(request: Request) -> str | None:
     token = request.cookies.get("access_token")
@@ -28,11 +31,9 @@ async def root():
     return {"message": "Events Service API called"}
 
 @app.post("/create", response_model = MessageResponse)
-async def create_item(inbound: CreateRequest) -> MessageResponse:
-    logger.info(f"Create endpoint called for Event: {inbound.title}")
+async def create_event(inbound: CreateRequest) -> MessageResponse:
     db = get_db()
     stmt= insert(Events).values(
-        id=inbound.id,
         venue=inbound.venue,
         latitude=inbound.latitude,
         longitude=inbound.longitude,
@@ -40,7 +41,8 @@ async def create_item(inbound: CreateRequest) -> MessageResponse:
         description=inbound.description,
         datetime_start=inbound.datetime_start,
         datetime_end=inbound.datetime_end,
-        host=inbound.host
+        host=inbound.host,
+        public=inbound.public
     )
     db.execute(stmt)
     db.commit()
@@ -49,7 +51,7 @@ async def create_item(inbound: CreateRequest) -> MessageResponse:
         )
     return create_response
 
-@app.get("/eventinfo/{event_id}", response_model = InfoResponse)
+@app.get("/eventinfo/{event_id}", response_model=InfoResponse)
 async def event_info(request: Request, event_id:int):
     db=get_db()
     result=select(Events).filter_by(id=event_id).limit(1)
@@ -64,7 +66,9 @@ async def event_info(request: Request, event_id:int):
                         datetime_end=event.datetime_end, 
                         title=event.title, 
                         description=event.description, 
-                        host=event.host)
+                        host=event.host,
+                        public=event.public
+                        )
 
 # too complicated to fill out with rest of them
 @app.get("/search", response_model = ListResponse)
@@ -74,10 +78,10 @@ async def search_events(request:Request) -> ListResponse:
     return ListResponse() # needs to be filled out + restructured for scaling
 
 @app.post("/invite/{username}", response_model=MessageResponse)
-async def invite_user(inbound: InviteRequest, username:int) -> MessageResponse:
+async def invite_user(inbound: InviteRequest, username:int, authorized_user=Depends(get_username_from_request)) -> MessageResponse:
     db = get_db()
     stmt = insert(UserRequest).values(
-        field1=inbound.inviter,
+        field1=authorized_user,
         field2=username,
         field3=inbound.event_id,
         type=RequestTypes.EVENT_INVITE,
@@ -89,53 +93,47 @@ async def invite_user(inbound: InviteRequest, username:int) -> MessageResponse:
         message=f"Invited {username} to event."
     )
 
-@app.post("/invitecircle", response_model = MessageResponse)
-async def invite_circle(inbound: InviteRequest) -> MessageResponse:
+@app.post("/invitecircle/{event_id}", response_model=MessageResponse)
+async def invite_circle(inbound: Request, event_id: int, authorized_user=Depends(get_username_from_request)) -> MessageResponse:
     db = get_db()
-    stmt=select(UserRequest.field2).filter_by(
-        field1=inbound.inviter,
-        type=RequestTypes.CIRCLE_INVITE,
-        status=Status.CONFIRMED
-    )
-    circle_members=db.execute(stmt).scalars().all()
-    if not circle_members:
-        return MessageResponse("There is nobody in your circle...")
-    
+    circle_members_data = await get(CIRCLES_INTERNAL_BASE, "mycircle", 
+                               headers={"Cookie" : f"access_token={inbound.cookies.get('access_token')}"})
+    circle_members = circle_members_data.get("user_names", [])
     for member in circle_members:
-        db.execute(insert(UserRequest).values(
-        field1=inbound.inviter,
-        field2=member,
-        field3=inbound.event_id,
-        type=RequestTypes.EVENT_INVITE,
-        status=Status.PENDING
-    ))
+        stmt = insert(UserRequest).values(
+            field1=authorized_user,
+            field2=member,
+            field3=event_id,
+            type=RequestTypes.EVENT_INVITE,
+            status=Status.PENDING
+        )
+        db.execute(stmt)
     db.commit()
-    return MessageResponse("invited " + len(circle_members) +" to your event!")
+    return MessageResponse(message=f"Invited your circle to this event!")
 
 
 #cannot complete group code without darrens code
-@app.post("/invitegroup", response_model = MessageResponse)
+@app.post("/invitegroup", response_model=MessageResponse)
 async def invite_group(inbound: InviteRequest) -> MessageResponse:
     invite_group_response = MessageResponse( 
         message="foodwise wuz here",
         )
     return invite_group_response 
 
-@app.post("/cancel", response_model = MessageResponse)
-async def cancel_event(inbound: CancelRequest) -> MessageResponse:
+@app.post("/cancel/{event_id}", response_model=MessageResponse)
+async def cancel_event(inbound: Request, event_id: int, authorized_user=Depends(get_username_from_request)) -> MessageResponse:
     db = get_db()
-    if not event_exists(inbound.event_id):
+    if not event_exists(event_id):
         return MessageResponse(message="There is no such event")
     stmt=delete(Events).where(
-        id=inbound.event_id
+        id=event_id,
+        host=authorized_user
     )
     db.execute(stmt)
     db.commit()
-    cancel_event_response = MessageResponse( 
-        message="Event deleted :(")
-    return cancel_event_response
+    return MessageResponse(message="Event cancelled successfully.")
 
-@app.put("/edit", response_model = MessageResponse)
+@app.put("/edit", response_model=MessageResponse)
 async def edit_event(inbound: EditRequest) -> MessageResponse:
     db = get_db()
     stmt = update(Events).values(
@@ -145,10 +143,150 @@ async def edit_event(inbound: EditRequest) -> MessageResponse:
         datetime_end=inbound.datetime_end,
         latitude=inbound.latitude,
         longitude=inbound.longitude,
-        venue_id=inbound.venue_id).where(Events.id == inbound.event_id)
-    db.execute(stmt)
-    db.commit()
-    return MessageResponse(message="Event edited successfully") 
-@app.get("/myevents", response_model =ListResponse)
-async def my_events(request:Request) -> ListResponse:
-    return ListResponse()
+        venue_id=inbound.venue_id)
+    return edit_event_response
+
+@app.post("/attend/{event_id}", response_model=MessageResponse)
+async def attend_event(inbound: Request, event_id: int, authorized_user=Depends(get_username_from_request)) -> MessageResponse:
+    db = get_db()
+    if not event_exists(event_id):
+        return MessageResponse(message="There is no such event")
+    if is_user_invited(event_id, authorized_user):
+        stmt = update(UserRequest).values(
+            status=Status.ACCEPTED
+        ).where(
+            field2=authorized_user,
+            field3=event_id,
+            type=RequestTypes.EVENT_INVITE
+        )
+        db.execute(stmt)
+        db.commit()
+        return MessageResponse(message="Invitation accepted, you are now attending the event!")
+    else:
+        stmt=insert(UserRequest).values(
+            field1=event_id,
+            field2=authorized_user,
+            field3=event_id,
+            type=RequestTypes.EVENT_INVITE,
+            status=Status.ACCEPTED
+        )
+        db.execute(stmt)
+        db.commit()
+        return MessageResponse(message="You are now attending the event!")
+    
+@app.post("/decline/{event_id}", response_model=MessageResponse)
+async def decline_event(inbound: Request, event_id: int, authorized_user=Depends(get_username_from_request)) -> MessageResponse:
+    db = get_db()
+    if not event_exists(event_id):
+        return MessageResponse(message="There is no such event")
+    if is_user_invited(event_id, authorized_user):
+        stmt = delete(UserRequest).where(
+            field2=authorized_user,
+            field3=event_id,
+            type=RequestTypes.EVENT_INVITE
+        )
+        db.execute(stmt)
+        db.commit()
+        return MessageResponse(message="Invitation declined, you are not attending the event.")
+    else:
+        return MessageResponse(message="You were not invited to this event, so you cannot decline it. If you do not wish to attend, simply ignore the invitation.")
+
+@app.get("/myevents", response_model=ListEventResponse)
+async def my_events(request:Request, authorized_user=Depends(get_username_from_request)) -> ListEventResponse:
+    db = get_db()
+    stmt = select(UserRequest.field3).filter_by(
+        field2=authorized_user,
+        type=RequestTypes.EVENT_INVITE,
+        status=Status.ACCEPTED
+    )
+    events = db.scalars(stmt).all()
+    list_of_events = []
+    for event_id in events:
+        stmt = select(Events).filter_by(id=event_id)
+        event = db.scalars(stmt).first()
+        if event:
+            list_of_events.append(InfoResponse(id=event.id,
+                            venue=event.venue,
+                            latitude=event.latitude,
+                            longitude=event.longitude,
+                            datetime_start=event.datetime_start,
+                            datetime_end=event.datetime_end,
+                            title=event.title,
+                            description=event.description,
+                            host=event.host,
+                            public=event.public
+                            ))
+    return ListEventResponse(list=list_of_events)
+
+@app.get("/my_invites", response_model=ListEventResponse)
+async def my_invites(request:Request, authorized_user=Depends(get_username_from_request)) -> ListEventResponse:
+    db = get_db()
+    stmt = select(UserRequest.field3).filter_by(
+        field2=authorized_user,
+        type=RequestTypes.EVENT_INVITE,
+        status=Status.PENDING
+    )
+    events = db.scalars(stmt).all()
+    return ListResponse(lst=events)
+
+@app.get("/all_events", response_model=ListEventResponse)
+async def all_events(request:Request) -> ListEventResponse:
+    db = get_db()
+    stmt = select(Events)
+    result = db.execute(stmt).scalars().all()
+    if not result: 
+        return ListEventResponse(list=[])
+    list_of_events = []
+    for event in result:
+        list_of_events.append(InfoResponse(id=event.id,
+                        venue=event.venue,
+                        latitude=event.latitude,
+                        longitude=event.longitude,
+                        datetime_start=event.datetime_start,
+                        datetime_end=event.datetime_end,
+                        title=event.title,
+                        description=event.description,
+                        host=event.host,
+                        public=event.public))
+        
+    response = ListEventResponse(events=list_of_events)
+    return response
+
+@app.get("/get_attendees/{event_id}", response_model=ListResponse)
+async def get_attendees(event_id: int) -> ListResponse:
+    db = get_db()
+    stmt = select(UserRequest.field2).filter_by(
+        field3=event_id,
+        type=RequestTypes.EVENT_INVITE,
+        status=Status.ACCEPTED
+    )
+    attendees = db.scalars(stmt).all()
+    return ListResponse(lst=attendees)
+
+@app.get("/is_attending/{event_id}/{username}", response_model=BooleanResponse)
+async def is_user_attending(request:Request, event_id: int, username: str) -> BooleanResponse:
+    if is_user_attending(event_id, username):
+        return BooleanResponse(value=True)
+    else:
+        return BooleanResponse(value=False)
+    
+@app.get("/is_invited/{event_id}/{username}", response_model=BooleanResponse)
+async def is_user_invited(request:Request, event_id: int, username: str) -> BooleanResponse:
+    if is_user_invited(event_id, username):
+        return BooleanResponse(value=True)
+    else:
+        return BooleanResponse(value=False)
+    
+@app.get("/is_invited_pending/{event_id}/{username}", response_model=BooleanResponse)
+async def is_user_invited_pending(request:Request, event_id: int, username: str) -> BooleanResponse:
+    if is_user_invited_pending(event_id, username):
+        return BooleanResponse(value=True)
+    else:
+        return BooleanResponse(value=False)
+    
+@app.get("/is_host/{event_id}/{username}", response_model=BooleanResponse)
+async def is_user_host(request:Request, event_id: int, username: str) -> BooleanResponse:
+    if is_user_host(event_id, username):
+        return BooleanResponse(value=True)
+    else:
+        return BooleanResponse(value=False)
