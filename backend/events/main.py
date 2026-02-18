@@ -137,18 +137,18 @@ async def cancel_event(inbound: CancelRequest) -> MessageResponse:
 
 @app.put("/edit", response_model = MessageResponse)
 async def edit_event(inbound: EditRequest) -> MessageResponse:
-    edit_event_response = MessageResponse( 
-        event_id=inbound.event_id,
+    db = get_db()
+    stmt = update(Events).values(
         title=inbound.title,
         description=inbound.description,
         datetime_start=inbound.datetime_start,
         datetime_end=inbound.datetime_end,
         latitude=inbound.latitude,
         longitude=inbound.longitude,
-        venue_id=inbound.venue_id)
-    return edit_event_response
-
-
+        venue_id=inbound.venue_id).where(Events.id == inbound.event_id)
+    db.execute(stmt)
+    db.commit()
+    return MessageResponse(message="Event edited successfully") 
 @app.get("/myevents", response_model =ListResponse)
 async def my_events(request:Request) -> ListResponse:
     return ListResponse()

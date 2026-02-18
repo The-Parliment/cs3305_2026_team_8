@@ -166,3 +166,4 @@ async def list_all_users(request: Request) -> UsernameListResponse:
     result = select(User.username)
     names = db.scalars(result).all()
     return UsernameListResponse(user_names=names)
+
