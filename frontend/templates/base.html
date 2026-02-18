@@ -1,49 +1,51 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="utf-8">
-        {% if display_map|default(false) %}
-            <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-                integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
-                crossorigin=""/>
-            <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-                integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
-                crossorigin=""></script>
-        {% endif %}
-        <title>Test</title> 
-        <style>
-            #map{ 
-                height: 50em;
-                width: 50em;
-            }
-            table {
-                border-collapse: collapse;
-            }
-            th, td {
-                border: 1px solid black;
-                padding: 10px;
-            }
-            </style>
-    </head>
-    <header>
-    </header>
-    <body>
-        <div id="map"></div>
-        {% if display_map|default(false) %}
-            <script type="text/javascript">
-                var x = {{ x|default(53.347878221572344)|tojson }};
-                var y = {{ y|default(-6.275954663866795)|tojson }};
-            </script>
-            <script type="text/javascript" src="{{ url_for('static', path='/js/map.js') }}"></script>
-        {% endif %}
-        <a href="/profile">Profile</a>
-        <a href="/login">Login</a>
-        <a href="/logout">Logout</a>
-        <a href="/register">Register</a>
-        <a href="/circle">Circle</a>
-        <a href="/community">Community</a>
-        {% block main_content %}
-        
-        {% endblock %}
-    </body>
+
+<head>
+  <meta charset="utf-8">
+  <title>GoClub</title>
+  <link rel="stylesheet" href="../static/css/goclub.css" />
+  {% if display_map|default(false) %}
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <style>
+    #map {
+      width: 100%;
+      height: 100vh;
+    }
+  </style>
+  {% endif %}
+</head>
+
+<body>
+  <div id="mySidenav" class="sidenav">
+    <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
+    <a href="/home">Map</a>
+    <a href="/login">Login</a>
+    <a href="/logout">Log Out</a>
+    <a href="/events">Events</a>
+    <a href="/community">Community</a>
+    <a href="/groups">Groups</a>
+    <a href="/profile">My Profile</a>
+    <a href="/circle">My Circle</a>
+  </div>
+  <script>
+    function openNav() {
+      document.getElementById("mySidenav").style.width = "250px";
+      document.getElementById("main").style.marginRight = "250px";
+      document.getElementById("menuBtn").style.display = "none";
+    }
+    function closeNav() {
+      document.getElementById("mySidenav").style.width = "0";
+      document.getElementById("main").style.marginRight = "0";
+      document.getElementById("menuBtn").style.display = "block";
+    }
+  </script>
+  <span id="menuBtn" class="menu-btn" onclick="openNav()">&#9776;</span> 
+  {% block main_content %}
+  {% endblock %}
+</body>
+
 </html>
