@@ -4,7 +4,7 @@ from events_model import CreateRequest, InfoResponse, ListEventResponse, Message
 from common.JWTSecurity import decode_and_verify                    # Importing cillians Security libs.
 from common.db.structures.structures import Events, Venue, UserRequest, RequestTypes, Status    # Importing cillians DB models.
 from common.db.db import get_db
-from events_database import event_exists
+from events_database import event_exists, is_user_invited
 from sqlalchemy import select, insert, delete, update
 
 logging.basicConfig(level=logging.INFO, format='[events] %(asctime)s%(levelname)s %(message)s')
@@ -148,11 +148,58 @@ async def edit_event(inbound: EditRequest) -> MessageResponse:
         venue_id=inbound.venue_id)
     return edit_event_response
 
+@app.post("/attend/{event_id}", response_model=MessageResponse)
+async def attend_event(inbound: Request, event_id: int, authorized_user=Depends(get_username_from_request)) -> MessageResponse:
+    db = get_db()
+    if not event_exists(event_id):
+        return MessageResponse(message="There is no such event")
+    if is_user_invited(event_id, authorized_user):
+        stmt = update(UserRequest).values(
+            status=Status.ACCEPTED
+        ).where(
+            field2=authorized_user,
+            field3=event_id,
+            type=RequestTypes.EVENT_INVITE
+        )
+        db.execute(stmt)
+        db.commit()
+        return MessageResponse(message="Invitation accepted, you are now attending the event!")
+    else:
+        stmt=insert(UserRequest).values(
+            field1=event_id,
+            field2=authorized_user,
+            field3=event_id,
+            type=RequestTypes.EVENT_INVITE,
+            status=Status.ACCEPTED
+        )
+        db.execute(stmt)
+        db.commit()
+        return MessageResponse(message="You are now attending the event!")
 
 @app.get("/myevents", response_model=ListEventResponse)
-async def my_events(request:Request) -> ListEventResponse:
-
-    return ListEventResponse(list=[])
+async def my_events(request:Request, authorized_user=Depends(get_username_from_request)) -> ListEventResponse:
+    db = get_db()
+    stmt = select(UserRequest.field3).filter_by(
+        field2=authorized_user,
+        type=RequestTypes.EVENT_INVITE,
+        status=Status.ACCEPTED
+    )
+    events = db.scalars(stmt).all()
+    list_of_events = []
+    for event_id in events:
+        stmt = select(Events).filter_by(id=event_id)
+        event = db.scalars(stmt).first()
+        if event:
+            list_of_events.append(InfoResponse(id=event.id,
+                            venue=event.venue,
+                            latitude=event.latitude,
+                            longitude=event.longitude,
+                            datetime_start=event.datetime_start,
+                            datetime_end=event.datetime_end,
+                            title=event.title,
+                            description=event.description,
+                            host=event.host))
+    return ListEventResponse(list=list_of_events)
 
 @app.get("/all_events", response_model=ListEventResponse)
 async def all_events(request:Request) -> ListEventResponse:

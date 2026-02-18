@@ -79,5 +79,6 @@ class Events(Base):
     title = Column("title", String)
     description = Column("description", String)
     host = Column("host", String, default="")
+    public = Column("public", Boolean, default=True)
     
     host = Column("host", String, ForeignKey("users.username"), nullable=True)
