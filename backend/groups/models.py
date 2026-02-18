@@ -28,3 +28,7 @@ class GroupsList(BaseModel):
     group_list: list[Group]
     model_config = ConfigDict(from_attributes=True)
 
+class GroupJoin(BaseModel):
+    username: str
+    group_id: int
+
