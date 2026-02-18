@@ -285,26 +285,3 @@ async def event_info(request: Request, event_id: int, claims: dict = Depends(req
                                                           "event_end_time": event_end_time, 
                                                           "event_description": event_description}
     )
-
-@app.get("/all_events", response_class=HTMLResponse)
-async def all_events(request: Request, claims: dict = Depends(require_frontend_auth)):
-    token = request.cookies.get("access_token")
-    all_events_data = await get(EVENTS_INTERNAL_BASE, "all_events", headers={"Cookie" : f"access_token={token}"})
-    all_events_info = [] if all_events_data is None else all_events_data.get("events", [])
-    all_events = []
-    for event in all_events_info:
-        all_events.append({
-            "id": event["id"],
-            "title": event["title"],
-            "venue": event["venue"],
-            "latitude": event["latitude"],
-            "longitude": event["longitude"],
-            "start_time": event["datetime_start"],
-            "end_time": event["datetime_end"],
-            "host": event["host"],
-            "description": event["description"]
-        })
-    
-    return templates.TemplateResponse(
-        request=request, name="events_map.html", context={"all_events": all_events, "display_map": True}
-    )

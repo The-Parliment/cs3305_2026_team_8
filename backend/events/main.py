@@ -1,6 +1,6 @@
 import logging
 from fastapi import FastAPI, Request, HTTPException, Header, Depends
-from events_model import CreateRequest, InfoResponse, ListEventResponse, MessageResponse, ListResponse, InviteRequest, CancelRequest, EditRequest
+from events_model import CreateRequest, InfoResponse, MessageResponse, ListResponse, InviteRequest, CancelRequest, EditRequest
 from common.JWTSecurity import decode_and_verify                    # Importing cillians Security libs.
 from common.db.structures.structures import Events, Venue, UserRequest, RequestTypes, Status    # Importing cillians DB models.
 from common.db.db import get_db
@@ -49,7 +49,7 @@ async def create_item(inbound: CreateRequest) -> MessageResponse:
         )
     return create_response
 
-@app.get("/eventinfo/{event_id}", response_model=InfoResponse)
+@app.get("/eventinfo/{event_id}", response_model = InfoResponse)
 async def event_info(request: Request, event_id:int):
     db=get_db()
     result=select(Events).filter_by(id=event_id).limit(1)
@@ -89,7 +89,7 @@ async def invite_user(inbound: InviteRequest, username:int) -> MessageResponse:
         message=f"Invited {username} to event."
     )
 
-@app.post("/invitecircle", response_model=MessageResponse)
+@app.post("/invitecircle", response_model = MessageResponse)
 async def invite_circle(inbound: InviteRequest) -> MessageResponse:
     db = get_db()
     stmt=select(UserRequest.field2).filter_by(
@@ -114,14 +114,14 @@ async def invite_circle(inbound: InviteRequest) -> MessageResponse:
 
 
 #cannot complete group code without darrens code
-@app.post("/invitegroup", response_model=MessageResponse)
+@app.post("/invitegroup", response_model = MessageResponse)
 async def invite_group(inbound: InviteRequest) -> MessageResponse:
     invite_group_response = MessageResponse( 
         message="foodwise wuz here",
         )
     return invite_group_response 
 
-@app.post("/cancel", response_model=MessageResponse)
+@app.post("/cancel", response_model = MessageResponse)
 async def cancel_event(inbound: CancelRequest) -> MessageResponse:
     db = get_db()
     if not event_exists(inbound.event_id):
@@ -135,7 +135,7 @@ async def cancel_event(inbound: CancelRequest) -> MessageResponse:
         message="Event deleted :(")
     return cancel_event_response
 
-@app.put("/edit", response_model=MessageResponse)
+@app.put("/edit", response_model = MessageResponse)
 async def edit_event(inbound: EditRequest) -> MessageResponse:
     edit_event_response = MessageResponse( 
         event_id=inbound.event_id,
@@ -149,29 +149,6 @@ async def edit_event(inbound: EditRequest) -> MessageResponse:
     return edit_event_response
 
 
-@app.get("/myevents", response_model=ListEventResponse)
-async def my_events(request:Request) -> ListEventResponse:
-
-    return ListEventResponse(list=[])
-
-@app.get("/all_events", response_model=ListEventResponse)
-async def all_events(request:Request) -> ListEventResponse:
-    db = get_db()
-    stmt = select(Events)
-    result = db.execute(stmt).scalars().all()
-    if not result: 
-        return ListEventResponse(list=[])
-    list_of_events = []
-    for event in result:
-        list_of_events.append(InfoResponse(id=event.id,
-                        venue=event.venue,
-                        latitude=event.latitude,
-                        longitude=event.longitude,
-                        datetime_start=event.datetime_start,
-                        datetime_end=event.datetime_end,
-                        title=event.title,
-                        description=event.description,
-                        host=event.host))
-        
-    response = ListEventResponse(events=list_of_events)
-    return response
+@app.get("/myevents", response_model =ListResponse)
+async def my_events(request:Request) -> ListResponse:
+    return ListResponse()
