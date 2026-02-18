@@ -252,6 +252,9 @@ def temp_remove_in_production():
     user5 = User(
         username="joana", hashed_password=pwd.hash("mafra")
     )
+    user5_details = UserDetails(
+        username="joana", first_name="Joana", last_name="Mafra", email="joana@example.com", phone_number="01234567894"
+    )
     event = Events(
         id=1,
         title="Test Event",
@@ -298,6 +301,11 @@ def temp_remove_in_production():
     db.add(user3)
     db.add(user4)
     db.add(user5)
+    db.add(user1_details)
+    db.add(user2_details)
+    db.add(user3_details)
+    db.add(user4_details)
+    db.add(user5_details)
     db.add(event)
     db.add(req1)
     db.add(req2)
