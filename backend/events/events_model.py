@@ -45,6 +45,9 @@ class InviteRequest(BaseModel):
 
 class CancelRequest(BaseModel):
     event_id: int
+    
+class BooleanResponse(BaseModel):
+    value: bool
 
 class EditRequest(BaseModel):
     event_id: int

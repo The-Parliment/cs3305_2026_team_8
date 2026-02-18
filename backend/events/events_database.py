@@ -23,6 +23,14 @@ def event_is_public(event):
         return result.public
     return False
 
+def is_user_invited_pending(event, user):
+    db = get_db()
+    stmt = select(UserRequest).filter_by(field2=user, field3=event, type=RequestTypes.EVENT_INVITE, status=Status.PENDING).limit(1)
+    result = db.scalar(stmt)
+    if result is not None:
+        return True
+    return False
+
 def is_user_invited(event, user):
     db = get_db()
     stmt = select(UserRequest).filter_by(field2=user, field3=event, type=RequestTypes.EVENT_INVITE).limit(1)

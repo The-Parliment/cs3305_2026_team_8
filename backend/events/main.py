@@ -3,7 +3,7 @@ import os
 from fastapi import FastAPI, Request, HTTPException, Header, Depends
 from httpcore import request
 from common.clients.client import get
-from events_model import CreateRequest, InfoResponse, ListEventResponse, MessageResponse, ListResponse, InviteRequest, CancelRequest, EditRequest
+from events_model import BooleanResponse, CreateRequest, InfoResponse, ListEventResponse, MessageResponse, ListResponse, InviteRequest, CancelRequest, EditRequest
 from common.JWTSecurity import decode_and_verify                    # Importing cillians Security libs.
 from common.db.structures.structures import Events, Venue, UserRequest, RequestTypes, Status    # Importing cillians DB models.
 from common.db.db import get_db
@@ -214,6 +214,17 @@ async def my_events(request:Request, authorized_user=Depends(get_username_from_r
                             host=event.host))
     return ListEventResponse(list=list_of_events)
 
+@app.get("/my_invites", response_model=ListEventResponse)
+async def my_invites(request:Request, authorized_user=Depends(get_username_from_request)) -> ListEventResponse:
+    db = get_db()
+    stmt = select(UserRequest.field3).filter_by(
+        field2=authorized_user,
+        type=RequestTypes.EVENT_INVITE,
+        status=Status.PENDING
+    )
+    events = db.scalars(stmt).all()
+    return ListResponse(list=events)
+
 @app.get("/all_events", response_model=ListEventResponse)
 async def all_events(request:Request) -> ListEventResponse:
     db = get_db()
@@ -246,3 +257,24 @@ async def get_attendees(event_id: int) -> ListResponse:
     )
     attendees = db.scalars(stmt).all()
     return ListResponse(lst=attendees)
+
+@app.get("/is_attending/{event_id}/{username}", response_model=BooleanResponse)
+async def is_user_attending(request:Request, event_id: int, username: str) -> BooleanResponse:
+    if is_user_attending(event_id, username):
+        return BooleanResponse(value=True)
+    else:
+        return BooleanResponse(value=False)
+    
+@app.get("/is_invited/{event_id}/{username}", response_model=BooleanResponse)
+async def is_user_invited(request:Request, event_id: int, username: str) -> BooleanResponse:
+    if is_user_invited(event_id, username):
+        return BooleanResponse(value=True)
+    else:
+        return BooleanResponse(value=False)
+    
+@app.get("/is_invited_pending/{event_id}/{username}", response_model=BooleanResponse)
+async def is_user_invited_pending(request:Request, event_id: int, username: str) -> BooleanResponse:
+    if is_user_invited_pending(event_id, username):
+        return BooleanResponse(value=True)
+    else:
+        return BooleanResponse(value=False)
