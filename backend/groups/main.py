@@ -24,18 +24,16 @@ async def root():
 @app.post("/create")
 async def create_group(new_group: GroupCreate, db_handle: Session = Depends(get_db)):
     logger.info(f"create_group called: {new_group}")
-    group_id = crud.create_group(db_handle, new_group)
-    return group_id
+    group_info = crud.create_group(db_handle, new_group)
+    return group_info
 
 @app.post("/join")
 async def join_group(join_handle: GroupJoin, db_handle: Session = Depends(get_db)):
     logger.info(f"join_group called: {join_handle}")
 
-    if not join_group(db, join_handle):
+    if not crud.db_join_group(db_handle, join_handle):
         raise HTTPException(status_code=409, detail="Failed to join group")
     return {"message": "Successfully joined group"}
-    group_instance = crud.create_group(db_handle, new_group)
-    return group_instance
 
 @app.get("/list")  # GET, no body
 async def list_all_groups(db_handle: Session = Depends(get_db)):
