@@ -22,14 +22,18 @@
 <body>
   <div id="mySidenav" class="sidenav">
     <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
+    {% if logged_in|default(true) %}
     <a href="/home">Map</a>
-    <a href="/login">Login</a>
     <a href="/logout">Log Out</a>
     <a href="/events">Events</a>
     <a href="/community">Community</a>
     <a href="/groups">Groups</a>
     <a href="/profile">My Profile</a>
     <a href="/circle">My Circle</a>
+    {% else %}
+    <a href="/home">Map</a>
+    <a href="/login">Login</a>
+    {% endif %}
   </div>
   <script>
     function openNav() {

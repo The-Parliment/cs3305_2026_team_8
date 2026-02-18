@@ -3,9 +3,13 @@
 {% block main_content %}
 
 <main>
-    <p>
-        Logged in as: {{ authorized_user }}
-    </p>
+    <header>
+        <h2>Your profile</h2>
+        <p>
+         {{ authorized_user }}
+    </p>  
+    </header>
+    
     <h2>Profile Details</h2>
     {% if user_details %}
         <ul>
