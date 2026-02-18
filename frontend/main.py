@@ -55,9 +55,10 @@ def require_frontend_auth(request: Request) -> dict:
         )
 
 @app.get("/", response_class=HTMLResponse)
+@app.get("/home", response_class=HTMLResponse)
 async def index(request: Request):
     return templates.TemplateResponse(
-        request=request, name="index.html", context={"display_map": True}
+        request=request, name="home.html", context={"display_map": True}
     )
 
 @app.get("/register", response_class=HTMLResponse)
