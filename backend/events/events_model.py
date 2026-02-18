@@ -10,6 +10,7 @@ class CreateRequest(BaseModel):
     datetime_end: datetime
     venue: str
     host:str
+    public: bool | None = False
 
 class CreateResponse(BaseModel):
     event_id: int

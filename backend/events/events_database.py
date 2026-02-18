@@ -46,3 +46,11 @@ def is_user_attending(event, user):
     if result is not None:
         return True
     return False
+
+def is_user_host(event, user):
+    db = get_db()
+    stmt = select(Events).filter_by(event_id=event).limit(1)
+    result = db.scalar(stmt)
+    if result is not None:
+        return result.host == user
+    return False

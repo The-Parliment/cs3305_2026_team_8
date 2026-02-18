@@ -41,7 +41,8 @@ async def create_event(inbound: CreateRequest) -> MessageResponse:
         description=inbound.description,
         datetime_start=inbound.datetime_start,
         datetime_end=inbound.datetime_end,
-        host=inbound.host
+        host=inbound.host,
+        public=inbound.public
     )
     db.execute(stmt)
     db.commit()
@@ -65,7 +66,9 @@ async def event_info(request: Request, event_id:int):
                         datetime_end=event.datetime_end, 
                         title=event.title, 
                         description=event.description, 
-                        host=event.host)
+                        host=event.host,
+                        public=event.public
+                        )
 
 # too complicated to fill out with rest of them
 @app.get("/search", response_model = ListResponse)
@@ -210,7 +213,9 @@ async def my_events(request:Request, authorized_user=Depends(get_username_from_r
                             datetime_end=event.datetime_end,
                             title=event.title,
                             description=event.description,
-                            host=event.host))
+                            host=event.host,
+                            public=event.public
+                            ))
     return ListEventResponse(list=list_of_events)
 
 @app.get("/my_invites", response_model=ListEventResponse)
@@ -222,7 +227,7 @@ async def my_invites(request:Request, authorized_user=Depends(get_username_from_
         status=Status.PENDING
     )
     events = db.scalars(stmt).all()
-    return ListResponse(list=events)
+    return ListResponse(lst=events)
 
 @app.get("/all_events", response_model=ListEventResponse)
 async def all_events(request:Request) -> ListEventResponse:
@@ -241,7 +246,8 @@ async def all_events(request:Request) -> ListEventResponse:
                         datetime_end=event.datetime_end,
                         title=event.title,
                         description=event.description,
-                        host=event.host))
+                        host=event.host,
+                        public=event.public))
         
     response = ListEventResponse(events=list_of_events)
     return response
@@ -274,6 +280,13 @@ async def is_user_invited(request:Request, event_id: int, username: str) -> Bool
 @app.get("/is_invited_pending/{event_id}/{username}", response_model=BooleanResponse)
 async def is_user_invited_pending(request:Request, event_id: int, username: str) -> BooleanResponse:
     if is_user_invited_pending(event_id, username):
+        return BooleanResponse(value=True)
+    else:
+        return BooleanResponse(value=False)
+    
+@app.get("/is_host/{event_id}/{username}", response_model=BooleanResponse)
+async def is_user_host(request:Request, event_id: int, username: str) -> BooleanResponse:
+    if is_user_host(event_id, username):
         return BooleanResponse(value=True)
     else:
         return BooleanResponse(value=False)
