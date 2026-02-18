@@ -4,46 +4,6 @@
 
 <main>
     <p>
-        <table>
-            <tr>
-                <th colspan="2">Friends not in circle</th>
-            </tr>
-            {% for friend in friends %}
-            <tr>
-                {% if friend not in circle %}
-                <td>{{ friend }}</td>
-                    {% if friend not in invitations_sent %}
-                        <td><a href="/circle/invite_to_circle/{{ friend }}">Invite</a></td>
-                    {% else %}
-                        <td>Invitation Sent</td>
-                    {% endif %}
-                {% endif %}
-            </tr>
-            {% endfor %}
-        </table>
-        <table>
-            <tr>
-                <th colspan="2">My Circle</th>
-            </tr>
-            {% for user in circle %}
-            <tr>
-                <td>{{ user }}</td>
-                <td><a href="/circle/remove_from_circle/{{ user }}">Remove</a></td>
-            </tr>
-            {% endfor %}
-        </table>
-        <table>
-            <tr>
-                <th colspan="3">Pending Invitations</th>
-            </tr>
-            {% for user in pending_invites %}
-            <tr>
-                <td>{{ user }}</td>
-                <td><a href="/circle/accept/{{ user }}">Accept</a></td>
-                <td><a href="/circle/decline/{{ user }}">Decline</a></td>
-            </tr>
-            {% endfor %}
-        </table>
         <a href="/invites/all">All</a>
         <a href="/invites/follow_requests">Follow Requests</a>
         <a href="/invites/circle_invites">Circle Invites</a>
