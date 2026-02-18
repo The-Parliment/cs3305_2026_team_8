@@ -349,6 +349,13 @@ async def get_invites(request: Request, invite_type: str | None = "all", claims:
 @app.get("/eventinfo/{event_id}", response_class=HTMLResponse)
 async def event_info(request: Request, event_id: int, claims: dict = Depends(require_frontend_auth)):
     token = request.cookies.get("access_token")
+    user = claims.get("sub")
+    is_user_host_data = await get(EVENTS_INTERNAL_BASE, f"is_host/{event_id}/{user}", headers={"Cookie" : f"access_token={token}"})
+    is_user_host = is_user_host_data.get("value", False) if is_user_host_data else False
+    is_user_invited_pending_data = await get(EVENTS_INTERNAL_BASE, f"is_invited_pending/{event_id}/{user}", headers={"Cookie" : f"access_token={token}"})
+    is_user_invited_pending = is_user_invited_pending_data.get("value", False) if is_user_invited_pending_data else False
+    is_user_attending_data = await get(EVENTS_INTERNAL_BASE, f"is_attending/{event_id}/{user}", headers={"Cookie" : f"access_token={token}"})
+    is_user_attending = is_user_attending_data.get("value", False) if is_user_attending_data else False
     event_info_data = await get(EVENTS_INTERNAL_BASE, f"eventinfo/{event_id}", headers={"Cookie" : f"access_token={token}"})
     if event_info_data is None or event_info_data.get("valid", True) == False:
         return templates.TemplateResponse(
@@ -362,6 +369,7 @@ async def event_info(request: Request, event_id: int, claims: dict = Depends(req
     event_start_time = event_info_data.get("datetime_start", "Unknown Start Time")
     event_end_time = event_info_data.get("datetime_end", "Unknown End Time")   
     event_description = event_info_data.get("description", "No Description Available")
+    event_public = event_info_data.get("public", False)
     return templates.TemplateResponse(
         request=request, name="event_info.html", context={"event_title": event_name, 
                                                           "event_venue": event_venue, 
@@ -370,7 +378,11 @@ async def event_info(request: Request, event_id: int, claims: dict = Depends(req
                                                           "event_longitude": event_longitude, 
                                                           "event_start_time": event_start_time, 
                                                           "event_end_time": event_end_time, 
-                                                          "event_description": event_description}
+                                                          "event_description": event_description,
+                                                          "event_public": event_public,
+                                                          "is_user_host": is_user_host,
+                                                          "is_user_invited_pending": is_user_invited_pending,
+                                                          "is_user_attending": is_user_attending}
     )
 
 @app.get("/events", response_class=HTMLResponse)
@@ -395,3 +407,10 @@ async def all_events(request: Request, claims: dict = Depends(require_frontend_a
     return templates.TemplateResponse(
         request=request, name="events_map.html", context={"all_events": all_events, "display_map": True}
     )
+
+@app.get("/events/decline/{event_id}", response_class=HTMLResponse)
+async def decline_event_invite(request: Request, event_id: int, claims: dict = Depends(require_frontend_auth)):
+    token = request.cookies.get("access_token")
+    user = claims.get("sub")
+    await post(EVENTS_INTERNAL_BASE, f"decline_invite/{event_id}/{user}", headers={"Cookie" : f"access_token={token}"})
+    return RedirectResponse(url="/events", status_code=303)

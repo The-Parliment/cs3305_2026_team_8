@@ -296,6 +296,9 @@ def temp_remove_in_production():
     req10 = UserRequest(
         field1="darren", field2="cillian", type=RequestTypes.CIRCLE_INVITE, status=Status.PENDING
     )
+    event_invite1 = UserRequest(
+        field1="cillian", field2="darren", field3=1, type=RequestTypes.EVENT_INVITE, status=Status.PENDING
+    )
     db.add(user1)
     db.add(user2)
     db.add(user3)
@@ -317,5 +320,6 @@ def temp_remove_in_production():
     db.add(req8)
     db.add(req9)
     db.add(req10)
+    db.add(event_invite1)
     db.commit()
     seed_cork_dummy_events()
