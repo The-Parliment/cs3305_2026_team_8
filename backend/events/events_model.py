@@ -42,7 +42,6 @@ class ListEventResponse(BaseModel):
     events: list[InfoResponse]
 
 class InviteRequest(BaseModel):
-    inviter:str
     event_id: int
 
 class CancelRequest(BaseModel):

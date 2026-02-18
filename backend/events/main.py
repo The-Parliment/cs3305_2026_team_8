@@ -1,5 +1,8 @@
 import logging
+import os
 from fastapi import FastAPI, Request, HTTPException, Header, Depends
+from httpcore import request
+from common.clients.client import get
 from events_model import CreateRequest, InfoResponse, ListEventResponse, MessageResponse, ListResponse, InviteRequest, CancelRequest, EditRequest
 from common.JWTSecurity import decode_and_verify                    # Importing cillians Security libs.
 from common.db.structures.structures import Events, Venue, UserRequest, RequestTypes, Status    # Importing cillians DB models.
@@ -11,6 +14,7 @@ logging.basicConfig(level=logging.INFO, format='[events] %(asctime)s%(levelname)
 logger = logging.getLogger(__name__)
 
 app = FastAPI(root_path="/events", title="events_service")
+CIRCLES_INTERNAL_BASE = os.getenv("CIRCLES_INTERNAL_BASE", "http://circles:8002")
 
 def get_username_from_request(request: Request) -> str | None:
     token = request.cookies.get("access_token")
@@ -28,8 +32,7 @@ async def root():
     return {"message": "Events Service API called"}
 
 @app.post("/create", response_model = MessageResponse)
-async def create_item(inbound: CreateRequest) -> MessageResponse:
-    logger.info(f"Create endpoint called for Event: {inbound.title}")
+async def create_event(inbound: CreateRequest) -> MessageResponse:
     db = get_db()
     stmt= insert(Events).values(
         id=inbound.id,
@@ -74,10 +77,10 @@ async def search_events(request:Request) -> ListResponse:
     return ListResponse() # needs to be filled out + restructured for scaling
 
 @app.post("/invite/{username}", response_model=MessageResponse)
-async def invite_user(inbound: InviteRequest, username:int) -> MessageResponse:
+async def invite_user(inbound: InviteRequest, username:int, authorized_user=Depends(get_username_from_request)) -> MessageResponse:
     db = get_db()
     stmt = insert(UserRequest).values(
-        field1=inbound.inviter,
+        field1=authorized_user,
         field2=username,
         field3=inbound.event_id,
         type=RequestTypes.EVENT_INVITE,
@@ -89,28 +92,23 @@ async def invite_user(inbound: InviteRequest, username:int) -> MessageResponse:
         message=f"Invited {username} to event."
     )
 
-@app.post("/invitecircle", response_model=MessageResponse)
-async def invite_circle(inbound: InviteRequest) -> MessageResponse:
+@app.post("/invitecircle/{event_id}", response_model=MessageResponse)
+async def invite_circle(inbound: Request, event_id: int, authorized_user=Depends(get_username_from_request)) -> MessageResponse:
     db = get_db()
-    stmt=select(UserRequest.field2).filter_by(
-        field1=inbound.inviter,
-        type=RequestTypes.CIRCLE_INVITE,
-        status=Status.CONFIRMED
-    )
-    circle_members=db.execute(stmt).scalars().all()
-    if not circle_members:
-        return MessageResponse("There is nobody in your circle...")
-    
+    circle_members_data = await get(CIRCLES_INTERNAL_BASE, "mycircle", 
+                               headers={"Cookie" : f"access_token={inbound.cookies.get('access_token')}"})
+    circle_members = circle_members_data.get("user_names", [])
     for member in circle_members:
-        db.execute(insert(UserRequest).values(
-        field1=inbound.inviter,
-        field2=member,
-        field3=inbound.event_id,
-        type=RequestTypes.EVENT_INVITE,
-        status=Status.PENDING
-    ))
+        stmt = insert(UserRequest).values(
+            field1=authorized_user,
+            field2=member,
+            field3=event_id,
+            type=RequestTypes.EVENT_INVITE,
+            status=Status.PENDING
+        )
+        db.execute(stmt)
     db.commit()
-    return MessageResponse("invited " + len(circle_members) +" to your event!")
+    return MessageResponse(message=f"Invited your circle to this event!")
 
 
 #cannot complete group code without darrens code
@@ -121,19 +119,18 @@ async def invite_group(inbound: InviteRequest) -> MessageResponse:
         )
     return invite_group_response 
 
-@app.post("/cancel", response_model=MessageResponse)
-async def cancel_event(inbound: CancelRequest) -> MessageResponse:
+@app.post("/cancel/{event_id}", response_model=MessageResponse)
+async def cancel_event(inbound: Request, event_id: int, authorized_user=Depends(get_username_from_request)) -> MessageResponse:
     db = get_db()
-    if not event_exists(inbound.event_id):
+    if not event_exists(event_id):
         return MessageResponse(message="There is no such event")
     stmt=delete(Events).where(
-        id=inbound.event_id
+        id=event_id,
+        host=authorized_user
     )
     db.execute(stmt)
     db.commit()
-    cancel_event_response = MessageResponse( 
-        message="Event deleted :(")
-    return cancel_event_response
+    return MessageResponse(message="Event cancelled successfully.")
 
 @app.put("/edit", response_model=MessageResponse)
 async def edit_event(inbound: EditRequest) -> MessageResponse:
