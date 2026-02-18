@@ -1,7 +1,6 @@
 import logging
 import os
 from fastapi import FastAPI, Request, HTTPException, Header, Depends
-from httpcore import request
 from common.clients.client import get
 from events_model import BooleanResponse, CreateRequest, InfoResponse, ListEventResponse, MessageResponse, ListResponse, InviteRequest, CancelRequest, EditRequest
 from common.JWTSecurity import decode_and_verify                    # Importing cillians Security libs.
