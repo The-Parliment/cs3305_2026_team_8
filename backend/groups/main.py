@@ -26,3 +26,11 @@ async def create_group(new_group: GroupCreate, db_handle: Session = Depends(get_
     logger.info(f"create_group called: {new_group}")
     group_id = crud.create_group(db_handle, new_group)
     return group_id
+
+@app.post("/join")
+async def join_group(join_handle: GroupJoin, db_handle: Session = Depends(get_db)):
+    logger.info(f"join_group called: {join_handle}")
+
+    if not join_group(db, join_handle):
+        raise HTTPException(status_code=409, detail="Failed to join group")
+    return {"message": "Successfully joined group"}

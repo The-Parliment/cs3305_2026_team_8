@@ -1,6 +1,7 @@
 from sqlalchemy.orm import Session
+from datetime import datetime
 from models import GroupCreate
-from common.db.structures.structures import Group  # Import Group from common structures
+from common.db.structures.structures import Group, GroupJoin  # Import Group from common structures
 
 
 def create_group(db_handle: Session, new_group: GroupCreate):
@@ -32,3 +33,20 @@ def create_group(db_handle: Session, new_group: GroupCreate):
     
     return db_group.group_id
 
+def join_group(db_handle: Session, join_handle: GroupJoin) -> bool:
+    try:
+        db_join = GroupMembers(
+            group_id=join_handle.group_id,
+            username=join_handle.username,
+            date_joined=datetime.utcnow()
+        )
+        db_handle.add(db_join)
+        db_handle.commit()
+        return True
+
+    # If there is any issues with the foreign key the
+    # db will raise an exception
+    # most likely we tried with a usename or groupd that does not exist.
+    except IntegrityError:
+        db_handle.rollback()
+        return False

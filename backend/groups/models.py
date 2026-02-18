@@ -24,3 +24,8 @@ class Group(GroupCreate):
 
 class GroupsList(BaseModel):
     group_list: list[Group]
+
+class GroupJoin(BaseModel):
+    username: str
+    group_id: int
+
