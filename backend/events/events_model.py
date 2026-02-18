@@ -25,7 +25,7 @@ class MessageResponse(BaseModel):
     valid : bool | None = True
 
 class ListResponse(BaseModel):
-    list: list
+    lst: list
 
 class InfoResponse(BaseModel):
     id: int
@@ -37,6 +37,9 @@ class InfoResponse(BaseModel):
     datetime_end: datetime
     venue: str
     host:str
+
+class ListEventResponse(BaseModel):
+    events: list[InfoResponse]
 
 class InviteRequest(BaseModel):
     inviter:str
