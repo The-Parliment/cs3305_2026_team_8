@@ -235,3 +235,14 @@ async def all_events(request:Request) -> ListEventResponse:
         
     response = ListEventResponse(events=list_of_events)
     return response
+
+@app.get("/get_attendees/{event_id}", response_model=ListResponse)
+async def get_attendees(event_id: int) -> ListResponse:
+    db = get_db()
+    stmt = select(UserRequest.field2).filter_by(
+        field3=event_id,
+        type=RequestTypes.EVENT_INVITE,
+        status=Status.ACCEPTED
+    )
+    attendees = db.scalars(stmt).all()
+    return ListResponse(lst=attendees)
