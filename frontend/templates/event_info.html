@@ -6,7 +6,7 @@
     {% if is_user_host|default(false) %}
         <a href="/events/edit/{{ event_id }}">Edit Event</a>
         <a href="/events/cancel/{{ event_id }}">Cancel Event</a>
-        <a href="/events/invite_circle/{{ event_id }}/">Invite Circle</a>
+        <a href="/events/invitecircle/{{ event_id }}/">Invite Circle</a>
     {% endif %}
     <p>Event Title: {{ event_title }}</p>
     <p>Event Venue: {{ event_venue }}</p>
@@ -22,7 +22,7 @@
         <p>You are attending this event.</p>
         <a href="/events/decline/{{ event_id }}">Unattend Event</a>
         {% if is_user_host|default(false) or event_public|default(false) %}
-            <a href="/events/invite_circle/{{ event_id }}/">Invite Circle</a>
+            <a href="/events/invitecircle/{{ event_id }}/">Invite Circle</a>
         {% endif %}
     {% else %}
         {% if is_user_invited_pending|default(false) %}

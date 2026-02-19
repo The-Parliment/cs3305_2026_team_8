@@ -477,12 +477,10 @@ async def cancel_event(request: Request, event_id: int, claims: dict = Depends(r
     await post(EVENTS_INTERNAL_BASE, f"cancel/{event_id}", headers={"Cookie" : f"access_token={token}"})
     return RedirectResponse(url="/events", status_code=303)
 
-@app.get("/events/invite_circle/{event_id}/", response_class=HTMLResponse)
+@app.get("/events/invitecircle/{event_id}/", response_class=HTMLResponse)
 async def invite_circle_to_event(request: Request, event_id: int, claims: dict = Depends(require_frontend_auth)):
     token = request.cookies.get("access_token")
-    user = claims.get("sub")
-    # TODO: Implement circle invitation to event functionality
-    # For now, redirect to event info
+    await post(EVENTS_INTERNAL_BASE, f"invitecircle/{event_id}", headers={"Cookie" : f"access_token={token}"})
     return RedirectResponse(url=f"/eventinfo/{event_id}", status_code=303)
 
 @app.get("/events/attend/{event_id}", response_class=HTMLResponse)
