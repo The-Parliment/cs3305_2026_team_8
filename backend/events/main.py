@@ -126,25 +126,31 @@ async def cancel_event(inbound: Request, event_id: int, authorized_user=Depends(
     if not event_exists(event_id):
         return MessageResponse(message="There is no such event")
     stmt=delete(Events).where(
-        id=event_id,
-        host=authorized_user
+        (Events.id == event_id) & (Events.host == authorized_user)
     )
     db.execute(stmt)
     db.commit()
     return MessageResponse(message="Event cancelled successfully.")
 
-@app.put("/edit", response_model=MessageResponse)
-async def edit_event(inbound: EditRequest) -> MessageResponse:
-    edit_event_response = MessageResponse( 
-        id=inbound.event_id,
+@app.post("/edit/{event_id}", response_model=MessageResponse)
+async def edit_event(request: Request, event_id: int, inbound: EditRequest, authorized_user=Depends(get_username_from_request)) -> MessageResponse:
+    db = get_db()
+    if not event_exists(event_id):
+        return MessageResponse(message="Event not found", valid=False)
+    if not user_is_host(event_id, authorized_user):
+        return MessageResponse(message="You are not the host of this event", valid=False)
+    stmt = update(Events).where(Events.id == event_id).values(
         title=inbound.title,
         description=inbound.description,
         datetime_start=inbound.datetime_start,
         datetime_end=inbound.datetime_end,
         latitude=inbound.latitude,
         longitude=inbound.longitude,
-        venue_id=inbound.venue_id)
-    return edit_event_response
+        venue=inbound.venue
+    )
+    db.execute(stmt)
+    db.commit()
+    return MessageResponse(message="Event updated successfully")
 
 @app.post("/attend/{event_id}", response_model=MessageResponse)
 async def attend_event(inbound: Request, event_id: int, authorized_user=Depends(get_username_from_request)) -> MessageResponse:

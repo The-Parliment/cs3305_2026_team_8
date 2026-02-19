@@ -30,6 +30,17 @@ def seed_cork_dummy_events():
             description="Afternoon live music session in the city centre."
         ),
         Events(
+            title="Really epic party at my house",
+            venue="Parliament",
+            host="roisin",
+            latitude=51.8947497,
+            longitude=-8.474104,
+            datetime_start=base_date,
+            datetime_end=base_date + datetime.timedelta(hours=5),
+            description="Incredible party, BYOB, Fermoy taxi available if required!"
+        ),
+     
+        Events(
             title="Shandon Tower Tour",
             venue="St. Anne's Church, Shandon",
             host="joana",

@@ -51,11 +51,10 @@ class BooleanResponse(BaseModel):
     value: bool
 
 class EditRequest(BaseModel):
-    event_id: int
     title: str
     description: str
     datetime_start: datetime
     datetime_end: datetime
     latitude: float
     longitude: float
-    venue_id: int
+    venue: str
