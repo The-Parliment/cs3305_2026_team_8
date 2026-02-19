@@ -21,19 +21,24 @@
     {% else %}
         <p>This event is private.</p>
     {% endif %}
-    
 
-    {% if is_user_attending|default(false) %}
+    
+    {% if is_attending|default(false) %}
         <p>You are attending this event.</p>
-        <a href="/events/decline/{{ event_id }}">Unattend Event</a>
-        {% if is_user_host|default(false) or event_public|default(false) %}
+        <a href="/events/decline/{{ event_id }}">Leave Event</a>
+        {% if event_public|default(false) or is_host|default(false) %}
             <a href="/events/invitecircle/{{ event_id }}/">Invite Circle</a>
         {% endif %}
-    {% else %}
-        {% if is_user_invited_pending|default(false) %}
-            <a href="/events/decline/{{ event_id }}">Decline Invitation</a>
-            <a href="/events/attend/{{ event_id }}">Accept Invitation</a>
-        {% endif %}
+    {% elif is_invited|default(false) %}
+        <p>You are invited to this event.</p>
+        <a href="/events/attend/{{ event_id }}">Accept Invitation</a>
+        <a href="/events/decline/{{ event_id }}">Decline Invitation</a>
+    {% elif is_requested|default(false) %}
+        <p>Your request to attend this event is pending approval.</p>
+        <a href="/events/decline/{{ event_id }}">Withdraw Request</a>
+    {% elif not is_host|default(false) %}
+        <p>You are not attending this event.</p>
+        <a href="/events/request/{{ event_id }}">Request to Attend</a>
     {% endif %}
 
 </main>

@@ -2,11 +2,11 @@ import logging
 import os
 from fastapi import FastAPI, HTTPException, Request, Depends
 from common.clients.client import get
-from events_model import BooleanResponse, CreateRequest, CreateResponse, InfoResponse, ListEventResponse, MessageResponse, ListResponse, InviteRequest, EditRequest
+from events_model import BooleanResponse, CreateRequest, CreateResponse, InfoResponse, ListEventResponse, ListInviteResponse, InviteResponse, MessageResponse, ListResponse, InviteRequest, EditRequest
 from common.JWTSecurity import decode_and_verify                    # Importing cillians Security libs.
 from common.db.structures.structures import Events, UserRequest, RequestTypes, Status    # Importing cillians DB models.
 from common.db.db import get_db
-from events_database import event_exists, is_user_attending_event, is_user_invited_event, is_user_invited_event_pending, user_is_host
+from events_database import event_exists, event_is_public, is_requested, is_user_attending_event, is_user_invited_event, is_user_invited_event_pending, user_is_host
 from sqlalchemy import select, insert, delete, update
 
 logging.basicConfig(level=logging.INFO, format='[events] %(asctime)s%(levelname)s %(message)s')
@@ -101,15 +101,23 @@ async def invite_circle(inbound: Request, event_id: int, authorized_user=Depends
         circle_members_data = await get(CIRCLES_INTERNAL_BASE, "mycircle", 
                                    headers={"Cookie" : f"access_token={inbound.cookies.get('access_token')}"})
         circle_members = circle_members_data.get("user_names", [])
+        print(f"Inviting circle members: {circle_members} to event {event_id}")
         for member in circle_members:
-            stmt = insert(UserRequest).values(
-                field1=authorized_user,
+            stmt = select(UserRequest).filter_by(
                 field2=member,
                 field3=event_id,
-                type=RequestTypes.EVENT_INVITE,
-                status=Status.PENDING
+                type=RequestTypes.EVENT_INVITE
             )
-            db.execute(stmt)
+            result = db.scalars(stmt).all()
+            if not result:
+                stmt = insert(UserRequest).values(
+                    field1=authorized_user,
+                    field2=member,
+                    field3=event_id,
+                    type=RequestTypes.EVENT_INVITE,
+                    status=Status.PENDING
+                )
+                db.execute(stmt)
         db.commit()
         return MessageResponse(message=f"Invited your circle to this event!")
 
@@ -127,8 +135,9 @@ async def cancel_event(inbound: Request, event_id: int, authorized_user=Depends(
     with get_db() as db:
         if not event_exists(event_id):
             return MessageResponse(message="There is no such event")
-        stmt=delete(Events).where(
-            (Events.id == event_id) & (Events.host == authorized_user)
+        stmt=delete(Events).filter_by(
+            id=event_id,
+            host=authorized_user
         )
         db.execute(stmt)
         db.commit()
@@ -141,7 +150,7 @@ async def edit_event(inbound: EditRequest, event_id: int, authorized_user=Depend
             return MessageResponse(message="Event not found", valid=False)
         if not user_is_host(event_id, authorized_user):
             return MessageResponse(message="You are not the host of this event", valid=False)
-        stmt = update(Events).where(Events.id == event_id).values(
+        stmt = update(Events).filter_by(id=event_id).values(
             title=inbound.title,
             description=inbound.description,
             datetime_start=inbound.datetime_start,
@@ -163,7 +172,7 @@ async def attend_event(inbound: Request, event_id: int, authorized_user=Depends(
         if is_user_invited_event(event_id, authorized_user):
             stmt = update(UserRequest).values(
                 status=Status.ACCEPTED
-            ).where(
+            ).filter_by(
                 field2=authorized_user,
                 field3=event_id,
                 type=RequestTypes.EVENT_INVITE
@@ -172,16 +181,7 @@ async def attend_event(inbound: Request, event_id: int, authorized_user=Depends(
             db.commit()
             return MessageResponse(message="Invitation accepted, you are now attending the event!")
         else:
-            stmt=insert(UserRequest).values(
-                field1=event_id,
-                field2=authorized_user,
-                field3=event_id,
-                type=RequestTypes.EVENT_INVITE,
-                status=Status.ACCEPTED
-            )
-            db.execute(stmt)
-            db.commit()
-            return MessageResponse(message="You are now attending the event!")
+            return MessageResponse(message="You were not invited to this event, so you cannot accept it. If you wish to attend, please request to attend the event and wait for the host to accept your request.")
     
 @app.post("/decline/{event_id}", response_model=MessageResponse)
 async def decline_event(inbound: Request, event_id: int, authorized_user=Depends(get_username_from_request)) -> MessageResponse:
@@ -189,7 +189,7 @@ async def decline_event(inbound: Request, event_id: int, authorized_user=Depends
         if not event_exists(event_id):
             return MessageResponse(message="There is no such event")
         if is_user_invited_event(event_id, authorized_user):
-            stmt = delete(UserRequest).where(
+            stmt = delete(UserRequest).filter_by(
                 field2=authorized_user,
                 field3=event_id,
                 type=RequestTypes.EVENT_INVITE
@@ -198,7 +198,39 @@ async def decline_event(inbound: Request, event_id: int, authorized_user=Depends
             db.commit()
             return MessageResponse(message="Invitation declined, you are not attending the event.")
         else:
+            if is_requested(event_id, authorized_user):
+                stmt = delete(UserRequest).filter_by(
+                    field1=authorized_user,
+                    field2=authorized_user,
+                    field3=event_id,
+                    type=RequestTypes.EVENT_INVITE
+                )
+                db.execute(stmt)
+                db.commit()
+                return MessageResponse(message="Your request to attend the event has been withdrawn.")
             return MessageResponse(message="You were not invited to this event, so you cannot decline it. If you do not wish to attend, simply ignore the invitation.")
+
+@app.post("/accept/{event_id}/{username}", response_model=MessageResponse)
+async def accept_event(inbound: Request, event_id: int, username: str, authorized_user=Depends(get_username_from_request)) -> MessageResponse:
+    with get_db() as db:
+        if not event_exists(event_id):
+            return MessageResponse(message="There is no such event")
+        if not user_is_host(event_id, authorized_user):
+            return MessageResponse(message="You are not the host of this event, so you cannot accept invitations to this event.")
+        if is_requested(event_id, username):
+            stmt = update(UserRequest).values(
+                status=Status.ACCEPTED
+            ).filter_by(
+                field1=username,
+                field2=username,
+                field3=event_id,
+                type=RequestTypes.EVENT_INVITE
+            )
+            db.execute(stmt)
+            db.commit()
+            return MessageResponse(message="Invitation accepted, you are now attending the event!")
+        else:
+            return MessageResponse(message="You were not invited to this event, so you cannot accept it.")
 
 @app.get("/myevents", response_model=ListEventResponse)
 async def my_events(request:Request, authorized_user=Depends(get_username_from_request)) -> ListEventResponse:
@@ -226,17 +258,50 @@ async def my_events(request:Request, authorized_user=Depends(get_username_from_r
                                 public=event.public
                                 ))
         return ListEventResponse(list=list_of_events)
+    
+@app.post("/request/{event_id}", response_model=MessageResponse)
+async def request_to_attend_event(event_id: int, authorized_user=Depends(get_username_from_request)) -> MessageResponse:
+    with get_db() as db:
+        if not event_exists(event_id):
+            return MessageResponse(message="There is no such event")
+        if event_is_public(event_id):
+            return MessageResponse(message="This event is public, so you cannot request to attend it. Please join directly.")
+        stmt=insert(UserRequest).values(
+            field1=authorized_user,
+            field2=authorized_user,
+            field3=event_id,
+            type=RequestTypes.EVENT_INVITE,
+            status=Status.PENDING
+        )
+        db.execute(stmt)
+        db.commit()
+        return MessageResponse(message="Your request to attend the event has been sent.")
 
 @app.get("/my_invites", response_model=ListEventResponse)
 async def my_invites(request:Request, authorized_user=Depends(get_username_from_request)) -> ListEventResponse:
     with get_db() as db:
-        stmt = select(UserRequest.field3).filter_by(
-            field2=authorized_user,
-            type=RequestTypes.EVENT_INVITE,
-            status=Status.PENDING
-        )
+        stmt = select(UserRequest.field3).filter(UserRequest.field1 != authorized_user,
+                                                UserRequest.field2 == authorized_user,
+                                                UserRequest.type == RequestTypes.EVENT_INVITE,
+                                                UserRequest.status == Status.PENDING)
         events = db.scalars(stmt).all()
-        return ListResponse(lst=events)
+        list_of_events = []
+        for event_id in events:
+            stmt = select(Events).filter_by(id=event_id)
+            event = db.scalars(stmt).first()
+            if event:
+                list_of_events.append(InfoResponse(id=event.id,
+                                venue=event.venue,
+                                latitude=event.latitude,
+                                longitude=event.longitude,
+                                datetime_start=event.datetime_start,
+                                datetime_end=event.datetime_end,
+                                title=event.title,
+                                description=event.description,
+                                host=event.host,
+                                public=event.public
+                                ))
+        return ListEventResponse(events=list_of_events)
 
 @app.get("/all_events", response_model=ListEventResponse)
 async def all_events(request:Request) -> ListEventResponse:
@@ -309,3 +374,36 @@ async def is_user_host(request:Request, event_id: int, username: str) -> Boolean
         return BooleanResponse(value=True)
     else:
         return BooleanResponse(value=False)
+
+@app.get("/is_requested/{event_id}/{username}", response_model=BooleanResponse)
+async def is_user_requested(request:Request, event_id: int, username: str) -> BooleanResponse:
+    if not event_exists(event_id):
+        return BooleanResponse(value=False)
+    if is_requested(event_id, username):
+        return BooleanResponse(value=True)
+    else:
+        return BooleanResponse(value=False)
+    
+@app.get("/my_pending_invites", response_model=ListInviteResponse)
+async def my_pending_invites(request:Request, authorized_user=Depends(get_username_from_request)) -> ListInviteResponse:
+    with get_db() as db:
+        my_hosted_events_stmt = select(Events).filter_by(host=authorized_user)
+        my_hosted_events = db.scalars(my_hosted_events_stmt).all()
+        pending_invites = []
+        for event in my_hosted_events:
+            if not event.public:
+                stmt = select(UserRequest).filter_by(
+                    field3=event.id,
+                    type=RequestTypes.EVENT_INVITE,
+                    status=Status.PENDING
+                )
+                result = db.scalars(stmt).all()
+                for invite in result:
+                    if not is_requested(event.id, invite.field2):
+                        continue
+                    pending_invites.append(InviteResponse(
+                        event_id=event.id,
+                        username=invite.field2,
+                        title=event.title
+                    ))
+        return ListInviteResponse(invites=pending_invites)

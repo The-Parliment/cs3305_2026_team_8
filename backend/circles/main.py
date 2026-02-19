@@ -44,11 +44,8 @@ async def invite_to_circle(inbound: UsersRequest) -> MessageResponse:
 
 @app.get("/get_invites", response_model=UsernameListResponse)
 async def get_invites(request: Request, authorized_user: str = Depends(get_username_from_request)) -> UsernameListResponse:
-    if not authorized_user:
-        return MessageResponse(message="Unauthorized", valid=False)
     with get_db() as db:
-        this_user = authorized_user
-        result = select(UserRequest.field1).filter_by(field2=this_user, 
+        result = select(UserRequest.field1).filter_by(field2=authorized_user, 
                                                     type=RequestTypes.CIRCLE_INVITE, status=Status.PENDING)
         users = db.scalars(result).all()
         return UsernameListResponse(user_names=users)

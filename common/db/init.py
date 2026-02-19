@@ -118,7 +118,8 @@ def seed_cork_dummy_events():
                 longitude=-8.5852,
                 datetime_start=base_date + datetime.timedelta(days=8),
                 datetime_end=base_date + datetime.timedelta(days=8, hours=2),
-                description="5k community park run."
+                description="5k community park run.",
+                public=False
             ),
             Events(
                 title="Glanmire Farmers Market",
@@ -267,15 +268,16 @@ def temp_remove_in_production():
             username="joana", first_name="Joana", last_name="Mafra", email="joana@example.com", phone_number="01234567894"
         )
         event = Events(
-            id=1,
-            title="Test Event",
-            venue="Test Venue",
-            host="cillian",
-            latitude=53.3498,
-            longitude=-6.2603,
-            datetime_start=datetime.datetime(2024, 1, 1, 0, 0, tzinfo=datetime.timezone.utc),
-            datetime_end=datetime.datetime(2024, 1, 1, 1, 0, tzinfo=datetime.timezone.utc),
-            description="This is a test event."
+                id=1,
+                title="Test Event",
+                venue="Test Venue",
+                host="cillian",
+                latitude=53.3498,
+                longitude=-6.2603,
+                datetime_start=datetime.datetime(2024, 1, 1, 0, 0, tzinfo=datetime.timezone.utc),
+                datetime_end=datetime.datetime(2024, 1, 1, 1, 0, tzinfo=datetime.timezone.utc),
+                description="This is a test event.",
+                public=False
         )
         req1 = UserRequest(
             field1="cillian", field2="darren", type=RequestTypes.FOLLOW_REQUEST, status=Status.ACCEPTED
@@ -307,8 +309,14 @@ def temp_remove_in_production():
         req10 = UserRequest(
             field1="darren", field2="cillian", type=RequestTypes.CIRCLE_INVITE, status=Status.PENDING
         )
+        req11 = UserRequest(
+            field1="cillian", field2="roisin", type=RequestTypes.CIRCLE_INVITE, status=Status.ACCEPTED
+        )
         event_invite1 = UserRequest(
             field1="cillian", field2="darren", field3=1, type=RequestTypes.EVENT_INVITE, status=Status.PENDING
+        )
+        event_invite2 = UserRequest(
+            field1="roisin", field2="roisin", field3=1, type=RequestTypes.EVENT_INVITE, status=Status.PENDING
         )
         db.add(user1)
         db.add(user2)
@@ -331,6 +339,8 @@ def temp_remove_in_production():
         db.add(req8)
         db.add(req9)
         db.add(req10)
+        db.add(req11)
         db.add(event_invite1)
+        db.add(event_invite2)
         db.commit()
     seed_cork_dummy_events()

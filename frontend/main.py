@@ -5,7 +5,7 @@ from fastapi.templating import Jinja2Templates
 from starlette.middleware.sessions import SessionMiddleware
 from common.JWTSecurity import decode_and_verify
 from common.clients.client import post, get
-from forms import ChangeDetailsForm, CreateEventForm, LoginForm, RegisterForm
+from forms import ChangeDetailsForm, EventForm, LoginForm, RegisterForm
 from common.db.init import init_db
 import os
 from passlib.context import CryptContext
@@ -326,6 +326,7 @@ async def get_invites(request: Request, invite_type: str | None = "all", claims:
     circle_invites = []
     group_invites = []
     event_invites = []
+    pending_event_invites = []
     if invite_type == "follow_requests" or invite_type == "all":
         follow_request_data = await get(USER_INTERNAL_BASE, "get_follow_requests_received", headers={"Cookie" : f"access_token={token}"})
         follow_requests = follow_request_data.get("user_names", []) if follow_request_data is not None else []
@@ -336,13 +337,19 @@ async def get_invites(request: Request, invite_type: str | None = "all", claims:
         group_invites_data = [] # await get(GROUP_INTERNAL_BASE, "get_group_invites", headers={"Cookie" : f"access_token={token}"})
         group_invites = [] #group_invites_data.get("group_names", []) if group_invites_data is not None else []
     if invite_type == "event_invites" or invite_type == "all":
-        event_invites_data = [] #await get(EVENTS_INTERNAL_BASE, "get_invites", headers={"Cookie" : f"access_token={token}"})
-        event_invites = [] #event_invites_data.get("event_names", []) if event_invites_data is not None else []
+        event_invites_data = await get(EVENTS_INTERNAL_BASE, "my_invites", headers={"Cookie" : f"access_token={token}"})
+        invited_events = event_invites_data.get("events", []) if event_invites_data is not None else []
+        event_invites = [{"id": event["id"], "title": event["title"]} for event in invited_events]
+    if invite_type == "pending_event_invites" or invite_type == "all":
+        pending_event_invites_data = await get(EVENTS_INTERNAL_BASE, "my_pending_invites", headers={"Cookie" : f"access_token={token}"})
+        pending_invites = pending_event_invites_data.get("invites", []) if pending_event_invites_data is not None else []
+        pending_event_invites = [{"id": invite["event_id"], "title": invite["title"], "username": invite["username"]} for invite in pending_invites]
     return templates.TemplateResponse(
         request=request, name="invites.html", context={"follow_requests": follow_requests, 
                                                        "circle_invites": circle_invites, 
                                                        "group_invites": group_invites, 
-                                                       "event_invites": event_invites}
+                                                       "event_invites": event_invites,
+                                                       "pending_event_invites": pending_event_invites}
     )
 
 # Event Management Endpoints
@@ -357,6 +364,8 @@ async def event_info(request: Request, event_id: int, claims: dict = Depends(req
     is_user_invited_pending = is_user_invited_pending_data.get("value", False) if is_user_invited_pending_data else False
     is_user_attending_data = await get(EVENTS_INTERNAL_BASE, f"is_attending/{event_id}/{user}", headers={"Cookie" : f"access_token={token}"})
     is_user_attending = is_user_attending_data.get("value", False) if is_user_attending_data else False
+    is_user_requested_data = await get(EVENTS_INTERNAL_BASE, f"is_requested/{event_id}/{user}")
+    is_user_requested = is_user_requested_data.get("value", False) if is_user_requested_data else False
     event_info_data = await get(EVENTS_INTERNAL_BASE, f"eventinfo/{event_id}", headers={"Cookie" : f"access_token={token}"})
     if event_info_data is None or event_info_data.get("valid", True) == False:
         return templates.TemplateResponse(
@@ -394,9 +403,10 @@ async def event_info(request: Request, event_id: int, claims: dict = Depends(req
                                                           "event_end_time": event_end_time, 
                                                           "event_description": event_description,
                                                           "event_public": event_public,
-                                                          "is_user_host": is_user_host,
-                                                          "is_user_invited_pending": is_user_invited_pending,
-                                                          "is_user_attending": is_user_attending}
+                                                          "is_host": is_user_host,
+                                                          "is_invited": is_user_invited_pending,
+                                                          "is_attending": is_user_attending,
+                                                          "is_requested" : is_user_requested}
     )
 
 @app.get("/events", response_class=HTMLResponse)
@@ -424,7 +434,7 @@ async def all_events(request: Request, claims: dict = Depends(require_frontend_a
 
 @app.get("/events/create_event", response_class=HTMLResponse)
 async def get_create_event(request : Request, claims : dict = Depends(require_frontend_auth)):
-    form = CreateEventForm()
+    form = EventForm()
     return templates.TemplateResponse(
         request=request, name="forms/edit_event.html", context={"form": form, "display_map": True}
     )
@@ -433,7 +443,7 @@ async def get_create_event(request : Request, claims : dict = Depends(require_fr
 async def post_create_event(request: Request, claims: dict = Depends(require_frontend_auth)):
     data = await request.form()
     print(f"RAW FORM DATA: {data}")
-    form = CreateEventForm(formdata=data) 
+    form = EventForm(formdata=data) 
 
     if not form.validate():
         for field, errors in form.errors.items():
@@ -469,7 +479,7 @@ async def post_create_event(request: Request, claims: dict = Depends(require_fro
 async def edit_event(request: Request, event_id: int, claims: dict = Depends(require_frontend_auth)):
     token = request.cookies.get("access_token")
     user = claims.get("sub")
-    form = CreateEventForm()
+    form = EventForm()
     event_info_data = await get(EVENTS_INTERNAL_BASE, f"eventinfo/{event_id}", headers={"Cookie" : f"access_token={token}"})
     if event_info_data is None or event_info_data.get("valid", True) == False   :
         return templates.TemplateResponse(
@@ -509,7 +519,7 @@ async def edit_event(request: Request, event_id: int, claims: dict = Depends(req
 @app.post("/events/edit/{event_id}", response_class=HTMLResponse)
 async def post_edit_event(request: Request, event_id: int, claims: dict = Depends(require_frontend_auth)):
     data= await request.form()
-    form = CreateEventForm(formdata=data) 
+    form = EventForm(formdata=data) 
 
     if not form.validate():
         for field, errors in form.errors.items():
@@ -556,14 +566,24 @@ async def invite_circle_to_event(request: Request, event_id: int, claims: dict =
 @app.get("/events/attend/{event_id}", response_class=HTMLResponse)
 async def attend_event(request: Request, event_id: int, claims: dict = Depends(require_frontend_auth)):
     token = request.cookies.get("access_token")
-    user = claims.get("sub")
     await post(EVENTS_INTERNAL_BASE, f"attend/{event_id}", headers={"Cookie" : f"access_token={token}"})
+    return RedirectResponse(url=f"/eventinfo/{event_id}", status_code=303)
+
+@app.get("/events/request/{event_id}", response_class=HTMLResponse)
+async def request_to_attend_event(request: Request, event_id: int, claims: dict = Depends(require_frontend_auth)):
+    token = request.cookies.get("access_token")
+    await post(EVENTS_INTERNAL_BASE, f"request/{event_id}", headers={"Cookie" : f"access_token={token}"})
+    return RedirectResponse(url=f"/eventinfo/{event_id}", status_code=303)
+
+@app.get("/events/accept/{event_id}/{user}", response_class=HTMLResponse)
+async def attend_event(request: Request, event_id: int, user: str, claims: dict = Depends(require_frontend_auth)):
+    token = request.cookies.get("access_token")
+    await post(EVENTS_INTERNAL_BASE, f"accept/{event_id}/{user}", headers={"Cookie" : f"access_token={token}"})
     return RedirectResponse(url=f"/eventinfo/{event_id}", status_code=303)
 
 @app.get("/events/decline/{event_id}", response_class=HTMLResponse)
 async def decline_event_invite(request: Request, event_id: int, claims: dict = Depends(require_frontend_auth)):
     token = request.cookies.get("access_token")
-    user = claims.get("sub")
     await post(EVENTS_INTERNAL_BASE, f"decline/{event_id}", headers={"Cookie" : f"access_token={token}"})
     return RedirectResponse(url="/events", status_code=303)
 

@@ -20,7 +20,7 @@ class ChangeDetailsForm(Form):
     phone_number = StringField("Phone Number", validators=[Length(min=10, max=15)])
     submit = SubmitField("Submit")
     
-class CreateEventForm(Form):
+class EventForm(Form):
     title = StringField("Event Title", validators=[Length(min=2, max=64)])
     venue = StringField("Event Venue", validators=[Length(min=2, max=128)])   
     datetime_start = DateTimeLocalField("Start Time", format=['%Y-%m-%dT%H:%M', '%Y-%m-%dT%H:%M:%S'], validators=[InputRequired()])

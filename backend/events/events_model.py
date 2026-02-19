@@ -37,6 +37,14 @@ class InfoResponse(BaseModel):
 class ListEventResponse(BaseModel):
     events: list[InfoResponse]
 
+class InviteResponse(BaseModel):
+    event_id: int
+    username: str
+    title: str
+
+class ListInviteResponse(BaseModel):
+    invites: list[InviteResponse]
+
 class InviteRequest(BaseModel):
     event_id: int
 

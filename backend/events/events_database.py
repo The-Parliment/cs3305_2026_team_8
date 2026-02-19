@@ -14,7 +14,6 @@ def event_exists(event):
         result = db.scalar(stmt)
         return result is not None
 
-
 def event_is_public(event):
     with get_db() as db:
         stmt = select(Events).filter_by(id=event).limit(1)
@@ -25,7 +24,7 @@ def event_is_public(event):
 
 def is_user_invited_event_pending(event, user):
     with get_db() as db:
-        stmt = select(UserRequest).filter_by(field2=user, field3=event, type=RequestTypes.EVENT_INVITE, status=Status.PENDING).limit(1)
+        stmt = select(UserRequest).filter(UserRequest.field1 != user, UserRequest.field2 == user, UserRequest.field3 == event, UserRequest.type == RequestTypes.EVENT_INVITE, UserRequest.status == Status.PENDING).limit(1)
         result = db.scalar(stmt)
         if result is not None:
             return True
@@ -33,7 +32,7 @@ def is_user_invited_event_pending(event, user):
 
 def is_user_invited_event(event, user):
     with get_db() as db:
-        stmt = select(UserRequest).filter_by(field2=user, field3=event, type=RequestTypes.EVENT_INVITE).limit(1)
+        stmt = select(UserRequest).filter(UserRequest.field1 != user, UserRequest.field2 == user, UserRequest.field3 == event, UserRequest.type == RequestTypes.EVENT_INVITE).limit(1)
         result = db.scalar(stmt)
         if result is not None:
             return True
@@ -42,6 +41,14 @@ def is_user_invited_event(event, user):
 def is_user_attending_event(event, user):
     with get_db() as db:
         stmt = select(UserRequest).filter_by(field2=user, field3=event, type=RequestTypes.EVENT_INVITE, status=Status.ACCEPTED).limit(1)
+        result = db.scalar(stmt)
+        if result is not None:
+            return True
+        return False
+    
+def is_requested(event, user):
+    with get_db() as db:
+        stmt = select(UserRequest).filter_by(field1=user, field2=user, field3=event, type=RequestTypes.EVENT_INVITE, status=Status.PENDING).limit(1)
         result = db.scalar(stmt)
         if result is not None:
             return True
