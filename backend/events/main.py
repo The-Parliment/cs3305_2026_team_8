@@ -1,10 +1,10 @@
 import logging
 import os
-from fastapi import FastAPI, Request, HTTPException, Header, Depends
+from fastapi import FastAPI, HTTPException, Request, Depends
 from common.clients.client import get
-from events_model import BooleanResponse, CreateRequest, InfoResponse, ListEventResponse, MessageResponse, ListResponse, InviteRequest, CancelRequest, EditRequest
+from events_model import BooleanResponse, CreateRequest, CreateResponse, InfoResponse, ListEventResponse, MessageResponse, ListResponse, InviteRequest, EditRequest
 from common.JWTSecurity import decode_and_verify                    # Importing cillians Security libs.
-from common.db.structures.structures import Events, Venue, UserRequest, RequestTypes, Status    # Importing cillians DB models.
+from common.db.structures.structures import Events, UserRequest, RequestTypes, Status    # Importing cillians DB models.
 from common.db.db import get_db
 from events_database import event_exists, is_user_attending_event, is_user_invited_event, is_user_invited_event_pending, user_is_host
 from sqlalchemy import select, insert, delete, update
@@ -30,26 +30,28 @@ def get_username_from_request(request: Request) -> str | None:
 async def root():
     return {"message": "Events Service API called"}
 
-@app.post("/create", response_model = MessageResponse)
-async def create_event(inbound: CreateRequest) -> MessageResponse:
+@app.post("/create", response_model=CreateResponse)
+async def create_event(inbound: CreateRequest, authorized_user=Depends(get_username_from_request)) -> CreateResponse:
+    print(f"Creating event with title: {inbound.title}, host: {authorized_user}")
     db = get_db()
-    stmt= insert(Events).values(
-        venue=inbound.venue,
-        latitude=inbound.latitude,
-        longitude=inbound.longitude,
+    event = Events(
         title=inbound.title,
-        description=inbound.description,
+        venue=inbound.venue,
         datetime_start=inbound.datetime_start,
         datetime_end=inbound.datetime_end,
-        host=inbound.host,
+        latitude=inbound.latitude,
+        longitude=inbound.longitude,
+        description=inbound.description,
+        host=authorized_user,
         public=inbound.public
     )
-    db.execute(stmt)
+    db.add(event)
+    print("Event added to session, committing...")
+    db.flush()  # Ensure the new event ID is generated
     db.commit()
-    create_response=MessageResponse( 
-        message = "Event Created"
-        )
-    return create_response
+    db.refresh(event)  # Refresh the event instance to get the generated ID
+    print(f"Event committed with ID: {event.id}")
+    return CreateResponse(event_id=event.id)
 
 @app.get("/eventinfo/{event_id}", response_model=InfoResponse)
 async def event_info(request: Request, event_id:int):
@@ -57,7 +59,7 @@ async def event_info(request: Request, event_id:int):
     result=select(Events).filter_by(id=event_id).limit(1)
     event=db.scalar(result)
     if not event:
-        return MessageResponse(message="Event not found", valid=False)
+        raise HTTPException(status_code=404, detail="Event not found")
     return InfoResponse(id=event.id, 
                         venue=event.venue, 
                         latitude=event.latitude, 
@@ -133,7 +135,7 @@ async def cancel_event(inbound: Request, event_id: int, authorized_user=Depends(
     return MessageResponse(message="Event cancelled successfully.")
 
 @app.post("/edit/{event_id}", response_model=MessageResponse)
-async def edit_event(request: Request, event_id: int, inbound: EditRequest, authorized_user=Depends(get_username_from_request)) -> MessageResponse:
+async def edit_event(inbound: EditRequest, event_id: int, authorized_user=Depends(get_username_from_request)) -> MessageResponse:
     db = get_db()
     if not event_exists(event_id):
         return MessageResponse(message="Event not found", valid=False)
@@ -146,7 +148,8 @@ async def edit_event(request: Request, event_id: int, inbound: EditRequest, auth
         datetime_end=inbound.datetime_end,
         latitude=inbound.latitude,
         longitude=inbound.longitude,
-        venue=inbound.venue
+        venue=inbound.venue,
+        public=inbound.public
     )
     db.execute(stmt)
     db.commit()

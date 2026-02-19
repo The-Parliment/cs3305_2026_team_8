@@ -9,16 +9,11 @@ class CreateRequest(BaseModel):
     datetime_start: datetime
     datetime_end: datetime
     venue: str
-    host:str
+    host: str | None = ""
     public: bool | None = False
 
 class CreateResponse(BaseModel):
     event_id: int
-    title: str
-    description: str
-    datetime_start: datetime
-    datetime_end: datetime
-    venue: str
 
 class MessageResponse(BaseModel):
     message: str
@@ -58,3 +53,4 @@ class EditRequest(BaseModel):
     latitude: float
     longitude: float
     venue: str
+    public: bool | None = False

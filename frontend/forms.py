@@ -1,6 +1,6 @@
-from wtforms import Form, StringField, PasswordField, SubmitField, DateTimeField, FloatField
+from wtforms import BooleanField, DateTimeLocalField, Form, StringField, PasswordField, SubmitField, DateTimeField, FloatField
 from wtforms.validators import DataRequired, Length, InputRequired
-
+import datetime
 class LoginForm(Form):
     username = StringField("Username", validators=[DataRequired(), Length(min=2, max=32)])
     password = PasswordField("Password", validators=[DataRequired(), Length(min=4, max=64)])
@@ -23,9 +23,21 @@ class ChangeDetailsForm(Form):
 class EditEventForm(Form):
     title = StringField("Event Title", validators=[Length(min=2, max=64)])
     venue = StringField("Event Venue", validators=[Length(min=2, max=128)])   
-    datetime_start = DateTimeField("Start Time", format="%Y-%m-%dT%H:%M")
-    datetime_end = DateTimeField("End Time", format="%Y-%m-%dT%H:%M")
+    datetime_start = DateTimeLocalField("Start Time", format=['%Y-%m-%dT%H:%M', '%Y-%m-%dT%H:%M:%S'], validators=[InputRequired()])
+    datetime_end = DateTimeLocalField("End Time", format=['%Y-%m-%dT%H:%M', '%Y-%m-%dT%H:%M:%S'], validators=[InputRequired()])
     latitude = FloatField("Latitude")
     longitude = FloatField("Longitude")
     description = StringField("Event Description", validators=[Length(min=2, max=256)])
+    is_public = BooleanField("Public Event", default=True)
+    submit = SubmitField("Submit")
+    
+class CreateEventForm(Form):
+    title = StringField("Event Title", validators=[Length(min=2, max=64)])
+    venue = StringField("Event Venue", validators=[Length(min=2, max=128)])   
+    datetime_start = DateTimeLocalField("Start Time", format=['%Y-%m-%dT%H:%M', '%Y-%m-%dT%H:%M:%S'], validators=[InputRequired()])
+    datetime_end = DateTimeLocalField("End Time", format=['%Y-%m-%dT%H:%M', '%Y-%m-%dT%H:%M:%S'], validators=[InputRequired()])
+    latitude = FloatField("Latitude")
+    longitude = FloatField("Longitude")
+    description = StringField("Event Description", validators=[Length(min=2, max=256)])
+    is_public = BooleanField("Public Event", default=True)
     submit = SubmitField("Submit")

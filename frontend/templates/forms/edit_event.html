@@ -2,46 +2,59 @@
 
 {% block main_content %}
 <main>
-    <h1>Edit Event</h1>
-    <form action="" method="POST" novalidate>
-        {{ form.title.label }}
-        {{ form.title() }}
-        <br/>
-
-        {{ form.venue.label }}
-        {{ form.venue() }}
-        <br/>
-        
-        {{ form.datetime_start.label }}
-        {{ form.datetime_start() }}
-        <br/>
-        
-        {{ form.datetime_end.label }}
-        {{ form.datetime_end() }}
-        <br/>
-
-        {{ form.latitude.label }}
-        {{ form.latitude() }}
-        <br/>
-        
-        {{ form.longitude.label }}
-        {{ form.longitude() }}
-        <br/>
-        
-        {{ form.description.label }}
-        {{ form.description() }}
-        <br/>
-
-        
-        {% if form.form_errors %}
-            <ul class="error-list">
-            {% for error in form.form_errors %}
-                <li>{{ error }}</li>
-            {% endfor %}
-            </ul>
+    <div id="map"></div>
+        {% if display_map|default(false) %}
+            <script type="text/javascript">
+                var x = {{ x|default(53.347878221572344)|tojson }};
+                var y = {{ y|default(-6.275954663866795)|tojson }};
+            </script>
+            <script type="text/javascript" src="{{ url_for('static', path='/js/map.js') }}"></script>
         {% endif %}
-        
-        {{ form.submit() }}
-    </form>
+    <script type="text/javascript" src="{{ url_for('static', path='/js/create_event_map.js') }}"></script>
+    <div id="form-on-map">
+        <h1>Create Event</h1>
+        <form action="" onsubmit="setLocation()" method="POST" novalidate>
+            {{ form.title.label }}
+            {{ form.title() }}
+            <br/>
+
+            {{ form.venue.label }}
+            {{ form.venue() }}
+            <br/>
+            
+            {{ form.datetime_start.label }}
+            {{ form.datetime_start() }}
+            <br/>
+            
+            {{ form.datetime_end.label }}
+            {{ form.datetime_end() }}
+            <br/>
+
+            {{ form.latitude.label }}
+            {{ form.latitude(readOnly=true) }}
+            <br/>
+            
+            {{ form.longitude.label }}
+            {{ form.longitude(readOnly=true) }}
+            <br/>
+            
+            {{ form.description.label }}
+            {{ form.description() }}
+            <br/>
+            
+            {{ form.is_public.label }}
+            {{ form.is_public() }}
+            
+            {% if form.form_errors %}
+                <ul class="error-list">
+                {% for error in form.form_errors %}
+                    <li>{{ error }}</li>
+                {% endfor %}
+                </ul>
+            {% endif %}
+            
+            {{ form.submit() }}
+        </form>
+    </div>
 </main>
 {%endblock%}

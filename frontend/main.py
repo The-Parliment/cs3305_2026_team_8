@@ -5,7 +5,7 @@ from fastapi.templating import Jinja2Templates
 from starlette.middleware.sessions import SessionMiddleware
 from common.JWTSecurity import decode_and_verify
 from common.clients.client import post, get
-from forms import ChangeDetailsForm, LoginForm, RegisterForm, EditEventForm
+from forms import ChangeDetailsForm, CreateEventForm, LoginForm, RegisterForm, EditEventForm
 from common.db.init import init_db
 import os
 from passlib.context import CryptContext
@@ -367,8 +367,20 @@ async def event_info(request: Request, event_id: int, claims: dict = Depends(req
     event_host = event_info_data.get("host", "Unknown Host")
     event_latitude = event_info_data.get("latitude", "Unknown Latitude")
     event_longitude = event_info_data.get("longitude", "Unknown Longitude")
-    event_start_time = event_info_data.get("datetime_start", "Unknown Start Time")
-    event_end_time = event_info_data.get("datetime_end", "Unknown End Time")   
+    event_start_time = "Unknown Start Time"
+    event_end_time = "Unknown End Time"
+    if isinstance(event_info_data.get("datetime_start"), str):
+        try:
+            event_start_time = datetime.fromisoformat(event_info_data["datetime_start"].replace("Z", "+00:00"))
+        except Exception as e:
+            print(f"DEBUG: Failed to parse datetime_start: {e}")
+            event_start_time = "Unknown Start Time"
+    if isinstance(event_info_data.get("datetime_end"), str):
+        try:
+            event_end_time = datetime.fromisoformat(event_info_data["datetime_end"].replace("Z", "+00:00"))
+        except Exception as e:
+            print(f"DEBUG: Failed to parse datetime_end: {e}")
+            event_end_time = "Unknown End Time"
     event_description = event_info_data.get("description", "No Description Available")
     event_public = event_info_data.get("public", False)
     return templates.TemplateResponse(
@@ -410,60 +422,118 @@ async def all_events(request: Request, claims: dict = Depends(require_frontend_a
         request=request, name="events_map.html", context={"all_events": all_events, "display_map": True}
     )
 
-@app.get("/events/edit/{event_id}", response_class=HTMLResponse)
-async def edit_event(request: Request, event_id: int, claims: dict = Depends(require_frontend_auth)):
-    token = request.cookies.get("access_token")
-    user = claims.get("sub")
-    form= EditEventForm()
-    event_info_data = await get(EVENTS_INTERNAL_BASE, f"eventinfo/{event_id}", headers={"Cookie" : f"access_token={token}"})
-    if event_info_data is None or event_info_data.get("valid", True) == False   :
-        return templates.TemplateResponse(
-            request=request, name="forms/edit_event.html", context={"form": form, "error": "Event not found."}
-        )
-    if event_info_data.get("host") != user:
-        return templates.TemplateResponse(
-            request=request, name="forms/edit_event.html", context={"form": form, "error": "You are not the host of this event."}
-        )
-    if event_info_data:
-        form.title.data = event_info_data.get("title", "")
-        form.venue.data = event_info_data.get("venue", "")
-        datetime_start_str = event_info_data.get("datetime_start")
-        form.datetime_start.data = datetime.fromisoformat(datetime_start_str.replace("Z", "+00:00")) if datetime_start_str else None
-        datetime_end_str = event_info_data.get("datetime_end")
-        form.datetime_end.data = datetime.fromisoformat(datetime_end_str.replace("Z", "+00:00")) if datetime_end_str else None
-        form.latitude.data = event_info_data.get("latitude", 0.0)
-        form.longitude.data = event_info_data.get("longitude", 0.0)
-        form.description.data = event_info_data.get("description", "")
+@app.get("/events/create_event", response_class=HTMLResponse)
+async def get_create_event(request : Request, claims : dict = Depends(require_frontend_auth)):
+    form = CreateEventForm()
     return templates.TemplateResponse(
-        request=request, name="forms/edit_event.html", context={"form": form}
+        request=request, name="forms/edit_event.html", context={"form": form, "display_map": True}
     )
 
-@app.post("/events/edit/{event_id}", response_class=HTMLResponse)
-async def post_edit_event(request: Request, event_id: int, claims: dict = Depends(require_frontend_auth)):
-    data= await request.form()
-    form = EditEventForm(data=data) 
+@app.post("/events/create_event", response_class=HTMLResponse)
+async def post_create_event(request: Request, claims: dict = Depends(require_frontend_auth)):
+    data = await request.form()
+    print(f"RAW FORM DATA: {data}")
+    form = CreateEventForm(formdata=data) 
 
     if not form.validate():
         for field, errors in form.errors.items():
             form.form_errors.extend(f"{field}: {error}" for error in errors)
         return templates.TemplateResponse(
-            request=request, name="forms/edit_event.html", context={"form": form}, status_code=400
+            request=request, name="forms/edit_event.html", context={"form": form, "display_map": True}, status_code=400
         )
     
-    response= await post(EVENTS_INTERNAL_BASE, f"edit/{event_id}", headers={"Cookie" : f"access_token={request.cookies.get('access_token')}"},
+    print("DEBUG: Form validated successfully with data:", form.data)
+    
+    response= await post(EVENTS_INTERNAL_BASE, "create", 
+                        headers={"Cookie" : f"access_token={request.cookies.get('access_token')}"},
+                        json={
+                                "title": form.title.data,
+                                "venue": form.venue.data,
+                                "datetime_start": form.datetime_start.data.isoformat(),
+                                "datetime_end": form.datetime_end.data.isoformat(),
+                                "latitude": form.latitude.data,
+                                "longitude": form.longitude.data,
+                                "description": form.description.data,
+                                "public": form.is_public.data
+                            })
+    print("DEBUG: Received response from event service:", response)
+    if response is None:
+        form.form_errors.append("Event creation failed. No response from event service.")
+        return templates.TemplateResponse(
+            request=request, name="forms/edit_event.html", context={"form": form, "display_map": True}, status_code=401
+        )
+    response = RedirectResponse(url=f"/eventinfo/{response.get('event_id')}", status_code=303)
+    return response
+
+@app.get("/events/edit/{event_id}", response_class=HTMLResponse)
+async def edit_event(request: Request, event_id: int, claims: dict = Depends(require_frontend_auth)):
+    token = request.cookies.get("access_token")
+    user = claims.get("sub")
+    form = EditEventForm()
+    event_info_data = await get(EVENTS_INTERNAL_BASE, f"eventinfo/{event_id}", headers={"Cookie" : f"access_token={token}"})
+    if event_info_data is None or event_info_data.get("valid", True) == False   :
+        return templates.TemplateResponse(
+            request=request, name="forms/edit_event.html", context={"form": form, "error": "Event not found.", "display_map": True}
+        )
+    if event_info_data.get("host") != user:
+        return templates.TemplateResponse(
+            request=request, name="forms/edit_event.html", context={"form": form, "error": "You are not the host of this event.", "display_map": True}
+        )
+    if event_info_data:
+        form.title.data = event_info_data.get("title", "")
+        form.venue.data = event_info_data.get("venue", "")
+        event_start_time = "Unknown Start Time"
+        event_end_time = "Unknown End Time"
+        if isinstance(event_info_data.get("datetime_start"), str):
+            try:
+                event_start_time = datetime.fromisoformat(event_info_data["datetime_start"].replace("Z", "+00:00"))
+            except Exception as e:
+                print(f"DEBUG: Failed to parse datetime_start: {e}")
+                event_start_time = "Unknown Start Time"
+        if isinstance(event_info_data.get("datetime_end"), str):
+            try:
+                event_end_time = datetime.fromisoformat(event_info_data["datetime_end"].replace("Z", "+00:00"))
+            except Exception as e:
+                print(f"DEBUG: Failed to parse datetime_end: {e}")
+                event_end_time = "Unknown End Time"
+        form.datetime_start.data = event_start_time
+        form.datetime_end.data = event_end_time
+        form.latitude.data = event_info_data.get("latitude", 0.0)
+        form.longitude.data = event_info_data.get("longitude", 0.0)
+        form.description.data = event_info_data.get("description", "")
+        form.is_public.data = event_info_data.get("public", False)
+    return templates.TemplateResponse(
+        request=request, name="forms/edit_event.html", context={"form": form, "display_map": True}
+    )
+
+@app.post("/events/edit/{event_id}", response_class=HTMLResponse)
+async def post_edit_event(request: Request, event_id: int, claims: dict = Depends(require_frontend_auth)):
+    data= await request.form()
+    form = EditEventForm(formdata=data) 
+
+    if not form.validate():
+        for field, errors in form.errors.items():
+            form.form_errors.extend(f"{field}: {error}" for error in errors)
+        return templates.TemplateResponse(
+            request=request, name="forms/edit_event.html", context={"form": form, "display_map": True}, status_code=400
+        )
+    
+    response= await post(EVENTS_INTERNAL_BASE, f"edit/{event_id}", 
+                         headers={"Cookie" : f"access_token={request.cookies.get('access_token')}"},
                          json={
-                                  "title": form.title.data,
-                                  "venue": form.venue.data,
-                                  "datetime_start": form.datetime_start.data,
-                                  "datetime_end": form.datetime_end.data,
-                                  "latitude": form.latitude.data,
-                                  "longitude": form.longitude.data,
-                                  "description": form.description.data
+                                "title": form.title.data,
+                                "venue": form.venue.data,
+                                "datetime_start": form.datetime_start.data.isoformat(),
+                                "datetime_end": form.datetime_end.data.isoformat(),
+                                "latitude": form.latitude.data,
+                                "longitude": form.longitude.data,
+                                "description": form.description.data,
+                                "public": form.is_public.data
                                })
     if response is None or not response.get("valid", True):
         form.form_errors.append(response.get("message", "Event update failed."))
         return templates.TemplateResponse(
-            request=request, name="forms/edit_event.html", context={"form": form}, status_code=401
+            request=request, name="forms/edit_event.html", context={"form": form, "display_map": True}, status_code=401
         )
     response = RedirectResponse(url=f"/eventinfo/{event_id}", status_code=303)
 
