@@ -4,7 +4,7 @@
 <head>
   <meta charset="utf-8">
   <title>GoClub</title>
-  <link rel="stylesheet" href="../static/css/goclub.css" />
+  <link href="{{ url_for('static', path='/css/goclub.css') }}" rel="stylesheet">
   {% if display_map|default(false) %}
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
     integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />

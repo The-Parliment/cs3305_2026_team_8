@@ -16,6 +16,11 @@
     <p>Event Start Time: {{ event_start_time }}</p>
     <p>Event End Time: {{ event_end_time }}</p>
     <p>Event Description: {{ event_description }}</p>
+    {% if event_public|default(false) %}
+        <p>This event is public.</p>
+    {% else %}
+        <p>This event is private.</p>
+    {% endif %}
     
 
     {% if is_user_attending|default(false) %}

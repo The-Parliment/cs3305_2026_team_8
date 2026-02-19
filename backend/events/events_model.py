@@ -32,6 +32,7 @@ class InfoResponse(BaseModel):
     datetime_end: datetime
     venue: str
     host:str
+    public: bool
 
 class ListEventResponse(BaseModel):
     events: list[InfoResponse]

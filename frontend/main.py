@@ -5,7 +5,7 @@ from fastapi.templating import Jinja2Templates
 from starlette.middleware.sessions import SessionMiddleware
 from common.JWTSecurity import decode_and_verify
 from common.clients.client import post, get
-from forms import ChangeDetailsForm, CreateEventForm, LoginForm, RegisterForm, EditEventForm
+from forms import ChangeDetailsForm, CreateEventForm, LoginForm, RegisterForm
 from common.db.init import init_db
 import os
 from passlib.context import CryptContext
@@ -469,7 +469,7 @@ async def post_create_event(request: Request, claims: dict = Depends(require_fro
 async def edit_event(request: Request, event_id: int, claims: dict = Depends(require_frontend_auth)):
     token = request.cookies.get("access_token")
     user = claims.get("sub")
-    form = EditEventForm()
+    form = CreateEventForm()
     event_info_data = await get(EVENTS_INTERNAL_BASE, f"eventinfo/{event_id}", headers={"Cookie" : f"access_token={token}"})
     if event_info_data is None or event_info_data.get("valid", True) == False   :
         return templates.TemplateResponse(
@@ -509,7 +509,7 @@ async def edit_event(request: Request, event_id: int, claims: dict = Depends(req
 @app.post("/events/edit/{event_id}", response_class=HTMLResponse)
 async def post_edit_event(request: Request, event_id: int, claims: dict = Depends(require_frontend_auth)):
     data= await request.form()
-    form = EditEventForm(formdata=data) 
+    form = CreateEventForm(formdata=data) 
 
     if not form.validate():
         for field, errors in form.errors.items():

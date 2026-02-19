@@ -12,7 +12,7 @@
         {% endif %}
     <script type="text/javascript" src="{{ url_for('static', path='/js/create_event_map.js') }}"></script>
     <div id="form-on-map">
-        <h1>Create Event</h1>
+        <h1>Event Details</h1>
         <form action="" onsubmit="setLocation()" method="POST" novalidate>
             {{ form.title.label }}
             {{ form.title() }}

@@ -38,8 +38,8 @@ def mint_refresh_token(subject: str) -> str:
     return jwt.encode(payload, settings.jwt_secret, algorithm=settings.jwt_algorithm)
 
 def verify_user(username: str, password: str) -> bool:
-    db = get_db()
-    user = db.query(User).filter(User.username == username).first()
-    if not user:
-        return False
-    return pwd.verify(password, user.hashed_password)
+    with get_db() as db:
+        user = db.query(User).filter(User.username == username).first()
+        if not user:
+            return False
+        return pwd.verify(password, user.hashed_password)
