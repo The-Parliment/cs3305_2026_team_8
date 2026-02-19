@@ -5,15 +5,21 @@
 <main>
     <form action="" method="POST" novalidate>
 
-        {{ form.username.label }}
-        {{ form.username() }}
+        {{ form.first_name.label }}
+        {{ form.first_name() }}
         <br/>
 
-        {{ form.password.label }}
-        {{ form.password() }}
+        {{ form.last_name.label }}
+        {{ form.last_name() }}
         <br/>
         
-        {{ form.submit() }}
+        {{ form.email.label }}
+        {{ form.email() }}
+        <br/>
+        
+        {{ form.phone_number.label }}
+        {{ form.phone_number() }}
+        <br/>
         
         {% if form.form_errors %}
             <ul class="error-list">
@@ -22,6 +28,8 @@
                 {% endfor %}
             </ul>
         {% endif %}
+        
+        {{ form.submit() }}
     </form>
 </main>
 

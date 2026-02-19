@@ -3,7 +3,7 @@ from jwt import PyJWTError
 from .JWTSettings import settings
 
 #Checks that JWT is valid
-def decode_and_verify(token: str, expected_type: str) -> dict:
+def decode_and_verify(token: str, expected_type: str | None = "access") -> dict:
     try:
         payload = jwt.decode(
             token,

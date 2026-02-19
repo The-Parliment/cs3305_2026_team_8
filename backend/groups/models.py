@@ -6,13 +6,13 @@
 
 import datetime
 import logging
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 # Class defs here
 
 class GroupCreate(BaseModel):
     group_name: str
-    group_description: str
+    group_desc: str
     is_private: bool
     owner: str
 
@@ -21,6 +21,14 @@ class GroupCreate(BaseModel):
 # group_id = db's Primary Key
 class Group(GroupCreate):
     group_id: int
+    model_config = ConfigDict(from_attributes=True)
+
 
 class GroupsList(BaseModel):
     group_list: list[Group]
+    model_config = ConfigDict(from_attributes=True)
+
+class GroupJoin(BaseModel):
+    username: str
+    group_id: int
+
