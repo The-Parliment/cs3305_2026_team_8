@@ -32,3 +32,21 @@ class GroupJoin(BaseModel):
     username: str
     group_id: int
 
+# Setting leave up with username first to make easier
+class GroupLeave(BaseModel):
+    username: str
+    group_id: int
+
+class GroupsMine(BaseModel):
+    username: str
+
+class GroupIsMember(BaseModel):
+    username: str
+    group_id: int
+
+class GroupMemberInfo(BaseModel):
+    username: str
+    model_config = ConfigDict(from_attributes=True)
+
+class GroupMembersList(BaseModel):
+    members: list[GroupMemberInfo]
