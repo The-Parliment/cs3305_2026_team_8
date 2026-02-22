@@ -1,14 +1,4 @@
 
-> ** NOTE **
->
-> I had a look through a few chapters of The AOSA — worth a glance if you have not seen it. 
-> The thing that struck me is that it is not an architecture spec. The system gets 
-> described, but only enough to set up the interesting part: why things were done the way 
-> they were, what went wrong, what got reconsidered. The lessons are the point. The tech 
-> is just the story they hang off.
-> That is what I think we should aim for here. The stuff that is still worth reading in 
-> five years is not "we used FastAPI and Docker" — it is the thinking behind the decisions 
-> we made under pressure with the constraints we had.
 ---
 
 # Introduction
@@ -311,17 +301,12 @@ This is a multi-database architecture — different storage engines for data wit
 > **Intent:** Note that descoped work is documented and intentional, not a gap.
 
 
----
-
 # Lessons Learned
 
 
 ## On Deployment: Make the Environment a First-Class Artefact
 
 > **Intent:** Argue that containerising early and treating docker-compose.yml as canonical saved the team from an entire class of failures.
-
-
----
 
 # Conclusion
 
