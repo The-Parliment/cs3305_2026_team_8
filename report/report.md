@@ -284,8 +284,6 @@ This is a multi-database architecture — different storage engines for data wit
 > **Intent:** Explain local token verification and the benefits as a shared library - aka the verify & decode commonality.
 
 
----
-
 # Future Improvements
 
 > **Intent:** Record chapter per future work — not as apologies.
