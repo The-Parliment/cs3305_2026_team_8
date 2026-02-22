@@ -209,4 +209,5 @@ __marimo__/
 
 .vscode/
 *.mmd
+mermaid-*.png
 

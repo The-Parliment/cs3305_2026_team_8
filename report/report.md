@@ -34,16 +34,17 @@ This report tells the story of those three problems, and how the architecture ev
 
 # Requirements and Constraints
 
-> **Intent:** Establish the forces that shaped every decision so the reader can evaluate the choices that follow.
+> **Intent:** High level description of requirements so reader can understand the archiecture that fell outa these.
 
 ## Functional Requirements
 
-> **Intent:** Name the five functions  and flag proximity as the one that breaks the standard assumptions.
+> **Intent:** A summary of our epics. what the system does.
 
 
 ## Non-Functional Constraints
 
-> **Intent:** Cover team size, deployment environment, privacy/security, and scope — each linked forward to where it becomes a real decision.
+> **Intent:** Cover team size, deployment environment, privacy/security, and scope — this could dovetail with the git
+> process, what we got to and didnt, and how our dev env looked like.
 
 
 # System Overview
@@ -66,7 +67,7 @@ The team's response was three-layered: Agile process to align work to service bo
 
 ## Agile Process and the Mapping of Stories to Services
 
-The team used Google [Projects](https://github.com/orgs/The-Parliment/projects/3) to track work using epics and user stories. Effort was made to ensure story boundaries matched service boundaries. An epic for "Proximity Feature" decomposed into stories that could each be owned by a single developer: the Valkey integration, the location update endpoint, the nearby-users query, and the frontend map component. These stories could be worked on in parallel because their integration points were defined upfront as API contracts, not discovered at the end as merge conflicts.
+The team used Google [Projects](https://github.com/orgs/The-Parliment/projects/3) to track work using epics and user stories. The team tried to make sure story boundaries matched service boundaries. An epic for "Proximity Feature" decomposed into stories that could each be owned by a single developer: the Valkey integration, the location update endpoint, the nearby-users query, and the frontend map component. These stories could be worked on in parallel because their integration points were agreed upfront as API contracts, not figured out the hard way when everything tried to merge at once. 
 
 ![Agile Epics and Stories](images/Epic_to_Stories.png)
 
@@ -123,7 +124,7 @@ server {
 
 ## The Two-Phase Development Loop
 
-> **Intent:** Describe the local-dev/full-stack-dev split and why keeping both modes viable avoided slow feedback loops.
+> **Intent:** Describe the local-dev/full-stack-dev split(aka uvicorn vs docker) and why keeping both modes viable avoided slow feedback loops.
 
 
 ## The Nuclear Option
@@ -198,34 +199,86 @@ Cillian to add - benefit of server side html rendering with jinja
 
 # Challenge Three — When the Database Is the Wrong Tool
 
-> **Intent:** Tell the story of discovering that GPS data does not fit a relational store, characterising the mismatch precisely, and finding Valkey as the purpose-built solution.
+Every service in Section XXX fits comfortably into the same data model: SQLAlchemy-managed tables in SQLite, accessed through the common library. Users, circles, groups, events, memberships — these change infrequently, have stable relational structure, and benefit from ACID guarantees.
 
-## The Problem with Location in a Relational Database
+GPS coordinates do not fit this model. Understanding why, and finding a better tool for the problem, is what this section covers.
 
-> **Intent:** Identify the three specific mismatches precisely — this is the diagnosis that justifies everything that follows.
+## The Problem with GPS Location in a Relational Database
 
+Every active user sends a position update at high frequency — potentially every few seconds. In a realistic scenario with twenty concurrent active users, that is twenty writes per second.  SQLite uses file-level locking — only one write at a time. With twenty users pinging updates every few seconds, they'd be queuing behind each other, and that latency would be immediately visible.
 
-> **Three specific mismatches identified:** high write frequency against a
-> single-writer store; spatial calculation against a relational query engine;
-> volatile state forced into durable storage. Each pointed toward the same
-> conclusion: location data needs a different tool.
+The read side is equally problematic. A proximity query — "which of my circle members are within 500 metres?" — requires computing the spherical distance between the querying user's coordinates and every other active user's coordinates. This involves expensive mathematical operations across every row in the active-user set. Without a spatial index this becomes a full-table scan on every proximity request.
+
+A further mismatch: location data has no meaningful durability requirement. If the application restarts, users send a fresh position within seconds of reconnecting. Forcing volatile state into durable storage solves a problem that does not need to be solved.
 
 ## The Research Process and the Discovery of Valkey
 
-> **Intent:** Show how characterising data properties first led to finding an existing tool rather than building a custom solution.
+Rather than building a custom solution, the team stepped back and asked what the data actually needed — then searched for tools built for exactly that.
 
+The tool needed to do four things: keep data in memory for speed, handle geospatial queries natively, expire stale positions automatically, and handle high write volume without locking.
+
+Redis already had all of this built in through its geospatial command set. `GEOADD` stores a coordinate under a named key. `GEODIST` computes distance between two stored points, applying complex math formula internally. `GEOSEARCH` returns all stored points within a given radius. The spherical geometry that would have required significant custom implementation is a single
+command.
+
+We chose Valkey over Redis because it felt more in line with the spirit of the project. When Redis changed their license in 2024, the community forked it into Valkey to keep it truly open. Honestly, we picked it because it sounded cooler—a bit more anarchist, backed by the Linux Foundation, and a direct 'thumbing of the nose' at the rug-pull. Technically, it was a perfect drop-in; we got the native GEOADD and GEORADIUS commands we needed for high-frequency GPS data without changing a single line of the Redis Python client.
+
+### Update Location
+```mermaid
+sequenceDiagram
+    participant Proximity
+    participant Auth
+    participant Valkey
+
+    Note right of Proximity: POST /updatelocation received<br/>{user_id, lat, lon}
+
+    alt Username NOT in local cache
+        Proximity->>Auth: POST /getusername<br/>{user_id}
+        Auth-->>Proximity: {username}
+        Proximity->>Proximity: Store in local cache
+    end
+
+    Proximity->>Valkey: GEOADD locations:live <lon> <lat> <user_id>
+    Valkey-->>Proximity: OK
+
+    Note right of Proximity: 200 OK returned
+```
+
+### Get Friends Inside Radius
+```mermaid
+sequenceDiagram
+    participant Proximity
+    participant Circle
+    participant Valkey
+
+    Note right of Proximity: GET /friendslocation received<br/>{user_id, lat, lon, radius}
+
+    Proximity->>Circle: GET /mycircle<br/>{user_id}
+    Circle-->>Proximity: [{user_id, username}]
+
+    Proximity->>Valkey: GEORADIUS live_locations <lon> <lat> <radius> m
+    Valkey-->>Proximity: [user_id_1, user_id_2, ...]
+
+    Proximity->>Proximity: Filter: circle ∩ nearby
+
+    Proximity->>Proximity: Return friends within radus
+
+    Note right of Proximity: 200 OK<br/>[{user_id, username, lat, lon, distance}]
+```
 
 ## The Resulting Two-Tier Data Architecture
 
-> **Intent:** Name the pattern and summarise the role of each tier.
+The Valkey integration pushed the project toward two separate data tiers.
 
+**SQLite with SQLAlchemy**, managed through the common library, serves all durable, relational, slowly-changing data: user accounts, circle memberships, group memberships, events, RSVPs. This is the system of record.
+
+**Valkey** serves short-lived, high-frequency, spatially-indexed data: the current position of active users. Data carries a TTL and expires automatically when a user goes offline. No explicit delete logic is required.
+
+This is a multi-database architecture — different storage engines for data with genuinely different needs.
 
 > **The transferable lesson:** Valuable engineering move in this
-> project was the decision not to write code. Recognising that a problem has
-> prior art — and knowing how to search for it — is a more valuable skill
-> than the ability to implement a solution from scratch.
-
----
+> project was the decision not to write code. Knowing that a problem 
+> is already solved — and finding the tool that solves it — is a 
+> more valuable skill than building something from scratch.
 
 # Cross-Cutting Concerns
 

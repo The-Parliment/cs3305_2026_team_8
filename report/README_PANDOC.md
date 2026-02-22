@@ -1,6 +1,6 @@
 If you want to get pandoc generating nicely you need to add a few things to your system:
 
-```bask
+```bash
 sudo apt install pandoc
 sudo apt install texlive-xetex
 sudo apt install nodejs npm
