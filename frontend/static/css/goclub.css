@@ -59,6 +59,22 @@ main {
   z-index: 9999;
 }
 
+@media screen and (max-width: 768px) {
+  body {
+    font-size: 16px;
+  }
+
+  .sidenav a {
+    font-size: 20px;
+  }
+
+  .menu-btn {
+    font-size: 36px;
+    right: 16px;
+    top: 16px;
+  }
+}
+
 @media screen and (max-height: 450px) {
   .sidenav {padding-top: 15px;}
   .sidenav a {font-size: 18px;}
