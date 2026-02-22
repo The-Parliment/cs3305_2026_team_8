@@ -24,17 +24,25 @@ This report tells the story of those three problems, and how the architecture ev
 
 # Requirements and Constraints
 
-> **Intent:** High level description of requirements so reader can understand the archiecture that fell outa these.
-
 ## Functional Requirements
 
-> **Intent:** A summary of our epics. what the system does.
+Five core capabilities drove how the system was split into services.
 
+Users need to be able to register, authenticate, and manage their profiles. They need to form inner circles — small, invitation-only groups of close contacts. They also need to join and create broader Groups based on shared interests, and create, discover, and RSVP to Events with flexible visibility (public, private, circle-only, or group-only).
+
+On top of this, the platform supports real-time location sharing within a user’s circle, allowing them to see who is physically nearby within a configurable distance.
+
+The proximity feature introduces a constraint that none of the other features share: it requires continuous, high-frequency updates from active users. This has significant architectural implications and is explored in more detail in Section XXXX.
 
 ## Non-Functional Constraints
 
-> **Intent:** Cover team size, deployment environment, privacy/security, and scope — this could dovetail with the git
-> process, what we got to and didnt, and how our dev env looked like.
+**Team size** was the most consequential constraint. Four developers, each responsible for one or more services, with a fixed academic deadline juggling other course work. This created an immediate tension: microservices architecture enables parallel development, but it also introduces integration complexity and coordination overhead that a monolith avoids. The team had to earn the benefits of microservices by investing in the process and tooling that make parallel development safe.
+
+**Deployment environment** was the second major constraint. The system needed to run identically on every team member's machine and produce a reliable demo. "It works on my machine" is not a viable outcome for a graded project. This constraint drove the containerisation decisions described in Section XXX.
+
+**Privacy** was a real constraint, not an afterthought. Sharing real-time GPS coordinates with other users is sensitive. The architecture had to support granular controls: a user shares location with their circle but not with broader Groups or the public. This shaped both the data model and the JWT claims structure.
+
+**Scope** was explicitly bounded. This is an academic project, not a production system. Certain production concerns — horizontal scaling aka Kubernetes, JWT refresh and revocation, message queues for asynchronous events — were out of scope. Acknowledging this is not an apology; it is honest engineering. The decisions made are appropriate for the constraints that existed.
 
 
 # System Overview
@@ -283,6 +291,8 @@ This is a multi-database architecture — different storage engines for data wit
 
 > **Intent:** Explain local token verification and the benefits as a shared library - aka the verify & decode commonality.
 
+
+---
 
 # Future Improvements
 
