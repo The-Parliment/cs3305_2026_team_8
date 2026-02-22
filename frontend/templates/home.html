@@ -8,6 +8,7 @@
             <script type="text/javascript">
                 var x = {{ x|default(53.347878221572344)|tojson }};
                 var y = {{ y|default(-6.275954663866795)|tojson }};
+                var authorizedUser = {{ authorized_user|default(None)|tojson }};
             </script>
             <script type="text/javascript" src="/static/js/map.js"></script>
         {% endif %}
