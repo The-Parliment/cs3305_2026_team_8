@@ -1,8 +1,9 @@
 import logging
+import math
 import os
 from fastapi import FastAPI, HTTPException, Request, Depends
 from common.clients.client import get
-from events_model import BooleanResponse, CreateRequest, CreateResponse, InfoResponse, ListEventResponse, ListInviteResponse, InviteResponse, MessageResponse, ListResponse, InviteRequest, EditRequest
+from events_model import BooleanResponse, CreateRequest, CreateResponse, InfoResponse, ListEventResponse, ListInviteResponse, InviteResponse, MessageResponse, ListResponse, InviteRequest, EditRequest, SearchRequest
 from common.JWTSecurity import decode_and_verify                    # Importing cillians Security libs.
 from common.db.structures.structures import Events, UserRequest, RequestTypes, Status    # Importing cillians DB models.
 from common.db.db import get_db
@@ -71,13 +72,46 @@ async def event_info(request: Request, event_id:int):
                             host=event.host,
                             public=event.public
                             )
+def get_bounding_box(lat, lng, radius_km):
+    lat_rad = math.radians(lat)
+    
+    delta_lat = radius_km / 111.1
 
-# too complicated to fill out with rest of them
-@app.get("/search", response_model = ListResponse)
-async def search_events(request:Request) -> ListResponse:
+    delta_lng = radius_km / (111.1 * math.cos(lat_rad))
+    
+    return {
+        "min_lat": lat - delta_lat,
+        "max_lat": lat + delta_lat,
+        "min_lng": lng - delta_lng,
+        "max_lng": lng + delta_lng
+    }
+
+@app.get("/search", response_model = ListEventResponse)
+async def search_events(request:SearchRequest) -> ListEventResponse:
     with get_db() as db:
-        result=select(Events).filter_by
-        return ListResponse() # needs to be filled out + restructured for scaling
+        bb = get_bounding_box(request.latitude, request.longitude, request.radius)
+        stmt = select(Events).filter(Events.title.like(f"%{request.title}%") if request.title else True,
+                                     Events.venue.like(f"%{request.venue}%") if request.venue else True,
+                                     Events.host.like(f"%{request.host}%") if request.host else True,
+                                     Events.datetime_start >= request.datetime_start if request.datetime_start else True,
+                                     Events.datetime_end <= request.datetime_end if request.datetime_end else True,
+                                     Events.latitude >= bb["min_lat"] and Events.latitude <= bb["max_lat"],
+                                     Events.longitude >= bb["min_lng"] and Events.longitude <= bb["max_lng"])
+        result=db.execute(stmt).scalars().all()
+        list_of_events = []
+        for event in result:
+            list_of_events.append(InfoResponse(id=event.id, 
+                            venue=event.venue, 
+                            latitude=event.latitude, 
+                            longitude=event.longitude,
+                            datetime_start=event.datetime_start, 
+                            datetime_end=event.datetime_end, 
+                            title=event.title, 
+                            description=event.description, 
+                            host=event.host,
+                            public=event.public
+                            ))
+        return ListEventResponse(events=list_of_events)
 
 @app.post("/invite/{username}", response_model=MessageResponse)
 async def invite_user(inbound: InviteRequest, username:int, authorized_user=Depends(get_username_from_request)) -> MessageResponse:
@@ -121,20 +155,18 @@ async def invite_circle(inbound: Request, event_id: int, authorized_user=Depends
         db.commit()
         return MessageResponse(message=f"Invited your circle to this event!")
 
-
-#cannot complete group code without darrens code
-@app.post("/invitegroup", response_model=MessageResponse)
-async def invite_group(inbound: InviteRequest) -> MessageResponse:
-    invite_group_response = MessageResponse( 
-        message="foodwise wuz here",
-        )
-    return invite_group_response 
+@app.post("/invitegroup/{group_id}/{event_id}", response_model=MessageResponse)
+async def invite_group(inbound: Request, group_id: int, event_id: int, authorized_user=Depends(get_username_from_request)) -> MessageResponse:
+    with get_db() as db:
+        return MessageResponse(message="Group invites are not implemented yet. This endpoint is a placeholder for future functionality.")
 
 @app.post("/cancel/{event_id}", response_model=MessageResponse)
 async def cancel_event(inbound: Request, event_id: int, authorized_user=Depends(get_username_from_request)) -> MessageResponse:
     with get_db() as db:
         if not event_exists(event_id):
             return MessageResponse(message="There is no such event")
+        if not user_is_host(event_id, authorized_user):
+            return MessageResponse(message="You are not the host of this event, so you cannot cancel it.")
         stmt=delete(Events).filter_by(
             id=event_id,
             host=authorized_user

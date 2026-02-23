@@ -64,6 +64,8 @@ async def index(request: Request):
         request=request, name="home.html", context={"display_map": True}
     )
 
+# Authentication Endpoints
+
 @app.get("/register", response_class=HTMLResponse)
 async def get_register(request: Request):
     form = RegisterForm()
@@ -155,6 +157,8 @@ async def logout(request: Request):
     response.delete_cookie(key="refresh_token", path="/")
     return response
 
+# User Interface Endpoints
+
 @app.get("/profile", response_class=HTMLResponse)
 async def get_profile(request: Request, claims: dict = Depends(require_frontend_auth)):
     authorized_user = claims.get("sub")
@@ -234,85 +238,6 @@ async def get_community(request : Request, claims : dict = Depends(require_front
                                                              "friends_list" : friends_list,
                                                              "all_users" : all_users}
     )
-
-@app.get("/circle", response_class=HTMLResponse)
-async def get_circle(request: Request, claims: dict = Depends(require_frontend_auth)):
-    token = request.cookies.get("access_token")
-
-    friends_list_data = await get(USER_INTERNAL_BASE, "friends", 
-                        headers={"Cookie" : f"access_token={request.cookies.get('access_token')}"})
-    friends_list = friends_list_data.get("user_names", []) if friends_list_data is not None else []
-
-    mycircle_data = await get(CIRCLES_INTERNAL_BASE, "mycircle", headers={"Cookie" : f"access_token={token}"})
-    circle = mycircle_data.get("user_names", []) if mycircle_data else []
-
-    pending_invites_data = await get(CIRCLES_INTERNAL_BASE, "get_invites", headers={"Cookie" : f"access_token={token}"})
-    pending_invites = pending_invites_data.get("user_names", []) if pending_invites_data else []
-
-    invitations_sent_data = await get(CIRCLES_INTERNAL_BASE, "get_invites_sent", headers={"Cookie" : f"access_token={token}"})
-    invitations_sent = invitations_sent_data.get("user_names", []) if invitations_sent_data else [] 
-
-    return templates.TemplateResponse(
-        request=request, name="circle.html", context={"friends_list": friends_list, "circle": circle, "pending_invites": pending_invites, "invitations_sent": invitations_sent}
-    )
-
-@app.get("/circle/invite_to_circle/{username}", response_class=HTMLResponse)
-async def invite_to_circle(request: Request, username: str, claims: dict = Depends(require_frontend_auth)):
-    token = request.cookies.get("access_token")
-    await post(CIRCLES_INTERNAL_BASE, "invite", headers={"Cookie" : f"access_token={token}"}, json={"inviter": claims.get("sub"), "invitee": username})
-    return RedirectResponse(url="/circle", status_code=303)
-
-@app.get("/circle/accept/{username}", response_class=HTMLResponse)
-async def accept_invite(request: Request, username: str, claims: dict = Depends(require_frontend_auth)):
-    token = request.cookies.get("access_token")
-    await post(CIRCLES_INTERNAL_BASE, "accept", headers={"Cookie" : f"access_token={token}"}, json={"inviter": username, "invitee": claims.get("sub")})
-    return RedirectResponse(url="/circle", status_code=303)
-
-@app.get("/circle/remove_from_circle/{username}", response_class=HTMLResponse)
-async def remove_from_circle(request: Request, username: str, claims: dict = Depends(require_frontend_auth)):
-    token = request.cookies.get("access_token")
-    await post(CIRCLES_INTERNAL_BASE, "remove", headers={"Cookie" : f"access_token={token}"}, json={"inviter": claims.get("sub"), "invitee": username})
-    return RedirectResponse(url="/circle", status_code=303) 
-
-@app.get("/circle/decline/{username}", response_class=HTMLResponse)
-async def decline_invite(request: Request, username: str, claims: dict = Depends(require_frontend_auth)):
-    token = request.cookies.get("access_token")
-    await post(CIRCLES_INTERNAL_BASE, "decline", headers={"Cookie" : f"access_token={token}"}, json={"inviter": username, "invitee": claims.get("sub")})
-    return RedirectResponse(url="/circle", status_code=303)
-
-# User Management Endpoints
-
-@app.get("/follow/{username}")
-async def follow_user(request: Request, username: str, claims: dict = Depends(require_frontend_auth)):
-    token = request.cookies.get("access_token")
-    referer = request.headers.get("referer", "/")
-    this_user = claims.get("sub")
-    await post(USER_INTERNAL_BASE, "send_follow_request", headers={"Cookie" : f"access_token={token}"}, 
-                                             json={"inviter": this_user, "invitee": username}
-                                             )
-    return RedirectResponse(url=referer, status_code=303)
-
-@app.get("/accept_follow/{username}")
-async def accept_follow(request: Request, username: str, claims: dict = Depends(require_frontend_auth)):
-    token = request.cookies.get("access_token")
-    referer = request.headers.get("referer", "/")
-    this_user = claims.get("sub")
-    await post(USER_INTERNAL_BASE, "accept_follow_request", headers={"Cookie" : f"access_token={token}"}, 
-                                             json={"inviter": username, "invitee": this_user}
-                                             )
-    return RedirectResponse(url=referer, status_code=303)
-
-@app.get("/withdraw/{username}")
-async def withdraw_follow(request: Request, username: str, claims: dict = Depends(require_frontend_auth)):
-    token = request.cookies.get("access_token")
-    referer = request.headers.get("referer", "/")
-    authorized_user = claims.get("sub")
-    await post(USER_INTERNAL_BASE, "withdraw_follow_request", headers={"Cookie" : f"access_token={token}"}, 
-                                             json={"inviter": authorized_user, "invitee": username}
-                                             )
-    return RedirectResponse(url=referer, status_code=303)
-
-# Invites
 
 @app.get("/invites", response_class=HTMLResponse)
 @app.get("/invites/{invite_type}", response_class=HTMLResponse)
@@ -549,7 +474,6 @@ async def post_edit_event(request: Request, event_id: int, claims: dict = Depend
 
     return response
 
-
 @app.get("/events/cancel/{event_id}", response_class=HTMLResponse)
 async def cancel_event(request: Request, event_id: int, claims: dict = Depends(require_frontend_auth)):
     token = request.cookies.get("access_token")
@@ -587,7 +511,24 @@ async def decline_event_invite(request: Request, event_id: int, claims: dict = D
     await post(EVENTS_INTERNAL_BASE, f"decline/{event_id}", headers={"Cookie" : f"access_token={token}"})
     return RedirectResponse(url="/events", status_code=303)
 
-# Follow Request Decline (alias for withdraw)
+@app.get("/accept_event_invite/{event_id}", response_class=HTMLResponse)
+async def accept_event_invite(request: Request, event_id: str, claims: dict = Depends(require_frontend_auth)):
+    token = request.cookies.get("access_token")
+    referer = request.headers.get("referer", "/")
+    user = claims.get("sub")
+    await post(EVENTS_INTERNAL_BASE, f"attend/{event_id}", headers={"Cookie" : f"access_token={token}"})
+    return RedirectResponse(url=referer, status_code=303)
+
+@app.get("/decline_event_invite/{event_id}", response_class=HTMLResponse)
+async def decline_event_invite_from_invites(request: Request, event_id: str, claims: dict = Depends(require_frontend_auth)):
+    token = request.cookies.get("access_token")
+    referer = request.headers.get("referer", "/")
+    user = claims.get("sub")
+    await post(EVENTS_INTERNAL_BASE, f"decline/{event_id}", headers={"Cookie" : f"access_token={token}"})
+    return RedirectResponse(url=referer, status_code=303)
+
+# User Management Endpoints
+
 @app.get("/decline_follow/{username}", response_class=HTMLResponse)
 async def decline_follow(request: Request, username: str, claims: dict = Depends(require_frontend_auth)):
     token = request.cookies.get("access_token")
@@ -598,7 +539,38 @@ async def decline_follow(request: Request, username: str, claims: dict = Depends
                                              )
     return RedirectResponse(url=referer, status_code=303)
 
-# Circle Invites
+@app.get("/follow/{username}")
+async def follow_user(request: Request, username: str, claims: dict = Depends(require_frontend_auth)):
+    token = request.cookies.get("access_token")
+    referer = request.headers.get("referer", "/")
+    this_user = claims.get("sub")
+    await post(USER_INTERNAL_BASE, "send_follow_request", headers={"Cookie" : f"access_token={token}"}, 
+                                             json={"inviter": this_user, "invitee": username}
+                                             )
+    return RedirectResponse(url=referer, status_code=303)
+
+@app.get("/accept_follow/{username}")
+async def accept_follow(request: Request, username: str, claims: dict = Depends(require_frontend_auth)):
+    token = request.cookies.get("access_token")
+    referer = request.headers.get("referer", "/")
+    this_user = claims.get("sub")
+    await post(USER_INTERNAL_BASE, "accept_follow_request", headers={"Cookie" : f"access_token={token}"}, 
+                                             json={"inviter": username, "invitee": this_user}
+                                             )
+    return RedirectResponse(url=referer, status_code=303)
+
+@app.get("/withdraw/{username}")
+async def withdraw_follow(request: Request, username: str, claims: dict = Depends(require_frontend_auth)):
+    token = request.cookies.get("access_token")
+    referer = request.headers.get("referer", "/")
+    authorized_user = claims.get("sub")
+    await post(USER_INTERNAL_BASE, "withdraw_follow_request", headers={"Cookie" : f"access_token={token}"}, 
+                                             json={"inviter": authorized_user, "invitee": username}
+                                             )
+    return RedirectResponse(url=referer, status_code=303)
+
+# Circle Management Endpoints
+
 @app.get("/accept_circle_invite/{username}", response_class=HTMLResponse)
 async def accept_circle_invite(request: Request, username: str, claims: dict = Depends(require_frontend_auth)):
     token = request.cookies.get("access_token")
@@ -619,7 +591,53 @@ async def decline_circle_invite(request: Request, username: str, claims: dict = 
                                         )
     return RedirectResponse(url=referer, status_code=303)
 
-# Group Invites
+@app.get("/circle", response_class=HTMLResponse)
+async def get_circle(request: Request, claims: dict = Depends(require_frontend_auth)):
+    token = request.cookies.get("access_token")
+
+    friends_list_data = await get(USER_INTERNAL_BASE, "friends", 
+                        headers={"Cookie" : f"access_token={request.cookies.get('access_token')}"})
+    friends_list = friends_list_data.get("user_names", []) if friends_list_data is not None else []
+
+    mycircle_data = await get(CIRCLES_INTERNAL_BASE, "mycircle", headers={"Cookie" : f"access_token={token}"})
+    circle = mycircle_data.get("user_names", []) if mycircle_data else []
+
+    pending_invites_data = await get(CIRCLES_INTERNAL_BASE, "get_invites", headers={"Cookie" : f"access_token={token}"})
+    pending_invites = pending_invites_data.get("user_names", []) if pending_invites_data else []
+
+    invitations_sent_data = await get(CIRCLES_INTERNAL_BASE, "get_invites_sent", headers={"Cookie" : f"access_token={token}"})
+    invitations_sent = invitations_sent_data.get("user_names", []) if invitations_sent_data else [] 
+
+    return templates.TemplateResponse(
+        request=request, name="circle.html", context={"friends_list": friends_list, "circle": circle, "pending_invites": pending_invites, "invitations_sent": invitations_sent}
+    )
+
+@app.get("/circle/invite_to_circle/{username}", response_class=HTMLResponse)
+async def invite_to_circle(request: Request, username: str, claims: dict = Depends(require_frontend_auth)):
+    token = request.cookies.get("access_token")
+    await post(CIRCLES_INTERNAL_BASE, "invite", headers={"Cookie" : f"access_token={token}"}, json={"inviter": claims.get("sub"), "invitee": username})
+    return RedirectResponse(url="/circle", status_code=303)
+
+@app.get("/circle/accept/{username}", response_class=HTMLResponse)
+async def accept_invite(request: Request, username: str, claims: dict = Depends(require_frontend_auth)):
+    token = request.cookies.get("access_token")
+    await post(CIRCLES_INTERNAL_BASE, "accept", headers={"Cookie" : f"access_token={token}"}, json={"inviter": username, "invitee": claims.get("sub")})
+    return RedirectResponse(url="/circle", status_code=303)
+
+@app.get("/circle/remove_from_circle/{username}", response_class=HTMLResponse)
+async def remove_from_circle(request: Request, username: str, claims: dict = Depends(require_frontend_auth)):
+    token = request.cookies.get("access_token")
+    await post(CIRCLES_INTERNAL_BASE, "remove", headers={"Cookie" : f"access_token={token}"}, json={"inviter": claims.get("sub"), "invitee": username})
+    return RedirectResponse(url="/circle", status_code=303) 
+
+@app.get("/circle/decline/{username}", response_class=HTMLResponse)
+async def decline_invite(request: Request, username: str, claims: dict = Depends(require_frontend_auth)):
+    token = request.cookies.get("access_token")
+    await post(CIRCLES_INTERNAL_BASE, "decline", headers={"Cookie" : f"access_token={token}"}, json={"inviter": username, "invitee": claims.get("sub")})
+    return RedirectResponse(url="/circle", status_code=303)
+
+# Group Management Endpoints
+
 @app.get("/accept_group_invite/{group_id}", response_class=HTMLResponse)
 async def accept_group_invite(request: Request, group_id: str, claims: dict = Depends(require_frontend_auth)):
     token = request.cookies.get("access_token")
@@ -636,21 +654,4 @@ async def decline_group_invite(request: Request, group_id: str, claims: dict = D
     this_user = claims.get("sub")
     # TODO: Implement group invite decline on backend
     # For now, just redirect back
-    return RedirectResponse(url=referer, status_code=303)
-
-# Event Invites
-@app.get("/accept_event_invite/{event_id}", response_class=HTMLResponse)
-async def accept_event_invite(request: Request, event_id: str, claims: dict = Depends(require_frontend_auth)):
-    token = request.cookies.get("access_token")
-    referer = request.headers.get("referer", "/")
-    user = claims.get("sub")
-    await post(EVENTS_INTERNAL_BASE, f"attend/{event_id}", headers={"Cookie" : f"access_token={token}"})
-    return RedirectResponse(url=referer, status_code=303)
-
-@app.get("/decline_event_invite/{event_id}", response_class=HTMLResponse)
-async def decline_event_invite_from_invites(request: Request, event_id: str, claims: dict = Depends(require_frontend_auth)):
-    token = request.cookies.get("access_token")
-    referer = request.headers.get("referer", "/")
-    user = claims.get("sub")
-    await post(EVENTS_INTERNAL_BASE, f"decline/{event_id}", headers={"Cookie" : f"access_token={token}"})
     return RedirectResponse(url=referer, status_code=303)

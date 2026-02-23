@@ -63,3 +63,13 @@ class EditRequest(BaseModel):
     longitude: float
     venue: str
     public: bool | None = False
+
+class SearchRequest(BaseModel):
+    title: str | None = None
+    datetime_start: datetime | None = None
+    datetime_end: datetime | None = None
+    latitude: float
+    longitude: float
+    radius: float
+    venue: str | None = None
+    host: str | None = None
