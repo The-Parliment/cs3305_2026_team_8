@@ -325,6 +325,29 @@ async def all_events(request:Request) -> ListEventResponse:
             
         response = ListEventResponse(events=list_of_events)
         return response
+    
+@app.get("/events/{username}", response_model=ListEventResponse)
+async def all_events(request:Request, username: str) -> ListEventResponse:
+    with get_db() as db:
+        stmt = select(Events).filter_by(host=username)
+        result = db.execute(stmt).scalars().all()
+        if not result: 
+            return ListEventResponse(list=[])
+        list_of_events = []
+        for event in result:
+            list_of_events.append(InfoResponse(id=event.id,
+                            venue=event.venue,
+                            latitude=event.latitude,
+                            longitude=event.longitude,
+                            datetime_start=event.datetime_start,
+                            datetime_end=event.datetime_end,
+                            title=event.title,
+                            description=event.description,
+                            host=event.host,
+                            public=event.public))
+            
+        response = ListEventResponse(events=list_of_events)
+        return response
 
 @app.get("/get_attendees/{event_id}", response_model=ListResponse)
 async def get_attendees(event_id: int) -> ListResponse:
