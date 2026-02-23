@@ -93,16 +93,21 @@ The consequence was significant: a developer building the Events service could c
 
 # Challenge Two — Reproducible Deployment of a Multi-Service Stack
 
-> **Intent:** Explain the deployment problem and the discipline behind the Docker Compose solution — not what Docker is, but why it mattered here.
+A system with five backend services, an API gateway, a cache layer, and a frontend has a deployment surface large enough to fail in a dozen different ways between one machine and the next. Python version differences, missing libraries, port conflicts, environment variable mismatches — any of these can produce a system that works on one developer's machine and fails silently on another's. For a project with a live demo requirement, this is not a theoretical risk; it is project-threatening.
 
 ## Container-Per-Service and the Isolation Benefit
 
-> **Intent:** Explain what containerisation bought the team in terms of consistency, isolation, and conflict-free collaboration.
+Each service is its own Docker container built from its own Dockerfile. The container encapsulates the Python version, all dependencies, and the runtime configuration. A developer with no Python installed can run the full stack provided they have Docker. One service's dependency versions cannot conflict with another's because they never share a runtime environment.
 
+Containerisation also helped prevent the kind of wasteful duplication that can plague collaborative development. In past group projects working from a monorepo, time pressure often led developers to work across shared code simultaneously, only to discover at merge time that teammates had rewritten the same sections — resulting in significant rework and lost effort. By isolating each service behind a well-defined boundary, containerisation acted as a natural forcing function against this pattern.
+
+The common library is the one shared element. Rather than being installed as a package, it is bind-mounted into each service container from the repository root. A change to the common library is immediately reflected in all running services without a container rebuild — important during the early stages when the shared data models were evolving rapidly.
+
+The learning curve with Docker Compose was real, but the consistency, isolation, and conflict-free collaboration it enabled made it one of the more consequential early decisions the team made.
 
 ## NGINX as the Unifying Gateway
 
-> **Intent:** Explain why a single gateway — single origin, extensible by addition — was the right choice.
+With five services running on five different ports, the frontend would otherwise need to know five different addresses. NGINX collapses this into one single address that handles everything.
 
 ```bash
 server {
@@ -122,12 +127,13 @@ server {
 
 ## The Two-Phase Development Loop
 
-> **Intent:** Describe the local-dev/full-stack-dev split(aka uvicorn vs docker) and why keeping both modes viable avoided slow feedback loops.
+A developer working on a new feature would run their service locally using a Python virtual environment and `uvicorn` — fast iteration, immediate Swagger UI feedback courtesy of FastAPI's automatic documentation generation, no Docker rebuild cycle. When the feature was stable, it was containerised and tested in the full stack via `docker compose up`.
 
+Local development is faster but tests the service in isolation. Containerised development is slower but tests the service as the system will actually run. Keeping both modes viable avoided slow feedback loops during exploratory work while still catching integration issues before they reached main.
 
 ## The Nuclear Option
 
-> **Intent:** Frame the full state-reset command as a first-class operational tool, not an admission of failure.
+A multi-container system with persistent state can accumulate artefacts across restarts that mask bugs or produce inconsistent behaviour between team members. The team documented a full state-reset procedure as a first-class operation:
 
 ```bash
 docker compose down --volumes --remove-orphans
@@ -280,19 +286,20 @@ This is a multi-database architecture — different storage engines for data wit
 
 # Cross-Cutting Concerns
 
-> **Intent:** Cover the two elements that span all services and explain the trade-offs of each choice. Perhaps we present the schema?
-
 ## The Common Library
 
-> **Intent:** Justify centralised shared code as the right coupling decision at this scale, while honestly acknowledging the trade-off.
+In a standard microservices architecture, each service is fully self-contained with its own database client, authentication logic, and data models. This is correct for large services deployed independently by separate teams. It is the wrong design for a small team building five services that share a single database schema and a single JWT secret.
 
+The common library provides three things: SQLAlchemy base models and session management used by all services to access the shared database; Pydantic schemas for data structures that cross service boundaries; and JWT encode/decode utilities. By centralising these, the team avoided independent implementations of the same boilerplate and ensured that a change to a shared model propagated to all services simultaneously.
+
+The trade-off is worth noting: a breaking change to the common library is a breaking change to all services. In a system where services are built and deployed independently, this would be a serious problem. In this system, where all services deploy together via a single docker compose up, it is not a liability — it is coupling in the right place.
 
 ## JWT and Distributed Authentication
 
-> **Intent:** Explain local token verification and the benefits as a shared library - aka the verify & decode commonality.
+Token verification is local in each service. The JWT payload carries the user's identity and any claims needed for access decisions downstream. No network round-trip to the Auth service is required on each request, removing both a latency cost and a dependency on Auth availability for every other service to function.
 
+Token revocation and refresh tokens were deliberately left out of scope — both add meaningful complexity that was not justified given the scale and expected lifetime of this project.
 
----
 
 # Future Improvements
 

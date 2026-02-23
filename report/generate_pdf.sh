@@ -6,6 +6,7 @@ pandoc meta.yaml report.md -o report.pdf \
   --pdf-engine=xelatex \
   --include-in-header=$SCRIPTS/table-preamble.tex \
   --include-in-header=$SCRIPTS/code-fancy.tex \
+  --include-in-header=$SCRIPTS/spacing.tex \
   --lua-filter=$SCRIPTS/mermaid.lua \
   --lua-filter=$SCRIPTS/mermaid-scale.lua \
   --lua-filter=$SCRIPTS/tabwidths.lua \

@@ -39,7 +39,7 @@ geometry:
   - left=3.0cm
   - right=3.0cm
 fontsize: 11pt
-linestretch: 1.15
+linestretch: 0.5
 toc: true
 toc-depth: 3
 numbersections: true
