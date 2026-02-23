@@ -38,7 +38,11 @@
         <a href="/events/decline/{{ event_id }}">Withdraw Request</a>
     {% elif not is_host|default(false) %}
         <p>You are not attending this event.</p>
-        <a href="/events/request/{{ event_id }}">Request to Attend</a>
+        {% if event_public|default(false) %}
+            <a href="/events/attend/{{ event_id }}">Attend Event</a>
+        {% else %}
+            <a href="/events/request/{{ event_id }}">Request to Attend</a>
+        {% endif %}
     {% endif %}
 
 </main>

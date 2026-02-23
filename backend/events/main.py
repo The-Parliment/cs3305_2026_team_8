@@ -201,6 +201,17 @@ async def attend_event(inbound: Request, event_id: int, authorized_user=Depends(
     with get_db() as db:
         if not event_exists(event_id):
             return MessageResponse(message="There is no such event")
+        if event_is_public(event_id):
+            stmt = insert(UserRequest).values(
+                field1=authorized_user,
+                field2=authorized_user,
+                field3=event_id,
+                type=RequestTypes.EVENT_INVITE,
+                status=Status.ACCEPTED
+            )
+            db.execute(stmt)
+            db.commit()
+            return MessageResponse(message="You have joined the event!")
         if is_user_invited_event(event_id, authorized_user):
             stmt = update(UserRequest).values(
                 status=Status.ACCEPTED
