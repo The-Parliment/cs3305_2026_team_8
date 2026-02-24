@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block main_content %}
+
+<main>
+    <h2>Your Groups</h2>
+    <ul>
+        {% for group in my_groups %}
+            <li><a href="/groups/group_info/{{ group.group_id }}">{{ group.group_name }}</a></li>
+        {% endfor %}
+    </ul>
+
+    <h2>All Groups</h2>
+    <ul>
+        {% for group in all_groups %}
+            <li><a href="/groups/group_info/{{ group.group_id }}">{{ group.group_name }}</a></li>
+        {% endfor %}
+    </ul>
+</main>
+
+{% endblock %}

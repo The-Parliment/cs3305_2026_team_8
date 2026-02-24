@@ -3,7 +3,7 @@
 {% block main_content %}
 
 <main>
-    {{% if authorized_user %}}
+    {% if authorized_user %}
         <p>
             Logged in as: {{ authorized_user }}
         </p>

@@ -23,9 +23,16 @@ class Group(GroupCreate):
     group_id: int
     model_config = ConfigDict(from_attributes=True)
 
-
+class GroupInfoResponse(BaseModel):
+    group_id: int
+    group_name: str
+    group_desc: str
+    is_private: bool
+    owner: str
+    valid: bool | None = True
+    
 class GroupsList(BaseModel):
-    group_list: list[Group]
+    group_list: list[GroupInfoResponse]
     model_config = ConfigDict(from_attributes=True)
 
 class GroupJoin(BaseModel):
@@ -50,11 +57,3 @@ class InviteResponse(BaseModel):
     
 class ListInviteResponse(BaseModel):
     invites: list[InviteResponse]
-
-class GroupInfoResponse(BaseModel):
-    group_id: int
-    group_name: str
-    group_desc: str
-    is_private: bool
-    owner: str
-    valid: bool | None = True

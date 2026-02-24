@@ -2,11 +2,10 @@ import logging
 from fastapi import Depends, Request
 from fastapi import FastAPI, HTTPException
 from sqlalchemy import delete, insert, select
-from backend.events.events_model import InviteResponse, ListInviteResponse
 from common.JWTSecurity import decode_and_verify
 from common.db.structures.structures import Group as DBGroup, RequestTypes, Status, UserRequest
 from common.db.db import get_db
-from models import GroupCreate, Group, GroupInfoResponse, GroupsList, MessageResponse, GroupMembersList, GroupMemberInfo
+from models import GroupCreate, Group, GroupInfoResponse, GroupsList, InviteResponse, ListInviteResponse, MessageResponse, GroupMembersList, GroupMemberInfo
 
 logging.basicConfig(level=logging.INFO, format='[groups] %(asctime)s%(levelname)s %(message)s')
 logger = logging.getLogger(__name__)
@@ -125,21 +124,27 @@ async def list_all_groups(request:Request):
         result = db.execute(select(DBGroup)).scalars().all()
         print(f"RAW RESULT: {result}")
         print(f"COUNT: {len(result)}")
-        return GroupsList(group_list=result)
+        groups = []
+        for group in result:
+            groups.append(GroupInfoResponse(group_id=group.group_id, group_name=group.group_name, group_desc=group.group_desc, is_private=group.is_private, owner=group.owner))
+        return GroupsList(group_list=groups)
 
-@app.post("/mygroups", response_model=GroupsList)
+@app.get("/mygroups", response_model=GroupsList)
 async def my_groups(request: Request, authorized_user: str = Depends(get_username_from_request)):
     logger.info("my_groups called")
     with get_db() as db:
-        stmt = select(DBGroup.group_id).join(UserRequest, DBGroup.group_id == UserRequest.field3).where(
+        stmt = select(DBGroup).join(UserRequest, DBGroup.group_id == UserRequest.field3).where(
             UserRequest.field2 == authorized_user,
             UserRequest.type == RequestTypes.GROUP_INVITE,
             UserRequest.status == Status.ACCEPTED
         )
         result = db.execute(stmt).scalars().all()
-        return GroupsList(group_list=result)
+        groups = []
+        for group in result:
+            groups.append(GroupInfoResponse(group_id=group.group_id, group_name=group.group_name, group_desc=group.group_desc, is_private=group.is_private, owner=group.owner))
+        return GroupsList(group_list=groups)
 
-@app.post("/ismember/{group_id}/{user}", response_model=bool)
+@app.get("/ismember/{group_id}/{user}", response_model=bool)
 async def is_member(request: Request, group_id: int, user: str):
     logger.info(f"is_member called: {request}")
     return is_user_in_group(user, group_id)
@@ -157,6 +162,10 @@ async def list_members(request:Request, group_id: int):
         group_member_list = []
         for req in result:
             group_member_list.append(GroupMemberInfo(username=req.field2))
+        stmt2 = select(DBGroup.owner).where(DBGroup.group_id == group_id)
+        owner = db.execute(stmt2).scalar_one_or_none()
+        if owner:
+            group_member_list.append(GroupMemberInfo(username=owner))
         return GroupMembersList(members=group_member_list)
 
 @app.get("/group_exists/{group_id}", response_model=bool)
@@ -232,6 +241,27 @@ async def leave_group(request: Request, group_id: int, authorized_user: str = De
             return MessageResponse(message="Successfully left the group")
         else:
             return MessageResponse(message="User is not a member of the group")
+        
+@app.post("/remove/{group_id}/{user}", status_code=200, response_model=MessageResponse)
+async def remove_member(request: Request, group_id: int, user: str, authorized_user: str = Depends(get_username_from_request)):
+    logger.info("remove_member called")
+    with get_db() as db:
+        stmt = select(DBGroup).where(DBGroup.group_id == group_id)
+        db_group = db.execute(stmt).scalar_one_or_none()
+        if not db_group:
+            return MessageResponse(message="Group does not exist", valid=False)
+        if db_group.owner != authorized_user:
+            return MessageResponse(message="Only the group owner can remove members", valid=False)
+        if not is_user_in_group(user, group_id):
+            return MessageResponse(message="User is not a member of the group", valid=False)
+        stmt2 = delete(UserRequest).where(
+            UserRequest.field2 == user,
+            UserRequest.field3 == group_id,
+            UserRequest.type == RequestTypes.GROUP_INVITE
+        )
+        db.execute(stmt2)
+        db.commit()
+        return MessageResponse(message="User removed from group successfully")
         
 @app.get("/get_group_invites", response_model=ListInviteResponse)
 async def get_group_invites(request: Request, authorized_user: str = Depends(get_username_from_request)):

@@ -3,28 +3,53 @@
 {% block main_content %}
 
 <main>
-    <h2>{{ group["name"] }}</h2>
-    <p>{{ group["description"] }}</p>
+    <h2>{{ group["group_name"] }}</h2>
+    <p>{{ group["group_desc"] }}</p>
     <p>Group Owner: {{ group["owner"] }}</p>
     <p>Members</p>
     <ul>
         {% for member in group_members %}
-            <li><a href="/profile/{{ member }}">{{ member }}</a></li>
+            {% if not authorized_user == group["owner"] %}
+                <li><a href="/profile/{{ member }}">{{ member }}</a></li>
+            {% else %}
+                <li><a href="/profile/{{ member }}">{{ member }}</a> - <a href="/groups/remove/{{ group['id'] }}/{{ member }}">Remove from Group</a></li>
+            {% endif %}
         {% endfor %}
     </ul>
     
-    <p>Friends not in group</p>
+    {% if authorized_user in group_members and not authorized_user == group["owner"] %}
+        <p><a href="/groups/leave/{{ group['id'] }}">Leave Group</a></p>
+    {% else %}
+        {% if group["is_private"] %}
+            <p><a href="/groups/request/{{ group['id'] }}">Request to Join Group</a></p>
+        {% else %}
+            <p><a href="/groups/join/{{ group['id'] }}">Join Group</a></p>
+        {% endif %}
+    {% endif %}
+
+    {% if authorized_user == group["owner"] %}
+        <a href="/groups/delete/{{ group['id'] }}">Delete Group</a>
+        <p>Friends not in group</p>
+        <ul>
+            {% for friend in friends_list %}
+                {% if friend not in group_members %}
+                    {% if not group["is_private"] or authorized_user == group["owner"] %}
+                        {{ friend }} - <a href="/groups/invite/{{ group['id'] }}/{{ friend }}">Invite</a>
+                    {% endif %}
+                {% endif %}
+                </li>
+            {% endfor %}
+        </ul>
+    <p>Friends in group</p>
     <ul>
         {% for friend in friends_list %}
-            <li>
-            {% if friend not in group_members %}
-                {% if not group["is_private"] or authorized_user == group["owner"] %}
-                    {{ friend }} - <a href="/group/invite/{{ friend }}">Invite</a>
-                {% endif %}
+            {% if friend in group_members %}
+                <a href="/profile/{{ friend }}">{{ friend }} </a>
             {% endif %}
             </li>
         {% endfor %}
     </ul>
+    {% endif %}
 
 </main>
 

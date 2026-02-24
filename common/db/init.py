@@ -1,6 +1,6 @@
 from common.db.engine import engine
 from common.db.base import Base
-from common.db.structures.structures import Events, User, UserDetails, UserRequest, RequestTypes, Status
+from common.db.structures.structures import Events, Group, User, UserDetails, UserRequest, RequestTypes, Status
 from passlib.context import CryptContext
 from .db import get_db
 import common.db.structures
@@ -318,6 +318,27 @@ def temp_remove_in_production():
         event_invite2 = UserRequest(
             field1="roisin", field2="roisin", field3=1, type=RequestTypes.EVENT_INVITE, status=Status.PENDING
         )
+        group1 = Group(
+            group_name="Cork Foodies",
+            group_desc="A group for food lovers in Cork to share and discover new culinary experiences.",
+            is_private=False,
+            owner="foodwise"
+        )
+        group2 = Group(
+            group_name="Cork Hikers",
+            group_desc="Join us for weekly hikes around the beautiful trails of Cork and beyond.",
+            is_private=True,
+            owner="roisin"
+        )
+        group3 = Group(
+            group_name="Cork Tech Enthusiasts",
+            group_desc="A community for tech lovers in Cork to discuss the latest trends and innovations.",
+            is_private=False,
+            owner="cillian"
+        )
+        db.add(group1)
+        db.add(group2)
+        db.add(group3)
         db.add(user1)
         db.add(user2)
         db.add(user3)
@@ -342,5 +363,22 @@ def temp_remove_in_production():
         db.add(req11)
         db.add(event_invite1)
         db.add(event_invite2)
+        db.flush()
+        db.commit()
+        db.refresh(group1)
+        db.refresh(group2)
+        db.refresh(group3)
+        group1invite1 = UserRequest(
+            field1="foodwise", field2="roisin", field3=group1.group_id, type=RequestTypes.GROUP_INVITE, status=Status.ACCEPTED
+        )
+        group1invite2 = UserRequest(
+            field1="foodwise", field2="cillian", field3=group1.group_id, type=RequestTypes.GROUP_INVITE, status=Status.PENDING
+        )
+        group1invite3 = UserRequest(
+            field1="cillian", field2="cillian", field3=group2.group_id, type=RequestTypes.GROUP_INVITE, status=Status.PENDING
+        )
+        db.add(group1invite1)
+        db.add(group1invite2)
+        db.add(group1invite3)
         db.commit()
     seed_cork_dummy_events()

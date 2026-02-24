@@ -54,6 +54,20 @@ services:
       - GROUPS_INTERNAL_BASE=http://groups:8003
     volumes:
       - ./common:/app/common
+      
+  groups:
+    build: ./backend/groups
+    container_name: groups 
+    networks:
+      - circle_network
+    depends_on:
+      - auth
+      - circles
+    environment:
+      - CIRCLES_INTERNAL_BASE=http://circles:8002
+      - USER_INTERNAL_BASE=http://user:8005
+    volumes:
+      - ./common:/app/common
 
   frontend:
     build: ./frontend
@@ -71,6 +85,8 @@ services:
       - auth
       - circles
       - user
+      - events
+      - groups
     volumes:
       - ./common:/app/common
 
@@ -101,16 +117,6 @@ services:
       - valkey
     networks:
       - circle_network
-
-  groups:
-    build:
-      context: .
-      dockerfile: backend/groups/Dockerfile
-    container_name: groups
-    networks:
-      - circle_network
-    volumes:
-      - ./common:/app/common   
 
 networks:
   circle_network:
