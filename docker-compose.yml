@@ -41,6 +41,20 @@ services:
     volumes:
       - ./common:/app/common
 
+  events:
+    build: ./backend/events
+    container_name: events 
+    networks:
+      - circle_network
+    depends_on:
+      - auth
+      - circles
+    environment:
+      - CIRCLES_INTERNAL_BASE=http://circles:8002
+      - GROUPS_INTERNAL_BASE=http://groups:8003
+    volumes:
+      - ./common:/app/common
+
   frontend:
     build: ./frontend
     container_name: frontend
@@ -49,6 +63,8 @@ services:
     environment:
       - AUTH_INTERNAL_BASE=http://auth:8001
       - CIRCLES_INTERNAL_BASE=http://circles:8002
+      - GROUPS_INTERNAL_BASE=http://groups:8003
+      - EVENTS_INTERNAL_BASE=http://events:8005
       - USER_INTERNAL_BASE=http://user:8005
       - JWT_SECRET=rosebud
     depends_on:
@@ -66,6 +82,7 @@ services:
       - "443:443"
     depends_on:
       - auth
+      - events
       - frontend
       - circles
     networks:

@@ -21,7 +21,10 @@
                 <li>Group Invite to {{ invite }} - <a href="/accept_group_invite/{{ invite }}">Accept</a> | <a href="/decline_group_invite/{{ invite }}">Decline</a></li>
             {% endfor %}
             {% for invite in event_invites %}
-                <li>Event Invite to {{ invite }} - <a href="/accept_event_invite/{{ invite }}">Accept</a> | <a href="/decline_event_invite/{{ invite }}">Decline</a></li>
+                <li>Event Invite to {{ invite.title }} - <a href="/events/attend/{{ invite.id }}">Accept</a> | <a href="/events/decline/{{ invite.id }}">Decline</a></li>
+            {% endfor %}
+            {% for invite in pending_event_invites %}
+                <li>{{ invite.username }} - Pending Request to RSVP to your event, {{ invite.title }} - <a href="/events/accept/{{ invite.id }}/{{ invite.username }}">Accept</a> | <a href="/events/decline/{{ invite.id }}/{{ invite.username }}">Decline</a></li>
             {% endfor %}
         </ul>
     </p>
