@@ -61,7 +61,7 @@ class Group(Base):
     group_name = Column( String, nullable=False, index=True)
     group_desc = Column(String, index=True)
     is_private = Column(Boolean, index=True, default=False)   # True = Private, False = Public.
-    owner = Column(String, ForeignKey("users.username"), index=True)  # Will change on cillians push
+    owner = Column(String, index=True)  # Will change on cillians push
     dob = Column(DateTime, default=lambda: datetime.now(timezone.utc))
 
     def __repr__(self):
@@ -70,12 +70,12 @@ class Group(Base):
 class GroupMembers(Base):
     __tablename__ = "groupjoins"
     join_id = Column(Integer, primary_key=True, autoincrement=True)  # need a real PK
-    username = Column(String, ForeignKey("users.username"), index=True)
-    group_id = Column(Integer, ForeignKey("groups.group_id"), index=True)
+    username = Column(String, index=True)
+    group_id = Column(Integer, index=True)
     date_joined = Column(DateTime, default=lambda: datetime.now(timezone.utc))
 
     def __repr__(self):
-        return f"Joined group {group_id}!" 
+        return f"Joined group {self.group_id}!" 
 
 class Events(Base):
     __tablename__ = "events"
@@ -91,4 +91,4 @@ class Events(Base):
     host = Column("host", String, default="")
     public = Column("public", Boolean, default=True)
     
-    host = Column("host", String, ForeignKey("users.username"), nullable=True)
+    host = Column("host", String, nullable=True)
