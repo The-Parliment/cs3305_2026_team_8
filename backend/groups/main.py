@@ -48,7 +48,12 @@ async def is_member(is_member_handle: GroupIsMember):
     logger.info(f"is_member called: {is_member_handle}")
     return crud.is_member(is_member_handle.group_id, is_member_handle.username)
 
-@app.get("/listmembers", response_model=GroupMembersList)
+@app.get("/listmembers/{group_id}", response_model=GroupMembersList)
 async def list_members(group_id: int):
     logger.info(f"list_members called: {group_id}")
     return crud.list_members(group_id)
+
+@app.get("/group_exists/{group_id}", response_model=bool)
+async def group_exists(group_id: int):
+    logger.info(f"group_exists called: {group_id}")
+    return crud.group_exists(group_id)

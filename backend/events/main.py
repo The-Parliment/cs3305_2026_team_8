@@ -15,6 +15,7 @@ logger = logging.getLogger(__name__)
 
 app = FastAPI(root_path="/events", title="events_service")
 CIRCLES_INTERNAL_BASE = os.getenv("CIRCLES_INTERNAL_BASE", "http://circles:8002")
+GROUPS_INTERNAL_BASE = os.getenv("GROUPS_INTERNAL_BASE", "http://groups:8003")
 
 def get_username_from_request(request: Request) -> str | None:
     token = request.cookies.get("access_token")
@@ -158,6 +159,36 @@ async def invite_circle(inbound: Request, event_id: int, authorized_user=Depends
 @app.post("/invitegroup/{group_id}/{event_id}", response_model=MessageResponse)
 async def invite_group(inbound: Request, group_id: int, event_id: int, authorized_user=Depends(get_username_from_request)) -> MessageResponse:
     with get_db() as db:
+        if not event_exists(event_id):
+            return MessageResponse(message="There is no such event")
+        if not event_is_public(event_id):
+            if is_user_host(event_id, authorized_user):
+                group_exists_response = await get(GROUPS_INTERNAL_BASE, f"group_exists/{group_id}")
+                if not group_exists_response.get("value", False):
+                    return MessageResponse(message="There is no such group to invite.")
+                group_members_response = await get(GROUPS_INTERNAL_BASE, f"listmembers/{group_id}")
+                group_members = group_members_response.get("members", [])
+                for member in group_members:
+                    stmt = select(UserRequest).filter_by(
+                        field1=authorized_user,
+                        field2=member.get("username"),
+                        field3=event_id,
+                        type=RequestTypes.EVENT_INVITE
+                    )
+                    result = db.scalars(stmt).all()
+                    if not result:
+                        stmt = insert(UserRequest).values(
+                            field1=authorized_user,
+                            field2=member.get("username"),
+                            field3=event_id,
+                            type=RequestTypes.EVENT_INVITE,
+                            status=Status.PENDING
+                        )
+                        db.execute(stmt)
+                db.commit()
+                return MessageResponse(message="Invited this group to this event!")
+            else:
+                return MessageResponse(message="This event is not public, so you cannot invite users to this event. Please ask the host to invite users for you.")
         return MessageResponse(message="Group invites are not implemented yet. This endpoint is a placeholder for future functionality.")
 
 @app.post("/cancel/{event_id}", response_model=MessageResponse)

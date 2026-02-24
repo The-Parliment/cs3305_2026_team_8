@@ -117,3 +117,10 @@ def list_members(group_id: int):
             select(GroupMembers).where(GroupMembers.group_id == group_id)
         ).scalars().all()
         return GroupMembersList(members=[GroupMemberInfo(username=m.username) for m in result])
+    
+def group_exists(group_id: int) -> bool:
+    with get_db() as db:
+        result = db.execute(
+            select(DBGroup).where(DBGroup.group_id == group_id)
+        ).scalar_one_or_none()
+        return result is not None
