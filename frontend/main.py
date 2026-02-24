@@ -58,8 +58,16 @@ def require_frontend_auth(request: Request) -> dict:
 @app.get("/", response_class=HTMLResponse)
 @app.get("/home", response_class=HTMLResponse)
 async def index(request: Request):
+    authorized_user = None
+    token = request.cookies.get("access_token")
+    if token:
+        try:
+            claims = decode_and_verify(token=token, expected_type="access")
+            authorized_user = claims.get("sub")
+        except Exception:
+            authorized_user = None
     return templates.TemplateResponse(
-        request=request, name="home.html", context={"display_map": True}
+        request=request, name="home.html", context={"display_map": True, "authorized_user": authorized_user}
     )
 
 @app.get("/register", response_class=HTMLResponse)

@@ -63,12 +63,15 @@ services:
     container_name: api_gateway
     ports:
       - "80:80"
+      - "443:443"
     depends_on:
       - auth
       - frontend
       - circles
     networks:
       - circle_network
+    volumes:
+      - ./api_gateway/certs:/etc/nginx/certs
 
   proximity:
     build: ./backend/proximity
