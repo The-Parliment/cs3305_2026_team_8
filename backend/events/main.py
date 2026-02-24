@@ -481,8 +481,8 @@ async def is_user_requested(request:Request, event_id: int, username: str) -> Bo
     else:
         return BooleanResponse(value=False)
     
-@app.get("/my_pending_invites", response_model=ListInviteResponse)
-async def my_pending_invites(request:Request, authorized_user=Depends(get_username_from_request)) -> ListInviteResponse:
+@app.get("/my_event_requests", response_model=ListInviteResponse)
+async def my_event_requests(request:Request, authorized_user=Depends(get_username_from_request)) -> ListInviteResponse:
     with get_db() as db:
         my_hosted_events_stmt = select(Events).filter_by(host=authorized_user)
         my_hosted_events = db.scalars(my_hosted_events_stmt).all()

@@ -253,13 +253,14 @@ async def get_invites(request: Request, invite_type: str | None = "all", claims:
     token = request.cookies.get("access_token")
     if not invite_type:
         invite_type = "all"
-    if invite_type not in ["follow_requests", "circle_invites", "group_invites", "event_invites", "all"]:
+    if invite_type not in ["event_requests", "group_requests", "follow_requests", "circle_invites", "group_invites", "event_invites", "all"]:
         invite_type = "all"
     follow_requests = []
     circle_invites = []
     group_invites = []
     event_invites = []
-    pending_event_invites = []
+    event_requests = []
+    group_requests = []
     if invite_type == "follow_requests" or invite_type == "all":
         follow_request_data = await get(USER_INTERNAL_BASE, "get_follow_requests_received", headers={"Cookie" : f"access_token={token}"})
         follow_requests = follow_request_data.get("user_names", []) if follow_request_data is not None else []
@@ -267,22 +268,27 @@ async def get_invites(request: Request, invite_type: str | None = "all", claims:
         circle_invites_data = await get(CIRCLES_INTERNAL_BASE, "get_invites", headers={"Cookie" : f"access_token={token}"})
         circle_invites = circle_invites_data.get("user_names", []) if circle_invites_data is not None else []
     if invite_type == "group_invites" or invite_type == "all":
-        group_invites_data = [] # await get(GROUP_INTERNAL_BASE, "get_group_invites", headers={"Cookie" : f"access_token={token}"})
-        group_invites = [] #group_invites_data.get("group_names", []) if group_invites_data is not None else []
+        group_invites_data = await get(GROUPS_INTERNAL_BASE, "get_group_invites", headers={"Cookie" : f"access_token={token}"})
+        group_invites = group_invites_data.get("group_names", []) if group_invites_data is not None else []
+    if invite_type == "group_requests" or invite_type == "all":
+        group_requests_data = await get(GROUPS_INTERNAL_BASE, "get_group_requests", headers={"Cookie" : f"access_token={token}"})
+        group_requests_raw = group_requests_data.get("group_names", []) if group_requests_data is not None else []
+        group_requests = [{"group_id": req["group_id"], "group_name": req["group_name"], "username": req["username"]} for req in group_requests_raw]
     if invite_type == "event_invites" or invite_type == "all":
         event_invites_data = await get(EVENTS_INTERNAL_BASE, "my_invites", headers={"Cookie" : f"access_token={token}"})
         invited_events = event_invites_data.get("events", []) if event_invites_data is not None else []
         event_invites = [{"id": event["id"], "title": event["title"]} for event in invited_events]
-    if invite_type == "pending_event_invites" or invite_type == "all":
-        pending_event_invites_data = await get(EVENTS_INTERNAL_BASE, "my_pending_invites", headers={"Cookie" : f"access_token={token}"})
-        pending_invites = pending_event_invites_data.get("invites", []) if pending_event_invites_data is not None else []
-        pending_event_invites = [{"id": invite["event_id"], "title": invite["title"], "username": invite["username"]} for invite in pending_invites]
+    if invite_type == "event_requests" or invite_type == "all":
+        event_requests_data = await get(EVENTS_INTERNAL_BASE, "my_event_requests", headers={"Cookie" : f"access_token={token}"})
+        event_requests_raw = event_requests_data.get("requests", []) if event_requests_data is not None else []
+        event_requests = [{"id": req["event_id"], "title": req["title"], "username": req["username"]} for req in event_requests_raw]
     return templates.TemplateResponse(
         request=request, name="invites.html", context={"follow_requests": follow_requests, 
                                                        "circle_invites": circle_invites, 
                                                        "group_invites": group_invites, 
+                                                       "group_requests": group_requests,
                                                        "event_invites": event_invites,
-                                                       "pending_event_invites": pending_event_invites}
+                                                       "event_requests": event_requests}
     )
 
 # Event Management Endpoints

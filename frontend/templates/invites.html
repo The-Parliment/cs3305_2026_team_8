@@ -8,7 +8,9 @@
         <a href="/invites/follow_requests">Follow Requests</a>
         <a href="/invites/circle_invites">Circle Invites</a>
         <a href="/invites/group_invites">Group Invites</a>
+        <a href="/invites/group_requests">Group Requests</a>
         <a href="/invites/event_invites">Event Invites</a>
+        <a href="/invites/event_requests">Event Requests</a>
         <!-- Everything in the <a href=> elements below might change going forward, dont press! -->
         <ul>
             {% for invite in follow_requests %}
@@ -23,8 +25,14 @@
             {% for invite in event_invites %}
                 <li>Event Invite to {{ invite.title }} - <a href="/events/attend/{{ invite.id }}">Accept</a> | <a href="/events/decline/{{ invite.id }}">Decline</a></li>
             {% endfor %}
-            {% for invite in pending_event_invites %}
+            {% for invite in event_requests %}
                 <li>{{ invite.username }} - Pending Request to RSVP to your event, {{ invite.title }} - <a href="/events/accept/{{ invite.id }}/{{ invite.username }}">Accept</a> | <a href="/events/decline/{{ invite.id }}/{{ invite.username }}">Decline</a></li>
+            {% endfor %}
+            {% for invite in group_invites %}
+                <li>Invite to join group: {{ invite.title }} - <a href="/groups/join/{{ invite.id }}">Accept</a> | <a href="/groups/decline/{{ invite.id }}">Decline</a></li>
+            {% endfor %}
+            {% for invite in group_requests %}
+                <li>{{ invite.username }} - Pending Request to join your group, {{ invite.title }} - <a href="/groups/accept/{{ invite.id }}/{{ invite.username }}">Accept</a> | <a href="/groups/decline/{{ invite.id }}/{{ invite.username }}">Decline</a></li>
             {% endfor %}
         </ul>
     </p>
