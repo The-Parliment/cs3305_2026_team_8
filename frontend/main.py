@@ -647,7 +647,7 @@ async def decline_invite(request: Request, username: str, claims: dict = Depends
 # Group Management Endpoints
 
 @app.get("/accept_group_invite/{group_id}", response_class=HTMLResponse)
-async def accept_group_invite(request: Request, group_id: str, claims: dict = Depends(require_frontend_auth)):
+async def accept_group_invite(request: Request, group_id: int, claims: dict = Depends(require_frontend_auth)):
     token = request.cookies.get("access_token")
     referer = request.headers.get("referer", "/")
     this_user = claims.get("sub")
@@ -656,7 +656,7 @@ async def accept_group_invite(request: Request, group_id: str, claims: dict = De
     return RedirectResponse(url=referer, status_code=303)
 
 @app.get("/decline_group_invite/{group_id}", response_class=HTMLResponse)
-async def decline_group_invite(request: Request, group_id: str, claims: dict = Depends(require_frontend_auth)):
+async def decline_group_invite(request: Request, group_id: int, claims: dict = Depends(require_frontend_auth)):
     token = request.cookies.get("access_token")
     referer = request.headers.get("referer", "/")
     this_user = claims.get("sub")
