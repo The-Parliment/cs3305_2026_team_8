@@ -67,6 +67,16 @@ class Group(Base):
     def __repr__(self):
         return f"<User(group_id={self.group_id}, group_name='{self.group_name}')>"
 
+class GroupMembers(Base):
+    __tablename__ = "groupjoins"
+    join_id = Column(Integer, primary_key=True, autoincrement=True)  # need a real PK
+    username = Column(String, ForeignKey("users.username"), index=True)
+    group_id = Column(Integer, ForeignKey("groups.group_id"), index=True)
+    date_joined = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+
+    def __repr__(self):
+        return f"Joined group {group_id}!" 
+
 class Events(Base):
     __tablename__ = "events"
 
