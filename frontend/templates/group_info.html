@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block main_content %}
+
+<main>
+    <h2>{{ group["name"] }}</h2>
+    <p>{{ group["description"] }}</p>
+    <p>Group Owner: {{ group["owner"] }}</p>
+    <p>Members</p>
+    <ul>
+        {% for member in group_members %}
+            <li><a href="/profile/{{ member }}">{{ member }}</a></li>
+        {% endfor %}
+    </ul>
+    
+    <p>Friends not in group</p>
+    <ul>
+        {% for friend in friends_list %}
+            <li>
+            {% if friend not in group_members %}
+                {% if not group["is_private"] or authorized_user == group["owner"] %}
+                    {{ friend }} - <a href="/group/invite/{{ friend }}">Invite</a>
+                {% endif %}
+            {% endif %}
+            </li>
+        {% endfor %}
+    </ul>
+
+</main>
+
+{% endblock %}

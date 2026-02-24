@@ -6,7 +6,7 @@ from backend.events.events_model import InviteResponse, ListInviteResponse
 from common.JWTSecurity import decode_and_verify
 from common.db.structures.structures import Group as DBGroup, RequestTypes, Status, UserRequest
 from common.db.db import get_db
-from models import GroupCreate, Group, GroupsList, MessageResponse, GroupMembersList, GroupMemberInfo
+from models import GroupCreate, Group, GroupInfoResponse, GroupsList, MessageResponse, GroupMembersList, GroupMemberInfo
 
 logging.basicConfig(level=logging.INFO, format='[groups] %(asctime)s%(levelname)s %(message)s')
 logger = logging.getLogger(__name__)
@@ -179,6 +179,17 @@ async def invite_to_group(request: Request, user: str, group_id: int, authorized
         db.execute(stmt)
         db.commit()
         return MessageResponse(message="Invite sent successfully")
+    
+@app.get("/group_info/{group_id}", response_model=GroupInfoResponse)
+async def group_info(request: Request, group_id: int):
+    logger.info(f"group_info called: {group_id}")
+    with get_db() as db:
+        stmt = select(DBGroup).where(DBGroup.group_id == group_id)
+        result = db.execute(stmt).scalar_one_or_none()
+        if result:
+            return GroupInfoResponse(group_id=result.group_id, group_name=result.group_name, group_desc=result.group_desc, is_private=result.is_private, owner=result.owner)
+        else:
+            return GroupInfoResponse(group_id=group_id, group_name="", group_desc="", is_private=False, owner="", valid=False)
     
 @app.post("/request/{group_id}", status_code=200, response_model=MessageResponse)
 async def join_group(request: Request, group_id: int, authorized_user:str = Depends(get_username_from_request)):

@@ -167,10 +167,11 @@ async def logout(request: Request):
 
 # User Interface Endpoints
 
+@app.get("/profile/{username}", response_class=HTMLResponse)
 @app.get("/profile", response_class=HTMLResponse)
-async def get_profile(request: Request, claims: dict = Depends(require_frontend_auth)):
+async def get_profile(request: Request, username: str = None, claims: dict = Depends(require_frontend_auth)):
     authorized_user = claims.get("sub")
-    user_details_data = await get(AUTH_INTERNAL_BASE, "users/me", headers={"Cookie" : f"access_token={request.cookies.get('access_token')}"})
+    user_details_data = await get(AUTH_INTERNAL_BASE, f"users/{username}" if username else "users/me", headers={"Cookie" : f"access_token={request.cookies.get('access_token')}"})
     user_details = user_details_data if user_details_data else None
     return templates.TemplateResponse(
         request=request, name="profile.html", context={"authorized_user": authorized_user, 
@@ -524,22 +525,6 @@ async def decline_event_invite(request: Request, event_id: int, claims: dict = D
     token = request.cookies.get("access_token")
     await post(EVENTS_INTERNAL_BASE, f"decline/{event_id}", headers={"Cookie" : f"access_token={token}"})
     return RedirectResponse(url="/events", status_code=303)
-
-@app.get("/accept_event_invite/{event_id}", response_class=HTMLResponse)
-async def accept_event_invite(request: Request, event_id: str, claims: dict = Depends(require_frontend_auth)):
-    token = request.cookies.get("access_token")
-    referer = request.headers.get("referer", "/")
-    user = claims.get("sub")
-    await post(EVENTS_INTERNAL_BASE, f"attend/{event_id}", headers={"Cookie" : f"access_token={token}"})
-    return RedirectResponse(url=referer, status_code=303)
-
-@app.get("/decline_event_invite/{event_id}", response_class=HTMLResponse)
-async def decline_event_invite_from_invites(request: Request, event_id: str, claims: dict = Depends(require_frontend_auth)):
-    token = request.cookies.get("access_token")
-    referer = request.headers.get("referer", "/")
-    user = claims.get("sub")
-    await post(EVENTS_INTERNAL_BASE, f"decline/{event_id}", headers={"Cookie" : f"access_token={token}"})
-    return RedirectResponse(url=referer, status_code=303)
 
 # User Management Endpoints
 
