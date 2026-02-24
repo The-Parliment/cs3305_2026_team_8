@@ -40,6 +40,16 @@ main {
   margin-right: 70px;
 }
 
+#form-on-map {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    background-color: rgba(255, 255, 255, 0.8);
+    padding: 20px;
+    border-radius: 10px;
+    z-index: 10000;
+}
+
   
 .sidenav a {
   padding: 8px 8px 8px 32px;
@@ -57,6 +67,22 @@ main {
   right: 20px;
   top: 20px;
   z-index: 9999;
+}
+
+@media screen and (max-width: 768px) {
+  body {
+    font-size: 16px;
+  }
+
+  .sidenav a {
+    font-size: 20px;
+  }
+
+  .menu-btn {
+    font-size: 36px;
+    right: 16px;
+    top: 16px;
+  }
 }
 
 @media screen and (max-height: 450px) {

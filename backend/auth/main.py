@@ -43,16 +43,16 @@ async def register(request: RegisterRequest) -> MessageResponse:
     if get_phone_number_exists(request.phone_number):
         print(f"DEBUG: Registration failed - phone number {request.phone_number} already exists")
         return MessageResponse(message=f"Phone number {request.phone_number} already exists.", valid=False)
-    db = get_db()
-    new_user = User(username=request.username, hashed_password=pwd.hash(request.password))
-    new_user_details = UserDetails(username=request.username, first_name=request.first_name, 
-                                   last_name=request.last_name, email=request.email, 
-                                   phone_number=request.phone_number)
-    db.add(new_user)
-    db.add(new_user_details)
-    db.commit()
-    print(f"DEBUG: User {request.username} registered successfully")
-    return MessageResponse(message=f"User {request.username} registered successfully.", valid=True)
+    with get_db() as db:
+        new_user = User(username=request.username, hashed_password=pwd.hash(request.password))
+        new_user_details = UserDetails(username=request.username, first_name=request.first_name, 
+                                    last_name=request.last_name, email=request.email, 
+                                    phone_number=request.phone_number)
+        db.add(new_user)
+        db.add(new_user_details)
+        db.commit()
+        print(f"DEBUG: User {request.username} registered successfully")
+        return MessageResponse(message=f"User {request.username} registered successfully.", valid=True)
 
 @app.post("/login", response_model=TokenResponse)
 async def login(request : LoginRequest) -> TokenResponse:
@@ -75,22 +75,22 @@ async def refresh(req: RefreshRequest) -> TokenResponse:
     return TokenResponse(access_token=access, refresh_token=req.refresh_token)
 
 def get_user_exists(username):
-    db = get_db()
-    stmt = select(User).filter_by(username=username).limit(1)
-    result = db.scalar(stmt)
-    return result is not None
+    with get_db() as db:
+        stmt = select(User).filter_by(username=username).limit(1)
+        result = db.scalar(stmt)
+        return result is not None
 
 def get_email_exists(email):
-    db = get_db()
-    stmt = select(UserDetails).filter_by(email=email).limit(1)
-    result = db.scalar(stmt)
-    return result is not None
+    with get_db() as db:
+        stmt = select(UserDetails).filter_by(email=email).limit(1)
+        result = db.scalar(stmt)
+        return result is not None
 
 def get_phone_number_exists(phone_number):
-    db = get_db()
-    stmt = select(UserDetails).filter_by(phone_number=phone_number).limit(1)
-    result = db.scalar(stmt)
-    return result is not None
+    with get_db() as db:
+        stmt = select(UserDetails).filter_by(phone_number=phone_number).limit(1)
+        result = db.scalar(stmt)
+        return result is not None
 
 @app.get("/user_exists", response_model=MessageResponse)
 async def user_exists(user: UsernameRequest) -> MessageResponse:
@@ -109,31 +109,31 @@ async def phone_number_exists(phone_number: UsernameRequest) -> MessageResponse:
 
 @app.get("/users/me", response_model=UserDetailsResponse)
 async def get_user_details(request: Request, authorized_user : str = Depends(get_username_from_request)) -> UserDetailsResponse:
-    db = get_db()
-    stmt = select(UserDetails).filter_by(username=authorized_user).limit(1)
-    result = db.scalar(stmt)
-    return UserDetailsResponse(
-        username=result.username,
-        first_name=result.first_name,
-        last_name=result.last_name,
-        email=result.email,
-        phone_number=result.phone_number
-    )
+    with get_db() as db:
+        stmt = select(UserDetails).filter_by(username=authorized_user).limit(1)
+        result = db.scalar(stmt)
+        return UserDetailsResponse(
+            username=result.username,
+            first_name=result.first_name,
+            last_name=result.last_name,
+            email=result.email,
+            phone_number=result.phone_number
+        )
 
 @app.post("/users/me", response_model=MessageResponse)
 async def update_user_details(request: UserDetailsRequest, authorized_user : str = Depends(get_username_from_request)) -> MessageResponse:
-    db = get_db()
-    user_details = db.scalar(select(UserDetails).filter_by(username=authorized_user).limit(1))
-    first_name = request.first_name if request.first_name else user_details.first_name
-    last_name = request.last_name if request.last_name else user_details.last_name
-    email = request.email if request.email else user_details.email
-    phone_number = request.phone_number if request.phone_number else user_details.phone_number
-    stmt = update(UserDetails).values(
-        first_name=first_name,
-        last_name=last_name,
-        email=email,
-        phone_number=phone_number
-    ).where(UserDetails.username == authorized_user)
-    db.execute(stmt)
-    db.commit()
-    return MessageResponse(message=f"User {authorized_user} updated successfully.", valid=True)
+    with get_db() as db:
+        user_details = db.scalar(select(UserDetails).filter_by(username=authorized_user).limit(1))
+        first_name = request.first_name if request.first_name else user_details.first_name
+        last_name = request.last_name if request.last_name else user_details.last_name
+        email = request.email if request.email else user_details.email
+        phone_number = request.phone_number if request.phone_number else user_details.phone_number
+        stmt = update(UserDetails).values(
+            first_name=first_name,
+            last_name=last_name,
+            email=email,
+            phone_number=phone_number
+        ).where(UserDetails.username == authorized_user)
+        db.execute(stmt)
+        db.commit()
+        return MessageResponse(message=f"User {authorized_user} updated successfully.", valid=True)
