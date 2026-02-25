@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block main_content %}
+
+<main>
+    <form action="" method="POST" novalidate>
+
+        {{ form.group_name.label }}
+        {{ form.group_name() }}
+        <br/>
+
+        {{ form.group_desc.label }}
+        {{ form.group_desc() }}
+        <br/>
+        
+        {{ form.is_public.label }}
+        {{ form.is_public() }}
+        <br/>
+        
+        {% if form.form_errors %}
+            <ul class="error-list">
+                {% for error in form.form_errors %}
+                    <li>{{ error }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+        
+        {{ form.submit() }}
+    </form>
+</main>
+
+{% endblock %}

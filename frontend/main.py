@@ -5,7 +5,7 @@ from fastapi.templating import Jinja2Templates
 from starlette.middleware.sessions import SessionMiddleware
 from common.JWTSecurity import decode_and_verify
 from common.clients.client import post, get
-from forms import ChangeDetailsForm, EventForm, LoginForm, RegisterForm
+from forms import ChangeDetailsForm, EventForm, GroupForm, LoginForm, RegisterForm
 from common.db.init import init_db
 import os
 from passlib.context import CryptContext
@@ -18,7 +18,7 @@ AUTH_INTERNAL_BASE = os.getenv("AUTH_INTERNAL_BASE", "http://auth:8001")
 CIRCLES_INTERNAL_BASE = os.getenv("CIRCLES_INTERNAL_BASE", "http://circles:8002")
 GROUPS_INTERNAL_BASE = os.getenv("GROUPS_INTERNAL_BASE", "http://groups:8003")
 EVENTS_INTERNAL_BASE = os.getenv("EVENTS_INTERNAL_BASE", "http://events:8005")
-USER_INTERNAL_BASE = os.getenv("USER_INTERNAL_BASE", "http://user:8005")
+USER_INTERNAL_BASE = os.getenv("USER_INTERNAL_BASE", "http://user:8006")
 
 app = FastAPI(title="frontend_service")
 init_db()
@@ -270,10 +270,11 @@ async def get_invites(request: Request, invite_type: str | None = "all", claims:
         circle_invites = circle_invites_data.get("user_names", []) if circle_invites_data is not None else []
     if invite_type == "group_invites" or invite_type == "all":
         group_invites_data = await get(GROUPS_INTERNAL_BASE, "get_group_invites", headers={"Cookie" : f"access_token={token}"})
-        group_invites = group_invites_data.get("group_names", []) if group_invites_data is not None else []
+        group_invites_raw = group_invites_data.get("invites", []) if group_invites_data is not None else []
+        group_invites = [{"group_id": req["group_id"], "group_name": req["group_name"], "username": req["username"]} for req in group_invites_raw]
     if invite_type == "group_requests" or invite_type == "all":
         group_requests_data = await get(GROUPS_INTERNAL_BASE, "get_group_requests", headers={"Cookie" : f"access_token={token}"})
-        group_requests_raw = group_requests_data.get("group_names", []) if group_requests_data is not None else []
+        group_requests_raw = group_requests_data.get("invites", []) if group_requests_data is not None else []
         group_requests = [{"group_id": req["group_id"], "group_name": req["group_name"], "username": req["username"]} for req in group_requests_raw]
     if invite_type == "event_invites" or invite_type == "all":
         event_invites_data = await get(EVENTS_INTERNAL_BASE, "my_invites", headers={"Cookie" : f"access_token={token}"})
@@ -305,6 +306,7 @@ async def event_info(request: Request, event_id: int, claims: dict = Depends(req
     is_user_attending_data = await get(EVENTS_INTERNAL_BASE, f"is_attending/{event_id}/{user}", headers={"Cookie" : f"access_token={token}"})
     is_user_attending = is_user_attending_data.get("value", False) if is_user_attending_data else False
     is_user_requested_data = await get(EVENTS_INTERNAL_BASE, f"is_requested/{event_id}/{user}")
+    is_user_attending = is_user_attending or is_user_host
     is_user_requested = is_user_requested_data.get("value", False) if is_user_requested_data else False
     event_info_data = await get(EVENTS_INTERNAL_BASE, f"eventinfo/{event_id}", headers={"Cookie" : f"access_token={token}"})
     if event_info_data is None or event_info_data.get("valid", True) == False:
@@ -332,6 +334,10 @@ async def event_info(request: Request, event_id: int, claims: dict = Depends(req
             event_end_time = "Unknown End Time"
     event_description = event_info_data.get("description", "No Description Available")
     event_public = event_info_data.get("public", False)
+
+    my_groups_data = await get(GROUPS_INTERNAL_BASE, "mygroups", headers={"Cookie" : f"access_token={token}"})
+    my_groups = my_groups_data.get("group_list", []) if my_groups_data else []
+
     return templates.TemplateResponse(
         request=request, name="event_info.html", context={"event_id": event_id,
                                                           "event_title": event_name, 
@@ -346,7 +352,8 @@ async def event_info(request: Request, event_id: int, claims: dict = Depends(req
                                                           "is_host": is_user_host,
                                                           "is_invited": is_user_invited_pending,
                                                           "is_attending": is_user_attending,
-                                                          "is_requested" : is_user_requested}
+                                                          "is_requested" : is_user_requested,
+                                                          "my_groups": my_groups}
     )
 
 @app.get("/events", response_class=HTMLResponse)
@@ -489,6 +496,20 @@ async def post_edit_event(request: Request, event_id: int, claims: dict = Depend
 
     return response
 
+@app.get("/events/my_events", response_class=HTMLResponse)
+async def my_events(request: Request, claims: dict = Depends(require_frontend_auth)):
+    token = request.cookies.get("access_token")
+    attending_events_data = await get(EVENTS_INTERNAL_BASE, f"myevents", headers={"Cookie" : f"access_token={token}"})
+    attending_events = attending_events_data.get("events", []) if attending_events_data else []
+
+    user = claims.get("sub")
+    hosting_events_data = await get(EVENTS_INTERNAL_BASE, f"events_hosted_by/{user}", headers={"Cookie" : f"access_token={token}"})
+    hosting_events = hosting_events_data.get("events", []) if hosting_events_data else []
+
+    return templates.TemplateResponse(
+        request=request, name="myevents.html", context={"attending_events": attending_events, "hosting_events": hosting_events}
+    )
+
 @app.get("/events/cancel/{event_id}", response_class=HTMLResponse)
 async def cancel_event(request: Request, event_id: int, claims: dict = Depends(require_frontend_auth)):
     token = request.cookies.get("access_token")
@@ -500,6 +521,12 @@ async def cancel_event(request: Request, event_id: int, claims: dict = Depends(r
 async def invite_circle_to_event(request: Request, event_id: int, claims: dict = Depends(require_frontend_auth)):
     token = request.cookies.get("access_token")
     await post(EVENTS_INTERNAL_BASE, f"invitecircle/{event_id}", headers={"Cookie" : f"access_token={token}"})
+    return RedirectResponse(url=f"/eventinfo/{event_id}", status_code=303)
+
+@app.get("/events/invite_group/{event_id}/{group_id}", response_class=HTMLResponse)
+async def invite_group_to_event(request: Request, event_id: int, group_id: int, claims: dict = Depends(require_frontend_auth)):
+    token = request.cookies.get("access_token")
+    await post(EVENTS_INTERNAL_BASE, f"invite_group/{event_id}/{group_id}", headers={"Cookie" : f"access_token={token}"})
     return RedirectResponse(url=f"/eventinfo/{event_id}", status_code=303)
 
 @app.get("/events/attend/{event_id}", response_class=HTMLResponse)
@@ -588,7 +615,7 @@ async def get_circle(request: Request, claims: dict = Depends(require_frontend_a
     invitations_sent = invitations_sent_data.get("user_names", []) if invitations_sent_data else [] 
 
     return templates.TemplateResponse(
-        request=request, name="circle.html", context={"friends_list": friends_list, "circle": circle, "pending_invites": pending_invites, "invitations_sent": invitations_sent}
+        request=request, name="circle.html", context={"friends": friends_list, "circle": circle, "pending_invites": pending_invites, "invitations_sent": invitations_sent}
     )
 
 @app.get("/circle/invite_to_circle/{username}", response_class=HTMLResponse)
@@ -628,11 +655,89 @@ async def get_groups(request: Request, claims: dict = Depends(require_frontend_a
         request=request, name="groups.html", context={"my_groups": my_groups, "all_groups": all_groups}
     )
 
+@app.get("/groups/create_group", response_class=HTMLResponse)
+async def get_create_group(request: Request, claims: dict = Depends(require_frontend_auth)):
+    form = GroupForm()
+    return templates.TemplateResponse(
+        request=request, name="forms/edit_group.html", context={"form": form}
+    )
+
+@app.post("/groups/create_group", response_class=HTMLResponse)
+async def post_create_group(request: Request, claims: dict = Depends(require_frontend_auth)):
+    data = await request.form()
+    form = GroupForm(data=data)
+
+    if not form.validate():
+        return templates.TemplateResponse(
+            request=request, name="forms/edit_group.html", context={"form": form}, status_code=400
+        )
+    
+    token = request.cookies.get("access_token")
+    response = await post(GROUPS_INTERNAL_BASE, "create", headers={"Cookie" : f"access_token={token}"}, 
+                                            json={
+                                                "group_name": form.group_name.data,
+                                                "group_desc": form.group_desc.data,
+                                                "is_private": not form.is_public.data
+                                            })
+    if response is None or not response.get("valid", True):
+        form.form_errors.append(response.get("message", "Group creation failed."))
+        return templates.TemplateResponse(
+            request=request, name="forms/edit_group.html", context={"form": form}, status_code=401
+        )
+    group_id = response.get("group_id")
+    return RedirectResponse(url=f"/groups/group_info/{group_id}", status_code=303)
+
+@app.get("/groups/edit/{group_id}", response_class=HTMLResponse)
+async def edit_group(request: Request, group_id: int, claims: dict = Depends(require_frontend_auth)):
+    token = request.cookies.get("access_token")
+    group_info_data = await get(GROUPS_INTERNAL_BASE, f"group_info/{group_id}", headers={"Cookie" : f"access_token={token}"})
+    if group_info_data is None or group_info_data.get("valid", True) == False:
+        return templates.TemplateResponse(
+            request=request, name="forms/edit_group.html", context={"form": GroupForm(), "error": "Group not found."}
+        )
+    if group_info_data.get("owner") != claims.get("sub"):
+        return templates.TemplateResponse(
+            request=request, name="forms/edit_group.html", context={"form": GroupForm(), "error": "You are not the owner of this group."}
+        )
+    form = GroupForm()
+    form.group_name.data = group_info_data.get("group_name", "")
+    form.group_desc.data = group_info_data.get("group_desc", "")
+    form.is_public.data = not group_info_data.get("is_private", False)
+    return templates.TemplateResponse(
+        request=request, name="forms/edit_group.html", context={"form": form}
+    )
+
+@app.post("/groups/edit/{group_id}", response_class=HTMLResponse)
+async def post_edit_group(request: Request, group_id: int, claims: dict = Depends(require_frontend_auth)):
+    data = await request.form()
+    form = GroupForm(data=data)
+
+    if not form.validate():
+        return templates.TemplateResponse(
+            request=request, name="forms/edit_group.html", context={"form": form}, status_code=400
+        )
+    
+    token = request.cookies.get("access_token")
+    response = await post(GROUPS_INTERNAL_BASE, f"edit/{group_id}", headers={"Cookie" : f"access_token={token}"}, 
+                                            json={
+                                                "group_name": form.group_name.data,
+                                                "group_desc": form.group_desc.data,
+                                                "is_private": not form.is_public.data
+                                            })
+    if response is None or not response.get("valid", True):
+        form.form_errors.append(response.get("message", "Group update failed."))
+        return templates.TemplateResponse(
+            request=request, name="forms/edit_group.html", context={"form": form}, status_code=401
+        )
+    return RedirectResponse(url=f"/groups/group_info/{group_id}", status_code=303)
+
 @app.get("/groups/group_info/{group_id}", response_class=HTMLResponse)
 async def get_group_info(request: Request, group_id: int, claims: dict = Depends(require_frontend_auth)):
     token = request.cookies.get("access_token")
     group_info_data = await get(GROUPS_INTERNAL_BASE, f"group_info/{group_id}", headers={"Cookie" : f"access_token={token}"})
-    group_id = group_info_data.get("group_id", group_id) if group_info_data else group_id
+    group_id = group_info_data.get("group_id", -1) if group_info_data else -1
+    if group_id == -1:
+        return RedirectResponse(url="/groups", status_code=303)
     group_name = group_info_data.get("group_name", "Unknown Group") if group_info_data else "Unknown Group"
     group_description = group_info_data.get("group_desc", "No Description Available") if group_info_data else "No Description Available"
     group_members = group_info_data.get("members", []) if group_info_data else []
@@ -642,7 +747,7 @@ async def get_group_info(request: Request, group_id: int, claims: dict = Depends
     group_members_list = group_members_data.get("members", []) if group_members_data else []
     group_members = [member.get("username", "Unknown User") for member in group_members_list]
     group = {
-        "group_id": group_id,
+        "id": group_id,
         "group_name": group_name,
         "group_desc": group_description,
         "members": group_members,
@@ -652,43 +757,98 @@ async def get_group_info(request: Request, group_id: int, claims: dict = Depends
     friends_list_data = await get(USER_INTERNAL_BASE, "friends", 
                         headers={"Cookie" : f"access_token={request.cookies.get('access_token')}"})
     friends_list = friends_list_data.get("user_names", []) if friends_list_data is not None else []
+
+    user_has_requested = await get(GROUPS_INTERNAL_BASE, f"user_is_requested/{group_id}", headers={"Cookie" : f"access_token={token}"})
+    user_is_invited = await get(GROUPS_INTERNAL_BASE, f"user_is_invited/{group_id}", headers={"Cookie" : f"access_token={token}"})
+
+    join_requests = []
+    if group_owner == claims.get("sub"):
+        join_requests_data = await get(GROUPS_INTERNAL_BASE, f"get_this_group_requests/{group_id}", headers={"Cookie" : f"access_token={token}"})
+        join_requests = join_requests_data.get("invites", []) if join_requests_data else []
+
+    invitees = []
+    if group_owner == claims.get("sub"):
+        invitees_data = await get(GROUPS_INTERNAL_BASE, f"get_this_group_invites/{group_id}", headers={"Cookie" : f"access_token={token}"})
+        invitees_raw = invitees_data.get("invites", []) if invitees_data else []
+        for invite in invitees_raw:
+            invitees.append(invite.get("username", "Unknown User"))
+
     return templates.TemplateResponse(
-        request=request, name="group_info.html", context={"group": group, "group_members": group_members, "authorized_user": claims.get("sub"), "friends_list": friends_list }
+        request=request, name="group_info.html", context={"group": group, 
+                                                          "group_members": group_members, 
+                                                          "authorized_user": claims.get("sub"), 
+                                                          "friends_list": friends_list,
+                                                          "user_has_requested": user_has_requested,
+                                                          "user_is_invited": user_is_invited,
+                                                          "join_requests": join_requests,
+                                                          "invitees": invitees }
     )
+
+@app.get("/groups/join/{group_id}", response_class=HTMLResponse)
+async def join_public_group(request: Request, group_id: int, claims: dict = Depends(require_frontend_auth)):
+    token = request.cookies.get("access_token")
+    referer = request.headers.get("referer", "/")
+    response = await post(GROUPS_INTERNAL_BASE, f"join_public_group/{group_id}", headers={"Cookie" : f"access_token={token}"})
+    return RedirectResponse(url=referer, status_code=303)
 
 @app.get("/groups/invite/{username}/{group_id}", response_class=HTMLResponse)
 async def accept_group_invite(request: Request, group_id: int, username: str, claims: dict = Depends(require_frontend_auth)):
     token = request.cookies.get("access_token")
     referer = request.headers.get("referer", "/")
-    this_user = claims.get("sub")
-    # TODO: Implement group invite acceptance on backend
-    # For now, just redirect back
+    response = await post(GROUPS_INTERNAL_BASE, f"invite/{username}/{group_id}", headers={"Cookie" : f"access_token={token}"}, json={"invitee": username})
     return RedirectResponse(url=referer, status_code=303)
 
-@app.get("/groups/join/{group_id}", response_class=HTMLResponse)
+@app.get("/groups/accept_invite/{group_id}", response_class=HTMLResponse)
 async def accept_group_invite(request: Request, group_id: int, claims: dict = Depends(require_frontend_auth)):
     token = request.cookies.get("access_token")
     referer = request.headers.get("referer", "/")
-    this_user = claims.get("sub")
-    # TODO: Implement group invite acceptance on backend
-    # For now, just redirect back
+    response = await post(GROUPS_INTERNAL_BASE, f"accept_invite/{group_id}", headers={"Cookie" : f"access_token={token}"})
     return RedirectResponse(url=referer, status_code=303)
 
-@app.get("/groups/decline/{group_id}", response_class=HTMLResponse)
+@app.get("/groups/decline_invite/{group_id}", response_class=HTMLResponse)
 async def decline_group_invite(request: Request, group_id: int, claims: dict = Depends(require_frontend_auth)):
     token = request.cookies.get("access_token")
     referer = request.headers.get("referer", "/")
-    this_user = claims.get("sub")
-    # TODO: Implement group invite decline on backend
-    # For now, just redirect back
+    response = await post(GROUPS_INTERNAL_BASE, f"decline_invite/{group_id}", headers={"Cookie" : f"access_token={token}"})
     return RedirectResponse(url=referer, status_code=303)
 
-@app.get("/groups/accept/{group_id}", response_class=HTMLResponse)
-async def accept_group_request(request: Request, group_id: int, claims: dict = Depends(require_frontend_auth)):
+@app.get("/groups/request/{group_id}", response_class=HTMLResponse)
+async def request_to_join_group(request: Request, group_id: int, claims: dict = Depends(require_frontend_auth)):
     token = request.cookies.get("access_token")
     referer = request.headers.get("referer", "/")
-    this_user = claims.get("sub")
-    # TODO: Implement group invite acceptance on backend
-    # For now, just redirect back
+    response = await post(GROUPS_INTERNAL_BASE, f"request/{group_id}", headers={"Cookie" : f"access_token={token}"})
     return RedirectResponse(url=referer, status_code=303)
 
+@app.get("/groups/accept_request/{group_id}/{user}", response_class=HTMLResponse)
+async def accept_group_request(request: Request, group_id: int, user: str, claims: dict = Depends(require_frontend_auth)):
+    token = request.cookies.get("access_token")
+    referer = request.headers.get("referer", "/")
+    response = await post(GROUPS_INTERNAL_BASE, f"accept_request/{group_id}/{user}", headers={"Cookie" : f"access_token={token}"})
+    return RedirectResponse(url=referer, status_code=303)
+
+@app.get("/groups/decline_request/{group_id}/{user}", response_class=HTMLResponse)
+async def decline_request_group(request: Request, group_id: int, user: str, claims: dict = Depends(require_frontend_auth)):
+    token = request.cookies.get("access_token")
+    referer = request.headers.get("referer", "/")
+    response = await post(GROUPS_INTERNAL_BASE, f"decline_request/{group_id}/{user}", headers={"Cookie" : f"access_token={token}"})
+    return RedirectResponse(url=referer, status_code=303)
+
+@app.get("/groups/leave/{group_id}", response_class=HTMLResponse)
+async def leave_group(request: Request, group_id: int, claims: dict = Depends(require_frontend_auth)):
+    token = request.cookies.get("access_token")
+    referer = request.headers.get("referer", "/")
+    response = await post(GROUPS_INTERNAL_BASE, f"leave/{group_id}", headers={"Cookie" : f"access_token={token}"})
+    return RedirectResponse(url=referer, status_code=303)
+
+@app.get("/groups/remove/{group_id}/{username}", response_class=HTMLResponse)
+async def remove_from_group(request: Request, group_id: int, username: str, claims: dict = Depends(require_frontend_auth)):
+    token = request.cookies.get("access_token")
+    referer = request.headers.get("referer", "/")
+    response = await post(GROUPS_INTERNAL_BASE, f"remove/{group_id}/{username}", headers={"Cookie" : f"access_token={token}"})
+    return RedirectResponse(url=referer, status_code=303)
+
+@app.get("/groups/delete/{group_id}", response_class=HTMLResponse)
+async def delete_group(request: Request, group_id: int, claims: dict = Depends(require_frontend_auth)):
+    token = request.cookies.get("access_token")
+    response = await post(GROUPS_INTERNAL_BASE, f"delete/{group_id}", headers={"Cookie" : f"access_token={token}"})
+    return RedirectResponse(url="/groups", status_code=303)

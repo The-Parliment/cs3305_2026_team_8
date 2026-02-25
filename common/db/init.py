@@ -377,8 +377,12 @@ def temp_remove_in_production():
         group1invite3 = UserRequest(
             field1="cillian", field2="cillian", field3=group2.group_id, type=RequestTypes.GROUP_INVITE, status=Status.PENDING
         )
+        group1invite4 = UserRequest(
+            field1="cillian", field2="roisin", field3=group3.group_id, type=RequestTypes.GROUP_INVITE, status=Status.ACCEPTED
+        )
         db.add(group1invite1)
         db.add(group1invite2)
         db.add(group1invite3)
+        db.add(group1invite4)
         db.commit()
     seed_cork_dummy_events()

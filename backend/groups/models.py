@@ -14,7 +14,6 @@ class GroupCreate(BaseModel):
     group_name: str
     group_desc: str
     is_private: bool
-    owner: str
 
 # Completed class mimicing HTTP response parameters.
 # Using inheritance to take advantage of the class above and adding group_id

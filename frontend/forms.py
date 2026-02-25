@@ -30,3 +30,9 @@ class EventForm(Form):
     description = StringField("Event Description", validators=[Length(min=2, max=256)])
     is_public = BooleanField("Public Event", default=True)
     submit = SubmitField("Submit")
+
+class GroupForm(Form):
+    group_name = StringField("Group Name", validators=[Length(min=2, max=64), DataRequired()])
+    group_desc = StringField("Group Description", validators=[Length(min=2, max=256), DataRequired()])
+    is_public = BooleanField("Public Group", default=True)
+    submit = SubmitField("Submit")
