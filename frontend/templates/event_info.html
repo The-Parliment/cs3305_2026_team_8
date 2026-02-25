@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block main_content %}
+
+<main>
+    {% if is_user_host|default(false) %}
+        <a href="/events/edit/{{ event_id }}">Edit Event</a>
+        <a href="/events/cancel/{{ event_id }}">Cancel Event</a>
+        <a href="/events/invitecircle/{{ event_id }}/">Invite Circle</a>
+    {% endif %}
+    <p>Event Title: {{ event_title }}</p>
+    <p>Event Venue: {{ event_venue }}</p>
+    <p>Event Host: {{ event_host }}</p>
+    <p>Event Latitude: {{ event_latitude }}</p>
+    <p>Event Longitude: {{ event_longitude }}</p>
+    <p>Event Start Time: {{ event_start_time }}</p>
+    <p>Event End Time: {{ event_end_time }}</p>
+    <p>Event Description: {{ event_description }}</p>
+    {% if event_public|default(false) %}
+        <p>This event is public.</p>
+    {% else %}
+        <p>This event is private.</p>
+    {% endif %}
+
+    
+    {% if is_attending|default(false) %}
+        <p>You are attending this event.</p>
+        <a href="/events/decline/{{ event_id }}">Leave Event</a>
+        {% if event_public|default(false) or is_host|default(false) %}
+            <a href="/events/invitecircle/{{ event_id }}/">Invite Circle</a>
+        {% endif %}
+    {% elif is_invited|default(false) %}
+        <p>You are invited to this event.</p>
+        <a href="/events/attend/{{ event_id }}">Accept Invitation</a>
+        <a href="/events/decline/{{ event_id }}">Decline Invitation</a>
+    {% elif is_requested|default(false) %}
+        <p>Your request to attend this event is pending approval.</p>
+        <a href="/events/decline/{{ event_id }}">Withdraw Request</a>
+    {% elif not is_host|default(false) %}
+        <p>You are not attending this event.</p>
+        {% if event_public|default(false) %}
+            <a href="/events/attend/{{ event_id }}">Attend Event</a>
+        {% else %}
+            <a href="/events/request/{{ event_id }}">Request to Attend</a>
+        {% endif %}
+    {% endif %}
+
+</main>
+
+{% endblock %}
