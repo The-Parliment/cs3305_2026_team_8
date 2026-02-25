@@ -56,6 +56,16 @@ def require_frontend_auth(request: Request) -> dict:
             status_code=status.HTTP_303_SEE_OTHER,
             headers={"Location": f"/login?next={request.url.path}"}
         )
+    
+def is_logged_in(request: Request) -> bool | None:
+    token = request.cookies.get("access_token")
+    if not token:
+        return False
+    try:
+        claims = decode_and_verify(token, expected_type="access")
+        return (claims is not None)
+    except Exception as e:
+        return False
 
 @app.get("/", response_class=HTMLResponse)
 @app.get("/home", response_class=HTMLResponse)

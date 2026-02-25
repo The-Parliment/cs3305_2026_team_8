@@ -3,17 +3,21 @@
 {% block main_content %}
 
 <main>
+    <header>
+        <h1>Login</h1>
+    </header>
     <form action="" method="POST" novalidate>
 
-        {{ form.username.label }}
+        <p>{{ form.username.label }}</p>
         {{ form.username() }}
         <br/>
 
-        {{ form.password.label }}
+        <p>{{ form.password.label }}</p>
         {{ form.password() }}
         <br/>
+        <br/>
         
-        {{ form.submit() }}
+       <p>{{ form.submit() }}</p> 
         
         {% if form.form_errors %}
             <ul class="error-list">

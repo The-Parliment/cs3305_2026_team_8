@@ -23,30 +23,50 @@
 <body>
   <div id="mySidenav" class="sidenav">
     <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
-    <a href="/home">Map</a>
-    <a href="/login">Login</a>
-    <a href="/logout">Log Out</a>
     <a href="/events/my_events">My Events</a>
-    <a href="/events">Events</a>
-    <a href="/community">Community</a>
-    <a href="/groups">Groups</a>
-    <a href="/profile">My Profile</a>
     <a href="/invites">My Invites</a>
-    <a href="/circle">My Circle</a>
+    {% if logged_in|default(true) %}
+    <img src="../static/images/map.png"><a href="/home">Map</a>
+    <br />
+    <img src="../static/images/event.png"><a href="/events">Events</a>
+    <br />
+    <img src="../static/images/group.png"><a href="/community">Community</a>
+    <br />
+    <img src="../static/images/group.png"><a href="/groups">Groups</a>
+    <br />
+    <img src="../static/images/user.png"><a href="/profile">My Profile</a>
+    <br />
+    <img src="../static/images/circle.png"><a href="/circle">My Circle</a>
+    <br />
+    <a href="/logout" class="bottom">Log Out</a>
+    {% else %}
+    <img src="../static/images/map.png"><a href="/home">Map</a>
+    <br />
+    <a href="/login" class="bottom">Login</a>
+    <a href="/register" class="bottom">Register</a>
+    {% endif %}
   </div>
   <script>
     function openNav() {
       document.getElementById("mySidenav").style.width = "250px";
       document.getElementById("main").style.marginRight = "250px";
       document.getElementById("menuBtn").style.display = "none";
+
+      setTimeout(function () {
+        map.invalidateSize();
+      }, 310);
     }
     function closeNav() {
       document.getElementById("mySidenav").style.width = "0";
       document.getElementById("main").style.marginRight = "0";
       document.getElementById("menuBtn").style.display = "block";
+
+      setTimeout(function () {
+        map.invalidateSize();
+      }, 310);
     }
   </script>
-  <span id="menuBtn" class="menu-btn" onclick="openNav()">&#9776;</span> 
+  <span id="menuBtn" class="menu-btn" onclick="openNav()">&#9776;</span>
   {% block main_content %}
   {% endblock %}
 </body>
