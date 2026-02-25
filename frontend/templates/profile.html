@@ -2,19 +2,23 @@
 
 {% block main_content %}
 
-<main>
-    <p>
-        Logged in as: {{ authorized_user }}
-    </p>
+<main id="main">
+    <header>
+        <h1>Your profile</h1>
+        <p>{{ authorized_user }}</p>  
+    </header>
+    
     <h2>Profile Details</h2>
     {% if user_details %}
-        <ul>
-            <li>First Name: {{ user_details["first_name"] }}</li>
-            <li>Last Name: {{ user_details["last_name"] }}</li>
-            <li>Email: {{ user_details["email"] }}</li>
-            <li>Phone Number: {{ user_details["phone_number"] }}</li>
-        </ul>
-        <a href="/change_details">Change Details</a>
+        <h3>First Name</h3>
+        <p>{{ user_details["first_name"] }}</p> 
+        <h3>Last Name</h3>
+        <p>{{ user_details["last_name"] }}</p>
+        <h3>Email</h3>
+        <p>{{ user_details["email"] }}</p>
+        <h3>Phone Number</h3>
+        <p>{{ user_details["phone_number"] }}</p>
+        <a href="/change_details" id="changeDetails">Change Details</a>
     {% else %}
         <p>No profile details available.</p>
     {% endif %}
