@@ -38,7 +38,6 @@ async def create_event(inbound: CreateRequest, authorized_user=Depends(get_usern
     with get_db() as db:
         event = Events(
             title=inbound.title,
-            venue=inbound.venue,
             datetime_start=inbound.datetime_start,
             datetime_end=inbound.datetime_end,
             latitude=inbound.latitude,
@@ -63,7 +62,6 @@ async def event_info(request: Request, event_id:int):
         if not event:
             raise HTTPException(status_code=404, detail="Event not found")
         return InfoResponse(id=event.id, 
-                            venue=event.venue, 
                             latitude=event.latitude, 
                             longitude=event.longitude,
                             datetime_start=event.datetime_start, 
@@ -92,7 +90,6 @@ async def search_events(request:SearchRequest) -> ListEventResponse:
     with get_db() as db:
         bb = get_bounding_box(request.latitude, request.longitude, request.radius)
         stmt = select(Events).filter(Events.title.like(f"%{request.title}%") if request.title else True,
-                                     Events.venue.like(f"%{request.venue}%") if request.venue else True,
                                      Events.host.like(f"%{request.host}%") if request.host else True,
                                      Events.datetime_start >= request.datetime_start if request.datetime_start else True,
                                      Events.datetime_end <= request.datetime_end if request.datetime_end else True,
@@ -101,8 +98,7 @@ async def search_events(request:SearchRequest) -> ListEventResponse:
         result=db.execute(stmt).scalars().all()
         list_of_events = []
         for event in result:
-            list_of_events.append(InfoResponse(id=event.id, 
-                            venue=event.venue, 
+            list_of_events.append(InfoResponse(id=event.id,
                             latitude=event.latitude, 
                             longitude=event.longitude,
                             datetime_start=event.datetime_start, 
@@ -228,7 +224,6 @@ async def edit_event(inbound: EditRequest, event_id: int, authorized_user=Depend
             datetime_end=inbound.datetime_end,
             latitude=inbound.latitude,
             longitude=inbound.longitude,
-            venue=inbound.venue,
             public=inbound.public
         )
         db.execute(stmt)
@@ -329,7 +324,6 @@ async def my_events(request:Request, authorized_user=Depends(get_username_from_r
             event = db.scalars(stmt).first()
             if event:
                 list_of_events.append(InfoResponse(id=event.id,
-                                venue=event.venue,
                                 latitude=event.latitude,
                                 longitude=event.longitude,
                                 datetime_start=event.datetime_start,
@@ -373,7 +367,6 @@ async def my_invites(request:Request, authorized_user=Depends(get_username_from_
             event = db.scalars(stmt).first()
             if event:
                 list_of_events.append(InfoResponse(id=event.id,
-                                venue=event.venue,
                                 latitude=event.latitude,
                                 longitude=event.longitude,
                                 datetime_start=event.datetime_start,
@@ -395,7 +388,6 @@ async def all_events(request:Request) -> ListEventResponse:
         list_of_events = []
         for event in result:
             list_of_events.append(InfoResponse(id=event.id,
-                            venue=event.venue,
                             latitude=event.latitude,
                             longitude=event.longitude,
                             datetime_start=event.datetime_start,
@@ -418,7 +410,6 @@ async def events_hosted_by(request:Request, username: str) -> ListEventResponse:
         list_of_events = []
         for event in result:
             list_of_events.append(InfoResponse(id=event.id,
-                            venue=event.venue,
                             latitude=event.latitude,
                             longitude=event.longitude,
                             datetime_start=event.datetime_start,

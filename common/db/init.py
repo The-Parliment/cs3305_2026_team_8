@@ -21,7 +21,6 @@ def seed_cork_dummy_events():
         events = [
             Events(
                 title="Live Music on Oliver Plunkett Street",
-                venue="Oliver Plunkett Street",
                 host="cillian",
                 latitude=51.8979,
                 longitude=-8.4706,
@@ -31,7 +30,6 @@ def seed_cork_dummy_events():
             ),
             Events(
                 title="Really epic party at my house",
-                venue="Parliament",
                 host="roisin",
                 latitude=51.8947497,
                 longitude=-8.474104,
@@ -42,7 +40,6 @@ def seed_cork_dummy_events():
          
             Events(
                 title="Shandon Tower Tour",
-                venue="St. Anne's Church, Shandon",
                 host="joana",
                 latitude=51.9010,
                 longitude=-8.4767,
@@ -52,7 +49,6 @@ def seed_cork_dummy_events():
             ),
             Events(
                 title="UCC Tech Meetup",
-                venue="University College Cork",
                 host="darren",
                 latitude=51.8920,
                 longitude=-8.4923,
@@ -62,7 +58,6 @@ def seed_cork_dummy_events():
             ),
             Events(
                 title="English Market Food Tasting",
-                venue="English Market",
                 host="foodwise",
                 latitude=51.8975,
                 longitude=-8.4756,
@@ -72,7 +67,6 @@ def seed_cork_dummy_events():
             ),
             Events(
                 title="Blackrock Castle Astronomy Night",
-                venue="Blackrock Castle",
                 host="roisin",
                 latitude=51.8991,
                 longitude=-8.4023,
@@ -82,7 +76,6 @@ def seed_cork_dummy_events():
             ),
             Events(
                 title="Fitzgerald Park Yoga",
-                venue="Fitzgerald Park",
                 host="joana",
                 latitude=51.8938,
                 longitude=-8.4894,
@@ -92,7 +85,6 @@ def seed_cork_dummy_events():
             ),
             Events(
                 title="Mahon Point Business Expo",
-                venue="Mahon Point",
                 host="darren",
                 latitude=51.8850,
                 longitude=-8.4010,
@@ -102,7 +94,6 @@ def seed_cork_dummy_events():
             ),
             Events(
                 title="Douglas Community Fair",
-                venue="Douglas Village",
                 host="roisin",
                 latitude=51.8770,
                 longitude=-8.4350,
@@ -112,7 +103,6 @@ def seed_cork_dummy_events():
             ),
             Events(
                 title="Ballincollig Park Run",
-                venue="Ballincollig Regional Park",
                 host="cillian",
                 latitude=51.8878,
                 longitude=-8.5852,
@@ -123,7 +113,6 @@ def seed_cork_dummy_events():
             ),
             Events(
                 title="Glanmire Farmers Market",
-                venue="Glanmire Community Hall",
                 host="foodwise",
                 latitude=51.9140,
                 longitude=-8.3990,
@@ -133,7 +122,6 @@ def seed_cork_dummy_events():
             ),
             Events(
                 title="Cork Opera House Tour",
-                venue="Cork Opera House",
                 host="roisin",
                 latitude=51.8996,
                 longitude=-8.4702,
@@ -143,7 +131,6 @@ def seed_cork_dummy_events():
             ),
             Events(
                 title="Pairc Ui Chaoimh Stadium Tour",
-                venue="Pairc Ui Chaoimh",
                 host="darren",
                 latitude=51.8985,
                 longitude=-8.4356,
@@ -153,7 +140,6 @@ def seed_cork_dummy_events():
             ),
             Events(
                 title="Cobh Harbour Walk",
-                venue="Cobh Promenade",
                 host="joana",
                 latitude=51.8490,
                 longitude=-8.2940,
@@ -163,7 +149,6 @@ def seed_cork_dummy_events():
             ),
             Events(
                 title="Blarney Castle Visit",
-                venue="Blarney Castle",
                 host="cillian",
                 latitude=51.9330,
                 longitude=-8.5700,
@@ -173,7 +158,6 @@ def seed_cork_dummy_events():
             ),
             Events(
                 title="Midleton Distillery Experience",
-                venue="Midleton Distillery",
                 host="foodwise",
                 latitude=51.9156,
                 longitude=-8.1750,
@@ -183,7 +167,6 @@ def seed_cork_dummy_events():
             ),
             Events(
                 title="Kinsale Coastal Walk",
-                venue="Kinsale Harbour",
                 host="roisin",
                 latitude=51.7070,
                 longitude=-8.5300,
@@ -193,7 +176,6 @@ def seed_cork_dummy_events():
             ),
             Events(
                 title="Carrigaline Community Meetup",
-                venue="Carrigaline Court Hotel",
                 host="darren",
                 latitude=51.8120,
                 longitude=-8.3980,
@@ -203,7 +185,6 @@ def seed_cork_dummy_events():
             ),
             Events(
                 title="Sunday Brunch Social",
-                venue="City Centre Cafe",
                 host="foodwise",
                 latitude=51.8988,
                 longitude=-8.4750,
@@ -213,7 +194,6 @@ def seed_cork_dummy_events():
             ),
             Events(
                 title="Lee Fields Football Match",
-                venue="The Mardyke",
                 host="cillian",
                 latitude=51.8933,
                 longitude=-8.4949,
@@ -223,7 +203,6 @@ def seed_cork_dummy_events():
             ),
             Events(
                 title="Evening Poetry Reading",
-                venue="Cork City Library",
                 host="joana",
                 latitude=51.8976,
                 longitude=-8.4710,
@@ -270,7 +249,6 @@ def temp_remove_in_production():
         event = Events(
                 id=1,
                 title="Test Event",
-                venue="Test Venue",
                 host="cillian",
                 latitude=53.3498,
                 longitude=-6.2603,

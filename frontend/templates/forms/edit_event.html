@@ -11,15 +11,15 @@
             <script type="text/javascript" src="{{ url_for('static', path='/js/map.js') }}"></script>
         {% endif %}
     <script type="text/javascript" src="{{ url_for('static', path='/js/create_event_map.js') }}"></script>
-    <div id="form-on-map">
+    <div class="form-on-map">
         <h1>Event Details</h1>
         <form action="" onsubmit="setLocation()" method="POST" novalidate>
             {{ form.title.label }}
             {{ form.title() }}
             <br/>
-
-            {{ form.venue.label }}
-            {{ form.venue() }}
+            
+            {{ form.description.label }}
+            {{ form.description() }}
             <br/>
             
             {{ form.datetime_start.label }}
@@ -30,20 +30,17 @@
             {{ form.datetime_end() }}
             <br/>
 
-            {{ form.latitude.label }}
             {{ form.latitude(readOnly=true) }}
             <br/>
             
-            {{ form.longitude.label }}
             {{ form.longitude(readOnly=true) }}
             <br/>
             
-            {{ form.description.label }}
-            {{ form.description() }}
-            <br/>
             
             {{ form.is_public.label }}
             {{ form.is_public() }}
+
+            <p>Choose the location by using the map.</p>
             
             {% if form.form_errors %}
                 <ul class="error-list">
@@ -53,7 +50,11 @@
                 </ul>
             {% endif %}
             
-            {{ form.submit() }}
+            {% if editting|default(false)%}
+            <div id="editting-button">{{ form.submit() }}</div>
+            {% else %}
+            <div id="creating-button">{{ form.submit() }}</div>
+            {% endif %}
         </form>
     </div>
 </main>

@@ -324,7 +324,6 @@ async def event_info(request: Request, event_id: int, claims: dict = Depends(req
             request=request, name="event_info.html", context={"error": "Event not found."}
         )
     event_name = event_info_data.get("title", "Unknown Event")
-    event_venue = event_info_data.get("venue", "Unknown Venue")
     event_host = event_info_data.get("host", "Unknown Host")
     event_latitude = event_info_data.get("latitude", "Unknown Latitude")
     event_longitude = event_info_data.get("longitude", "Unknown Longitude")
@@ -351,7 +350,6 @@ async def event_info(request: Request, event_id: int, claims: dict = Depends(req
     return templates.TemplateResponse(
         request=request, name="event_info.html", context={"event_id": event_id,
                                                           "event_title": event_name, 
-                                                          "event_venue": event_venue, 
                                                           "event_host": event_host, 
                                                           "event_latitude": event_latitude, 
                                                           "event_longitude": event_longitude, 
@@ -376,7 +374,6 @@ async def all_events(request: Request, claims: dict = Depends(require_frontend_a
         all_events.append({
             "id": event["id"],
             "title": event["title"],
-            "venue": event["venue"],
             "latitude": event["latitude"],
             "longitude": event["longitude"],
             "start_time": event["datetime_start"],
@@ -415,7 +412,6 @@ async def post_create_event(request: Request, claims: dict = Depends(require_fro
                         headers={"Cookie" : f"access_token={request.cookies.get('access_token')}"},
                         json={
                                 "title": form.title.data,
-                                "venue": form.venue.data,
                                 "datetime_start": form.datetime_start.data.isoformat(),
                                 "datetime_end": form.datetime_end.data.isoformat(),
                                 "latitude": form.latitude.data,
@@ -448,7 +444,6 @@ async def edit_event(request: Request, event_id: int, claims: dict = Depends(req
         )
     if event_info_data:
         form.title.data = event_info_data.get("title", "")
-        form.venue.data = event_info_data.get("venue", "")
         event_start_time = "Unknown Start Time"
         event_end_time = "Unknown End Time"
         if isinstance(event_info_data.get("datetime_start"), str):
@@ -470,7 +465,7 @@ async def edit_event(request: Request, event_id: int, claims: dict = Depends(req
         form.description.data = event_info_data.get("description", "")
         form.is_public.data = event_info_data.get("public", False)
     return templates.TemplateResponse(
-        request=request, name="forms/edit_event.html", context={"form": form, "display_map": True}
+        request=request, name="forms/edit_event.html", context={"form": form, "display_map": True, "editting" : True}
     )
 
 @app.post("/events/edit/{event_id}", response_class=HTMLResponse)
@@ -489,7 +484,6 @@ async def post_edit_event(request: Request, event_id: int, claims: dict = Depend
                          headers={"Cookie" : f"access_token={request.cookies.get('access_token')}"},
                          json={
                                 "title": form.title.data,
-                                "venue": form.venue.data,
                                 "datetime_start": form.datetime_start.data.isoformat(),
                                 "datetime_end": form.datetime_end.data.isoformat(),
                                 "latitude": form.latitude.data,

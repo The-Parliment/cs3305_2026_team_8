@@ -195,3 +195,11 @@ tr:nth-child(even) {
   top: 10px;
   z-index: 9999;
 }
+
+.form-on-map {
+  position: fixed;
+  top: 1rem;
+  left: 1rem;
+  z-index: 9000;
+  background-color: rgba(228, 185, 105, 0.95);
+}

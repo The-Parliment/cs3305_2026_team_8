@@ -44,14 +44,7 @@ class UserDetails(Base):
     last_name = Column("last_name", String, nullable=True)
     email = Column("email", String, nullable=True)
     phone_number = Column("phone_number", String, nullable=True)
-    
-class Venue(Base):
-    __tablename__ = "venues"
 
-    id = Column("id", Integer, autoincrement=True, primary_key=True)
-    name = Column("name", String)
-    latitude = Column("latitude", Float)
-    longitude = Column("longitude", Float)
 
 #Remove this, use UserRequest instead. This is just for testing purposes.
 class Group(Base):
@@ -71,7 +64,6 @@ class Events(Base):
     __tablename__ = "events"
 
     id = Column("id", Integer, autoincrement=True, primary_key=True)
-    venue = Column("venue", String, default="") 
     latitude = Column("latitude", Float, nullable=True)
     longitude = Column("longitude", Float, nullable=True)
     datetime_start = Column("datetime_start", DateTime)
