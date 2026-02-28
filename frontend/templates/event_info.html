@@ -2,12 +2,17 @@
 
 {% block main_content %}
 
-<main>
-    <h2>{{ event_title }}</h2>
-    <p>{{ event_description }}</p>
-    <p>Starts at: {{ event_start_time }}</p>
-    <p>Ends at: {{ event_end_time }}</p>
-    <p>Event hosted by: <a href="/profile/{{ event_host }}">{{ event_host }}</a></p>
+<main id="main">
+    {% if is_user_host|default(false) %}
+        <a href="/events/edit/{{ event_id }}">Edit Event</a>
+        <a href="/events/cancel/{{ event_id }}">Cancel Event</a>
+        <a href="/events/invitecircle/{{ event_id }}/">Invite Circle</a>
+    {% endif %}
+    <p>Event Title: {{ event_title }}</p>
+    <p>Event Host: {{ event_host }}</p>
+    <p>Event Start Time: {{ event_start_time }}</p>
+    <p>Event End Time: {{ event_end_time }}</p>
+    <p>Event Description: {{ event_description }}</p>
     {% if event_public|default(false) %}
         <p>This event is public.</p>
     {% else %}

@@ -2,18 +2,26 @@
 
 {% block main_content %}
 
-<main>
+<main id="main">
+    <header>
+    {% if authorized_user %}
+        <h1>Logged in as </h1>
+        <p>{{ authorized_user }}</p>
+    {% endif %}
+    </header>
     <h2>Profile Details</h2>
     {% if user_details %}
-        <ul>
-            <li>First Name: {{ user_details["first_name"] }}</li>
-            <li>Last Name: {{ user_details["last_name"] }}</li>
-            <li>Email: {{ user_details["email"] }}</li>
-            <li>Phone Number: {{ user_details["phone_number"] }}</li>
-        </ul>
+        <h3>First Name</h3>
+        <p>{{ user_details["first_name"] }}</p>
+        <h3>Last Name</h3>
+        <p>{{ user_details["last_name"] }}</p>
+        <h3>Email</h3>
+        <p>{{ user_details["email"] }}</p>
+        <h3>Phone Number </h3>
+        <p>{{ user_details["phone_number"] }}</p>
         <div id="status">
             {% if authorized_user == user_details["username"] %}
-                <a href="/change_details">Change Details</a>
+                <a href="/change_details" class="changeDetails">Change Details</a>
             {% else %}
                 {% if user_is_following|default(false) %}
                     <a href="/unfollow/{{ user_details['username'] }}">Unfollow</a>
@@ -25,7 +33,7 @@
             {% endif %}
         </div>
     {% else %}
-        <p>No profile details available.</p>
+        <p>No profile details available</p>
     {% endif %}
 </main>
 
