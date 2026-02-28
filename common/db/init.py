@@ -285,10 +285,16 @@ def temp_remove_in_production():
             field1="cillian", field2="darren", type=RequestTypes.CIRCLE_INVITE, status=Status.ACCEPTED
         )
         req10 = UserRequest(
-            field1="darren", field2="cillian", type=RequestTypes.CIRCLE_INVITE, status=Status.PENDING
+            field1="darren", field2="cillian", type=RequestTypes.CIRCLE_INVITE, status=Status.ACCEPTED
         )
         req11 = UserRequest(
             field1="cillian", field2="roisin", type=RequestTypes.CIRCLE_INVITE, status=Status.ACCEPTED
+        )
+        req12 = UserRequest(
+            field1="roisin", field2="darren", type=RequestTypes.CIRCLE_INVITE, status=Status.ACCEPTED
+        )
+        req13 = UserRequest(
+            field1="darren", field2="roisin", type=RequestTypes.CIRCLE_INVITE, status=Status.ACCEPTED
         )
         event_invite1 = UserRequest(
             field1="cillian", field2="darren", field3=1, type=RequestTypes.EVENT_INVITE, status=Status.PENDING
@@ -339,6 +345,8 @@ def temp_remove_in_production():
         db.add(req9)
         db.add(req10)
         db.add(req11)
+        db.add(req12)
+        db.add(req13)
         db.add(event_invite1)
         db.add(event_invite2)
         db.flush()

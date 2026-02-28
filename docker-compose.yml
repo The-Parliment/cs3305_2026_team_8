@@ -118,6 +118,8 @@ services:
       - valkey
     networks:
       - circle_network
+    volumes:
+      - ./common:/app/common
 
 networks:
   circle_network:
