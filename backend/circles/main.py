@@ -1,5 +1,5 @@
 import logging
-from fastapi import Depends, FastAPI, Request
+from fastapi import Depends, FastAPI, HTTPException, Request
 from circles_model import MessageResponse, UsernameListResponse, UsersRequest
 from common.JWTSecurity import decode_and_verify
 from common.db.structures.structures import UserRequest, RequestTypes, Status
@@ -53,7 +53,7 @@ async def get_invites(request: Request, authorized_user: str = Depends(get_usern
 @app.get("/get_invites_sent", response_model=UsernameListResponse)
 async def get_invites_sent(request: Request, authorized_user: str = Depends(get_username_from_request)) -> UsernameListResponse:
     if not authorized_user:
-        return MessageResponse(message="Unauthorized", valid=False)
+        raise HTTPException(status_code=401, detail="Unauthorized")
     this_user = authorized_user
     with get_db() as db:
         result = select(UserRequest.field2).filter_by(field1=this_user, 
@@ -97,7 +97,7 @@ async def decline_invite(inbound: UsersRequest) -> MessageResponse:
 @app.get("/mycircle", response_model=UsernameListResponse)
 async def get_circle(request:Request, authorized_user: str = Depends(get_username_from_request)) -> UsernameListResponse:
     if not authorized_user:
-        return MessageResponse(message="Unauthorized", valid=False)
+        raise HTTPException(status_code=401, detail="Unauthorized")
     with get_db() as db:
         this_user = authorized_user
         result = select(UserRequest.field2).filter_by(field1=this_user, 
