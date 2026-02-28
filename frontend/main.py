@@ -822,7 +822,21 @@ async def get_group_info(request: Request, group_id: int, claims: dict = Depends
                                                           "join_requests": join_requests,
                                                           "invitees": invitees }
     )
+    
+@app.get("/groups/invitecircle/{group_id}", response_class=HTMLResponse)
+async def invite_circle_to_group(request: Request, group_id: int, claims: dict = Depends(require_frontend_auth)):
+    token = request.cookies.get("access_token")
+    referer = request.headers.get("referer", "/")
+    await post(GROUPS_INTERNAL_BASE, f"invitecircle/{group_id}", headers={"Cookie" : f"access_token={token}"})
+    return RedirectResponse(url=referer, status_code=303)
 
+@app.get("/groups/inviteallfriends/{group_id}", response_class=HTMLResponse)
+async def invite_all_friends_to_group(request: Request, group_id: int, claims: dict = Depends(require_frontend_auth)):
+    token = request.cookies.get("access_token")
+    referer = request.headers.get("referer", "/")
+    await post(GROUPS_INTERNAL_BASE, f"inviteallfriends/{group_id}", headers={"Cookie" : f"access_token={token}"})
+    return RedirectResponse(url=referer, status_code=303)
+    
 @app.get("/groups/join/{group_id}", response_class=HTMLResponse)
 async def join_public_group(request: Request, group_id: int, claims: dict = Depends(require_frontend_auth)):
     token = request.cookies.get("access_token")

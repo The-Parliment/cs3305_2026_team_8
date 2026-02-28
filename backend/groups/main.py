@@ -553,3 +553,28 @@ async def invite_circle(inbound: Request, group_id: int, authorized_user=Depends
         db.commit()
         return MessageResponse(message=f"Invited your circle to this group!")
     
+@app.post("/inviteallfriends/{group_id}", response_model=MessageResponse)
+async def invite_all_friends(inbound: Request, group_id: int, authorized_user=Depends(get_username_from_request)) -> MessageResponse:
+    with get_db() as db:
+        friends_data = await get(USER_INTERNAL_BASE, "friends", 
+                                   headers={"Cookie" : f"access_token={inbound.cookies.get('access_token')}"})
+        friends = friends_data.get("user_names", [])
+        print(f"Inviting all friends: {friends} to group {group_id}")
+        for friend in friends:
+            stmt = select(UserRequest).filter_by(
+                field2=friend,
+                field3=group_id,
+                type=RequestTypes.GROUP_INVITE
+            )
+            result = db.scalars(stmt).all()
+            if not result:
+                stmt = insert(UserRequest).values(
+                    field1=authorized_user,
+                    field2=friend,
+                    field3=group_id,
+                    type=RequestTypes.GROUP_INVITE,
+                    status=Status.PENDING
+                )
+                db.execute(stmt)
+        db.commit()
+        return MessageResponse(message=f"Invited all your friends to this group!")
