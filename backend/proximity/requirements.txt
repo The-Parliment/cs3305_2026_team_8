@@ -3,3 +3,5 @@ uvicorn
 python-dotenv
 redis
 pydantic
+httpx
+pyjwt

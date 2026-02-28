@@ -372,28 +372,31 @@ async def all_events(request: Request, claims: dict = Depends(require_frontend_a
             "description": event["description"]
         })
     
+    authorized_user = claims.get("sub")
     return templates.TemplateResponse(
-        request=request, name="events_map.html", context={"all_events": all_events, "display_map": True}
+        request=request, name="events_map.html", context={"all_events": all_events, "display_map": True, "authorized_user": authorized_user}
     )
 
 @app.get("/events/create_event", response_class=HTMLResponse)
 async def get_create_event(request : Request, claims : dict = Depends(require_frontend_auth)):
     form = EventForm()
+    authorized_user = claims.get("sub")
     return templates.TemplateResponse(
-        request=request, name="forms/edit_event.html", context={"form": form, "display_map": True}
+        request=request, name="forms/edit_event.html", context={"form": form, "display_map": True, "authorized_user": authorized_user}
     )
 
 @app.post("/events/create_event", response_class=HTMLResponse)
 async def post_create_event(request: Request, claims: dict = Depends(require_frontend_auth)):
     data = await request.form()
     print(f"RAW FORM DATA: {data}")
-    form = EventForm(formdata=data) 
+    form = EventForm(formdata=data)
+    authorized_user = claims.get("sub")
 
     if not form.validate():
         for field, errors in form.errors.items():
             form.form_errors.extend(f"{field}: {error}" for error in errors)
         return templates.TemplateResponse(
-            request=request, name="forms/edit_event.html", context={"form": form, "display_map": True}, status_code=400
+            request=request, name="forms/edit_event.html", context={"form": form, "display_map": True, "authorized_user": authorized_user}, status_code=400
         )
     
     print("DEBUG: Form validated successfully with data:", form.data)
@@ -414,7 +417,7 @@ async def post_create_event(request: Request, claims: dict = Depends(require_fro
     if response is None:
         form.form_errors.append("Event creation failed. No response from event service.")
         return templates.TemplateResponse(
-            request=request, name="forms/edit_event.html", context={"form": form, "display_map": True}, status_code=401
+            request=request, name="forms/edit_event.html", context={"form": form, "display_map": True, "authorized_user": authorized_user}, status_code=401
         )
     response = RedirectResponse(url=f"/eventinfo/{response.get('event_id')}", status_code=303)
     return response
@@ -423,15 +426,16 @@ async def post_create_event(request: Request, claims: dict = Depends(require_fro
 async def edit_event(request: Request, event_id: int, claims: dict = Depends(require_frontend_auth)):
     token = request.cookies.get("access_token")
     user = claims.get("sub")
+    authorized_user = user
     form = EventForm()
     event_info_data = await get(EVENTS_INTERNAL_BASE, f"eventinfo/{event_id}", headers={"Cookie" : f"access_token={token}"})
     if event_info_data is None or event_info_data.get("valid", True) == False   :
         return templates.TemplateResponse(
-            request=request, name="forms/edit_event.html", context={"form": form, "error": "Event not found.", "display_map": True}
+            request=request, name="forms/edit_event.html", context={"form": form, "error": "Event not found.", "display_map": True, "authorized_user": authorized_user}
         )
     if event_info_data.get("host") != user:
         return templates.TemplateResponse(
-            request=request, name="forms/edit_event.html", context={"form": form, "error": "You are not the host of this event.", "display_map": True}
+            request=request, name="forms/edit_event.html", context={"form": form, "error": "You are not the host of this event.", "display_map": True, "authorized_user": authorized_user}
         )
     if event_info_data:
         form.title.data = event_info_data.get("title", "")
@@ -457,19 +461,20 @@ async def edit_event(request: Request, event_id: int, claims: dict = Depends(req
         form.description.data = event_info_data.get("description", "")
         form.is_public.data = event_info_data.get("public", False)
     return templates.TemplateResponse(
-        request=request, name="forms/edit_event.html", context={"form": form, "display_map": True}
+        request=request, name="forms/edit_event.html", context={"form": form, "display_map": True, "authorized_user": authorized_user}
     )
 
 @app.post("/events/edit/{event_id}", response_class=HTMLResponse)
 async def post_edit_event(request: Request, event_id: int, claims: dict = Depends(require_frontend_auth)):
     data= await request.form()
-    form = EventForm(formdata=data) 
+    form = EventForm(formdata=data)
+    authorized_user = claims.get("sub")
 
     if not form.validate():
         for field, errors in form.errors.items():
             form.form_errors.extend(f"{field}: {error}" for error in errors)
         return templates.TemplateResponse(
-            request=request, name="forms/edit_event.html", context={"form": form, "display_map": True}, status_code=400
+            request=request, name="forms/edit_event.html", context={"form": form, "display_map": True, "authorized_user": authorized_user}, status_code=400
         )
     
     response= await post(EVENTS_INTERNAL_BASE, f"edit/{event_id}", 
@@ -487,7 +492,7 @@ async def post_edit_event(request: Request, event_id: int, claims: dict = Depend
     if response is None or not response.get("valid", True):
         form.form_errors.append(response.get("message", "Event update failed."))
         return templates.TemplateResponse(
-            request=request, name="forms/edit_event.html", context={"form": form, "display_map": True}, status_code=401
+            request=request, name="forms/edit_event.html", context={"form": form, "display_map": True, "authorized_user": authorized_user}, status_code=401
         )
     response = RedirectResponse(url=f"/eventinfo/{event_id}", status_code=303)
 

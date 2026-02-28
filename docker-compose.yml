@@ -101,6 +101,8 @@ services:
       - valkey
     networks:
       - circle_network
+    volumes:
+      - ./common:/app/common
 
   groups:
     build:
