@@ -79,3 +79,29 @@ async def get_friends(requester: GetFriendsRequest) -> FriendsList:
         friends_list.append(Friend(username=friend_username, latitude=friend_latitude, 
                                    longitude=friend_longitude, distance=friend_distance))
     return FriendsList(friends=friends_list, count=len(friends_list))
+
+
+
+@app.post("/get_everyone")
+async def get_everyone(requester: GetFriendsRequest) -> FriendsList:
+    username = get_username(requester.username)
+    everyones_location = valkey_client.georadius("user:locations", requester.longitude, 
+                                         requester.latitude, requester.radius, unit='km', 
+                                         withdist=True, withcoord=True)
+    
+    '''
+    At the moment, what follows returns everyone. When the circle service can give me a list of my friends, I can use
+    that list to filter what is returned from georadius
+    '''
+    friends_list = []
+    for friend in everyones_location:
+        friend_username = friend[0]
+        if friend_username == username:
+            continue  # Skip the caller
+        friend_distance = friend[1]
+        # The [2] returned is called coordinates, which itself is an array of [longitude, latitude]
+        friend_latitude = friend[2][1]
+        friend_longitude = friend[2][0]
+        friends_list.append(Friend(username=friend_username, latitude=friend_latitude, 
+                                   longitude=friend_longitude, distance=friend_distance))
+    return FriendsList(friends=friends_list, count=len(friends_list))

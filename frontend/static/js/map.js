@@ -25,7 +25,7 @@ function success(position) {
     var userLat = position.coords.latitude;
     var userLng = position.coords.longitude;
 
-    var label = window.authorizedUser || "me";
+    var label = authorizedUser || "me";
     L.marker([userLat, userLng]).addTo(map).bindTooltip(label, {
         permanent: true,
         direction: 'top',
@@ -35,8 +35,8 @@ function success(position) {
     map.setView([userLat, userLng], 17);
     
     // Send location update to proximity service
-    if (window.authorizedUser) {
-        updateProximityService(window.authorizedUser, userLat, userLng);
+    if (authorizedUser) {
+        updateProximityService(authorizedUser, userLat, userLng);
     }
 }
 
