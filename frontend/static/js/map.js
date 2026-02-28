@@ -1,4 +1,9 @@
 var map;
+var userMarker;
+var friendMarkersLayer;
+var DEFAULT_FRIENDS_RADIUS_KM = 2;
+var LIVE_REFRESH_INTERVAL_MS = 5000;
+var liveRefreshTimer = null;
 
 // Geolocation pattern heavily inspired by https://www.w3schools.com/html/html5_geolocation.asp
 function initMap() {
@@ -9,6 +14,8 @@ function initMap() {
         minZoom: 7,
         attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
     }).addTo(map);
+
+    friendMarkersLayer = L.layerGroup().addTo(map);
 
     getLocation();
 }
@@ -26,7 +33,11 @@ function success(position) {
     var userLng = position.coords.longitude;
 
     var label = authorizedUser || "me";
-    L.marker([userLat, userLng]).addTo(map).bindTooltip(label, {
+    if (userMarker) {
+        map.removeLayer(userMarker);
+    }
+
+    userMarker = L.marker([userLat, userLng]).addTo(map).bindTooltip(label, {
         permanent: true,
         direction: 'top',
         className: 'user-location-label'
@@ -37,7 +48,19 @@ function success(position) {
     // Send location update to proximity service
     if (authorizedUser) {
         updateProximityService(authorizedUser, userLat, userLng);
+        getFriendsLocations(authorizedUser, userLat, userLng);
+        startLiveRefresh();
     }
+}
+
+function startLiveRefresh() {
+    if (liveRefreshTimer) {
+        return;
+    }
+
+    liveRefreshTimer = setInterval(function() {
+        getLocation();
+    }, LIVE_REFRESH_INTERVAL_MS);
 }
 
 function error(err) {
@@ -77,6 +100,66 @@ function updateProximityService(username, latitude, longitude) {
     })
     .catch(function(error) {
         console.error("Error updating proximity service:", error);
+    });
+}
+
+function getFriendsLocations(username, latitude, longitude) {
+    var radius = (typeof friendsRadiusKm !== 'undefined' && Number(friendsRadiusKm) > 0)
+        ? Number(friendsRadiusKm)
+        : DEFAULT_FRIENDS_RADIUS_KM;
+
+    fetch('/proximity/get_friends', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        credentials: 'same-origin',
+        body: JSON.stringify({
+            username: username,
+            latitude: latitude,
+            longitude: longitude,
+            radius: radius
+        })
+    })
+    .then(function(response) {
+        if (!response.ok) {
+            throw new Error('Failed to get friends list: ' + response.status);
+        }
+        return response.json();
+    })
+    .then(function(data) {
+        renderFriendMarkers(data && data.friends ? data.friends : []);
+    })
+    .catch(function(error) {
+        console.error('Error fetching friends locations:', error);
+        renderFriendMarkers([]);
+    });
+}
+
+function renderFriendMarkers(friends) {
+    if (!friendMarkersLayer) {
+        return;
+    }
+
+    friendMarkersLayer.clearLayers();
+
+    friends.forEach(function(friend) {
+        if (!friend || typeof friend.latitude !== 'number' || typeof friend.longitude !== 'number') {
+            return;
+        }
+
+        var marker = L.marker([friend.latitude, friend.longitude]);
+        var label = friend.username || 'friend';
+        marker.bindTooltip(label, {
+            permanent: true,
+            direction: 'top'
+        }).openTooltip();
+
+        if (typeof friend.distance === 'number') {
+            marker.bindPopup('Distance: ' + friend.distance.toFixed(2) + ' km');
+        }
+
+        marker.addTo(friendMarkersLayer);
     });
 }
 
