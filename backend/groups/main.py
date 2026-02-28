@@ -1,8 +1,10 @@
 import logging
+import os
 from fastapi import Depends, Request
 from fastapi import FastAPI, HTTPException
 from sqlalchemy import delete, insert, select, update
 from common.JWTSecurity import decode_and_verify
+from common.clients.client import get
 from common.db.structures.structures import Group as DBGroup, RequestTypes, Status, UserRequest
 from common.db.db import get_db
 from models import GroupCreate, Group, GroupInfoResponse, GroupsList, InviteResponse, ListInviteResponse, MessageResponse, GroupMembersList, GroupMemberInfo
@@ -11,6 +13,8 @@ logging.basicConfig(level=logging.INFO, format='[groups] %(asctime)s%(levelname)
 logger = logging.getLogger(__name__)
 
 app = FastAPI(root_path="/groups", title="groups_service")
+USER_INTERNAL_BASE = os.getenv("USER_INTERNAL_BASE", "http://user:8006")
+CIRCLES_INTERNAL_BASE = os.getenv("CIRCLES_INTERNAL_BASE", "http://circles:8002")
 
 def get_username_from_request(request: Request) -> str | None:
     token = request.cookies.get("access_token")
@@ -146,10 +150,8 @@ async def list_all_groups(request:Request):
         for group in result:
             groups.append(GroupInfoResponse(group_id=group.group_id, group_name=group.group_name, group_desc=group.group_desc, is_private=group.is_private, owner=group.owner))
         return GroupsList(group_list=groups)
-
-@app.get("/mygroups", response_model=GroupsList)
-async def my_groups(request: Request, authorized_user: str = Depends(get_username_from_request)):
-    logger.info("my_groups called")
+    
+def mine_own_groups(authorized_user: str) -> GroupsList:
     with get_db() as db:
         stmt = select(DBGroup).join(UserRequest, DBGroup.group_id == UserRequest.field3).where(
             UserRequest.field2 == authorized_user,
@@ -166,6 +168,23 @@ async def my_groups(request: Request, authorized_user: str = Depends(get_usernam
             if group not in groups:
                 groups.append(GroupInfoResponse(group_id=group.group_id, group_name=group.group_name, group_desc=group.group_desc, is_private=group.is_private, owner=group.owner))
         return GroupsList(group_list=groups)
+
+@app.get("/ownedgroups", response_model=GroupsList)
+async def owned_groups(request: Request, authorized_user: str = Depends(get_username_from_request)):
+    logger.info("owned_groups called")
+    with get_db() as db:
+        stmt = select(DBGroup).where(DBGroup.owner == authorized_user)
+        result = db.execute(stmt).scalars().all()
+        groups = []
+        for group in result:
+            groups.append(GroupInfoResponse(group_id=group.group_id, group_name=group.group_name, group_desc=group.group_desc, is_private=group.is_private, owner=group.owner))
+        return GroupsList(group_list=groups)
+
+@app.get("/mygroups", response_model=GroupsList)
+async def my_groups(request: Request, authorized_user: str = Depends(get_username_from_request)):
+    logger.info("my_groups called")
+    with get_db() as db:
+        return mine_own_groups(authorized_user)
 
 @app.get("/ismember/{group_id}/{user}", response_model=bool)
 async def is_member(request: Request, group_id: int, user: str):
@@ -485,3 +504,52 @@ async def user_is_invited(request: Request, group_id: int, authorized_user: str 
 async def user_is_requested(request: Request, group_id: int, authorized_user: str = Depends(get_username_from_request)):
     logger.info("user_is_requested called")
     return is_user_requested_to_join_group(authorized_user, group_id)
+
+@app.get("/friends_groups_exclusive", response_model=GroupsList)
+async def friends_groups(request: Request, authorized_user: str = Depends(get_username_from_request)):
+    logger.info("friends_groups called")
+    with get_db() as db:
+        mine_groups = mine_own_groups(authorized_user)
+        mine_groups_ids = set(group.group_id for group in mine_groups.group_list)
+        friends_data = await get(USER_INTERNAL_BASE, "friends", 
+                                   headers={"Cookie" : f"access_token={request.cookies.get('access_token')}"})
+        friends = friends_data.get("user_names", [])
+        groups = []
+        for friend in friends:
+            stmt = select(DBGroup).join(UserRequest, DBGroup.group_id == UserRequest.field3).where(
+                UserRequest.field2 == friend,
+                UserRequest.type == RequestTypes.GROUP_INVITE,
+                UserRequest.status == Status.ACCEPTED
+            )
+            result = db.execute(stmt).scalars().all()
+            for group in result:
+                if group.group_id not in mine_groups_ids:
+                    groups.append(GroupInfoResponse(group_id=group.group_id, group_name=group.group_name, group_desc=group.group_desc, is_private=group.is_private, owner=group.owner))
+        return GroupsList(group_list=groups)
+    
+@app.post("/invitecircle/{group_id}", response_model=MessageResponse)
+async def invite_circle(inbound: Request, group_id: int, authorized_user=Depends(get_username_from_request)) -> MessageResponse:
+    with get_db() as db:
+        circle_members_data = await get(CIRCLES_INTERNAL_BASE, "mycircle", 
+                                   headers={"Cookie" : f"access_token={inbound.cookies.get('access_token')}"})
+        circle_members = circle_members_data.get("user_names", [])
+        print(f"Inviting circle members: {circle_members} to group {group_id}")
+        for member in circle_members:
+            stmt = select(UserRequest).filter_by(
+                field2=member,
+                field3=group_id,
+                type=RequestTypes.GROUP_INVITE
+            )
+            result = db.scalars(stmt).all()
+            if not result:
+                stmt = insert(UserRequest).values(
+                    field1=authorized_user,
+                    field2=member,
+                    field3=group_id,
+                    type=RequestTypes.GROUP_INVITE,
+                    status=Status.PENDING
+                )
+                db.execute(stmt)
+        db.commit()
+        return MessageResponse(message=f"Invited your circle to this group!")
+    

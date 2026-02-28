@@ -661,12 +661,14 @@ async def decline_invite(request: Request, username: str, claims: dict = Depends
 @app.get("/groups", response_class=HTMLResponse)
 async def get_groups(request: Request, claims: dict = Depends(require_frontend_auth)):
     token = request.cookies.get("access_token")
+    owned_groups_data = await get(GROUPS_INTERNAL_BASE, "ownedgroups", headers={"Cookie" : f"access_token={token}"})
+    owned_groups = owned_groups_data.get("group_list", []) if owned_groups_data else []
     my_groups_data = await get(GROUPS_INTERNAL_BASE, "mygroups", headers={"Cookie" : f"access_token={token}"})
     my_groups = my_groups_data.get("group_list", []) if my_groups_data else []
-    all_groups_data = await get(GROUPS_INTERNAL_BASE, "list", headers={"Cookie" : f"access_token={token}"})
-    all_groups = all_groups_data.get("group_list", []) if all_groups_data else []
+    friends_groups_data = await get(GROUPS_INTERNAL_BASE, "friends_groups_exclusive", headers={"Cookie" : f"access_token={token}"})
+    friends_groups = friends_groups_data.get("group_list", []) if friends_groups_data else []
     return templates.TemplateResponse(
-        request=request, name="groups.html", context={"my_groups": my_groups, "all_groups": all_groups}
+        request=request, name="groups.html", context={"my_groups": my_groups, "friends_groups": friends_groups, "owned_groups": owned_groups}
     )
 
 @app.get("/groups/create_group", response_class=HTMLResponse)
