@@ -183,9 +183,16 @@ async def get_profile(request: Request, username: str = None, claims: dict = Dep
     authorized_user = claims.get("sub")
     user_details_data = await get(AUTH_INTERNAL_BASE, f"users/{username}" if username else "users/me", headers={"Cookie" : f"access_token={request.cookies.get('access_token')}"})
     user_details = user_details_data if user_details_data else None
+    
+    user_is_following = await get(USER_INTERNAL_BASE, f"is_following/{username}", headers={"Cookie" : f"access_token={request.cookies.get('access_token')}"})
+    
+    follow_request_sent= await get(USER_INTERNAL_BASE, f"follow_request_sent/{username}", headers={"Cookie" : f"access_token={request.cookies.get('access_token')}"})
+    
     return templates.TemplateResponse(
         request=request, name="profile.html", context={"authorized_user": authorized_user, 
-                                                       "user_details": user_details}
+                                                       "user_details": user_details,
+                                                       "user_is_following": user_is_following,
+                                                       "follow_request_sent": follow_request_sent}
     )
 
 @app.get("/change_details", response_class=HTMLResponse)
@@ -292,7 +299,7 @@ async def get_invites(request: Request, invite_type: str | None = "all", claims:
         event_invites = [{"id": event["id"], "title": event["title"]} for event in invited_events]
     if invite_type == "event_requests" or invite_type == "all":
         event_requests_data = await get(EVENTS_INTERNAL_BASE, "my_event_requests", headers={"Cookie" : f"access_token={token}"})
-        event_requests_raw = event_requests_data.get("requests", []) if event_requests_data is not None else []
+        event_requests_raw = event_requests_data.get("invites", []) if event_requests_data is not None else []
         event_requests = [{"id": req["event_id"], "title": req["title"], "username": req["username"]} for req in event_requests_raw]
     return templates.TemplateResponse(
         request=request, name="invites.html", context={"follow_requests": follow_requests, 
@@ -325,8 +332,6 @@ async def event_info(request: Request, event_id: int, claims: dict = Depends(req
         )
     event_name = event_info_data.get("title", "Unknown Event")
     event_host = event_info_data.get("host", "Unknown Host")
-    event_latitude = event_info_data.get("latitude", "Unknown Latitude")
-    event_longitude = event_info_data.get("longitude", "Unknown Longitude")
     event_start_time = "Unknown Start Time"
     event_end_time = "Unknown End Time"
     if isinstance(event_info_data.get("datetime_start"), str):
@@ -346,13 +351,18 @@ async def event_info(request: Request, event_id: int, claims: dict = Depends(req
 
     my_groups_data = await get(GROUPS_INTERNAL_BASE, "mygroups", headers={"Cookie" : f"access_token={token}"})
     my_groups = my_groups_data.get("group_list", []) if my_groups_data else []
-
+    
+    attendees_data = await get(EVENTS_INTERNAL_BASE, f"get_attendees/{event_id}", headers={"Cookie" : f"access_token={token}"})
+    attendees = attendees_data.get("lst", []) if attendees_data else []
+    
+    event_requests_data = await get(EVENTS_INTERNAL_BASE, "my_event_requests", headers={"Cookie" : f"access_token={token}"})
+    event_requests_raw = event_requests_data.get("invites", []) if event_requests_data is not None else []
+    event_requests = [{"id": req["event_id"], "title": req["title"], "username": req["username"]} for req in event_requests_raw]
+    
     return templates.TemplateResponse(
         request=request, name="event_info.html", context={"event_id": event_id,
                                                           "event_title": event_name, 
                                                           "event_host": event_host, 
-                                                          "event_latitude": event_latitude, 
-                                                          "event_longitude": event_longitude, 
                                                           "event_start_time": event_start_time, 
                                                           "event_end_time": event_end_time, 
                                                           "event_description": event_description,
@@ -361,7 +371,9 @@ async def event_info(request: Request, event_id: int, claims: dict = Depends(req
                                                           "is_invited": is_user_invited_pending,
                                                           "is_attending": is_user_attending,
                                                           "is_requested" : is_user_requested,
-                                                          "my_groups": my_groups}
+                                                          "my_groups": my_groups,
+                                                          "attendees": attendees,
+                                                          "pending_requests": event_requests}
     )
 
 @app.get("/events", response_class=HTMLResponse)
@@ -525,6 +537,12 @@ async def cancel_event(request: Request, event_id: int, claims: dict = Depends(r
 async def invite_circle_to_event(request: Request, event_id: int, claims: dict = Depends(require_frontend_auth)):
     token = request.cookies.get("access_token")
     await post(EVENTS_INTERNAL_BASE, f"invitecircle/{event_id}", headers={"Cookie" : f"access_token={token}"})
+    return RedirectResponse(url=f"/eventinfo/{event_id}", status_code=303)
+
+@app.get("/events/inviteallfriends/{event_id}/", response_class=HTMLResponse)
+async def invite_all_friends_to_event(request: Request, event_id: int, claims: dict = Depends(require_frontend_auth)):
+    token = request.cookies.get("access_token")
+    await post(EVENTS_INTERNAL_BASE, f"inviteallfriends/{event_id}", headers={"Cookie" : f"access_token={token}"})
     return RedirectResponse(url=f"/eventinfo/{event_id}", status_code=303)
 
 @app.get("/events/invite_group/{event_id}/{group_id}", response_class=HTMLResponse)

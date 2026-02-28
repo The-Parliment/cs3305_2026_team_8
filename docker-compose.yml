@@ -52,6 +52,7 @@ services:
     environment:
       - CIRCLES_INTERNAL_BASE=http://circles:8002
       - GROUPS_INTERNAL_BASE=http://groups:8003
+      - USER_INTERNAL_BASE=http://user:8006
     volumes:
       - ./common:/app/common
       

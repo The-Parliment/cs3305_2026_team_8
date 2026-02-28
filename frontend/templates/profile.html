@@ -3,11 +3,6 @@
 {% block main_content %}
 
 <main>
-    {% if authorized_user %}
-        <p>
-            Logged in as: {{ authorized_user }}
-        </p>
-    {% endif %}
     <h2>Profile Details</h2>
     {% if user_details %}
         <ul>
@@ -20,9 +15,9 @@
             {% if authorized_user == user_details["username"] %}
                 <a href="/change_details">Change Details</a>
             {% else %}
-                {% if user_is_following %}
+                {% if user_is_following|default(false) %}
                     <a href="/unfollow/{{ user_details['username'] }}">Unfollow</a>
-                {% elif follow_request_sent %}
+                {% elif follow_request_sent|default(false) %}
                     <a href="/withdraw/{{ user_details['username'] }}">Cancel Follow Request</a>
                 {% else %}
                     <a href="/follow/{{ user_details['username'] }}">Follow</a>
