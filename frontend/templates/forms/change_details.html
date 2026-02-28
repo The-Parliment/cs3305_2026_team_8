@@ -2,34 +2,37 @@
 
 {% block main_content %}
 
-<main>
+<main id="main">
+    <header>
+        <h1>Change Details</h1>
+    </header>
     <form action="" method="POST" novalidate>
 
-        {{ form.first_name.label }}
+        <p>{{ form.first_name.label }}</p>
         {{ form.first_name() }}
-        <br/>
+        <br />
 
-        {{ form.last_name.label }}
+        <p>{{ form.last_name.label }}</p>
         {{ form.last_name() }}
-        <br/>
-        
-        {{ form.email.label }}
+        <br />
+
+        <p>{{ form.email.label }}</p>
         {{ form.email() }}
-        <br/>
-        
-        {{ form.phone_number.label }}
+        <br />
+
+        <p>{{ form.phone_number.label }}</p>
         {{ form.phone_number() }}
-        <br/>
-        
+        <br />
+
         {% if form.form_errors %}
-            <ul class="error-list">
-                {% for error in form.form_errors %}
-                    <li>{{ error }}</li>
-                {% endfor %}
-            </ul>
+        <ul class="error-list">
+            {% for error in form.form_errors %}
+            <li>{{ error }}</li>
+            {% endfor %}
+        </ul>
         {% endif %}
-        
-        {{ form.submit() }}
+
+        <p>{{ form.submit() }}</p>
     </form>
 </main>
 

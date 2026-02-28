@@ -2,7 +2,7 @@
 
 {% block main_content %}
 
-<main>
+<main id="main">
     <div id="map"></div>
         {% if display_map|default(false) %}
             <script type="text/javascript">
@@ -12,6 +12,7 @@
             </script>
             <script type="text/javascript" src="/static/js/map.js"></script>
         {% endif %}
+    <img src="../static/images/logo.png" id="logo" alt="go club" style="max-width: none;width:40em;height:25em;">
 </main>
 
 {% endblock %}

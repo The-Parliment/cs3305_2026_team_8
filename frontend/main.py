@@ -19,6 +19,7 @@ CIRCLES_INTERNAL_BASE = os.getenv("CIRCLES_INTERNAL_BASE", "http://circles:8002"
 GROUPS_INTERNAL_BASE = os.getenv("GROUPS_INTERNAL_BASE", "http://groups:8003")
 EVENTS_INTERNAL_BASE = os.getenv("EVENTS_INTERNAL_BASE", "http://events:8005")
 USER_INTERNAL_BASE = os.getenv("USER_INTERNAL_BASE", "http://user:8005")
+EVENTS_INTERNAL_BASE = os.getenv("EVENTS_INTERNAL_BASE", "http://events:8005")
 
 app = FastAPI(title="frontend_service")
 init_db()
@@ -56,6 +57,16 @@ def require_frontend_auth(request: Request) -> dict:
             status_code=status.HTTP_303_SEE_OTHER,
             headers={"Location": f"/login?next={request.url.path}"}
         )
+    
+def is_logged_in(request: Request) -> bool | None:
+    token = request.cookies.get("access_token")
+    if not token:
+        return False
+    try:
+        claims = decode_and_verify(token, expected_type="access")
+        return (claims is not None)
+    except Exception as e:
+        return False
 
 @app.get("/", response_class=HTMLResponse)
 @app.get("/home", response_class=HTMLResponse)
@@ -663,3 +674,46 @@ async def decline_group_invite(request: Request, group_id: str, claims: dict = D
     # TODO: Implement group invite decline on backend
     # For now, just redirect back
     return RedirectResponse(url=referer, status_code=303)
+
+@app.get("/withdraw/{username}")
+async def withdraw_follow(request: Request, username: str, claims: dict = Depends(require_frontend_auth)):
+    token = request.cookies.get("access_token")
+    referer = request.headers.get("referer", "/")
+    authorized_user = claims.get("sub")
+    await post(USER_INTERNAL_BASE, "withdraw_follow_request", headers={"Cookie" : f"access_token={token}"}, 
+                                             json={"inviter": authorized_user, "invitee": username}
+                                             )
+    return RedirectResponse(url=referer, status_code=303)
+
+# Invites
+
+@app.get("/invites", response_class=HTMLResponse)
+@app.get("/invites/{invite_type}", response_class=HTMLResponse)
+async def get_invites(request: Request, invite_type: str | None = "all", claims: dict = Depends(require_frontend_auth)):
+    token = request.cookies.get("access_token")
+    if not invite_type:
+        invite_type = "all"
+    if invite_type not in ["follow_requests", "circle_invites", "group_invites", "event_invites", "all"]:
+        invite_type = "all"
+    follow_requests = []
+    circle_invites = []
+    group_invites = []
+    event_invites = []
+    if invite_type == "follow_requests" or invite_type == "all":
+        follow_request_data = await get(USER_INTERNAL_BASE, "get_follow_requests_received", headers={"Cookie" : f"access_token={token}"})
+        follow_requests = follow_request_data.get("user_names", []) if follow_request_data is not None else []
+    if invite_type == "circle_invites" or invite_type == "all":
+        circle_invites_data = await get(CIRCLES_INTERNAL_BASE, "get_invites", headers={"Cookie" : f"access_token={token}"})
+        circle_invites = circle_invites_data.get("user_names", []) if circle_invites_data is not None else []
+    if invite_type == "group_invites" or invite_type == "all":
+        group_invites_data = [] # await get(GROUP_INTERNAL_BASE, "get_group_invites", headers={"Cookie" : f"access_token={token}"})
+        group_invites = [] #group_invites_data.get("group_names", []) if group_invites_data is not None else []
+    if invite_type == "event_invites" or invite_type == "all":
+        event_invites_data = [] #await get(EVENTS_INTERNAL_BASE, "get_invites", headers={"Cookie" : f"access_token={token}"})
+        event_invites = [] #event_invites_data.get("event_names", []) if event_invites_data is not None else []
+    return templates.TemplateResponse(
+        request=request, name="invites.html", context={"follow_requests": follow_requests, 
+                                                       "circle_invites": circle_invites, 
+                                                       "group_invites": group_invites, 
+                                                       "event_invites": event_invites}
+    )
