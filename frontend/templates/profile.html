@@ -16,9 +16,19 @@
             <li>Email: {{ user_details["email"] }}</li>
             <li>Phone Number: {{ user_details["phone_number"] }}</li>
         </ul>
-        {% if authorized_user == user_details["username"] %}
-            <a href="/change_details">Change Details</a>
-        {% endif %}
+        <div id="status">
+            {% if authorized_user == user_details["username"] %}
+                <a href="/change_details">Change Details</a>
+            {% else %}
+                {% if user_is_following %}
+                    <a href="/unfollow/{{ user_details['username'] }}">Unfollow</a>
+                {% elif follow_request_sent %}
+                    <a href="/withdraw/{{ user_details['username'] }}">Cancel Follow Request</a>
+                {% else %}
+                    <a href="/follow/{{ user_details['username'] }}">Follow</a>
+                {% endif %}
+            {% endif %}
+        </div>
     {% else %}
         <p>No profile details available.</p>
     {% endif %}

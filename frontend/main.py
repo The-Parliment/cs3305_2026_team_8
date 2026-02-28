@@ -578,6 +578,16 @@ async def follow_user(request: Request, username: str, claims: dict = Depends(re
                                              json={"inviter": this_user, "invitee": username}
                                              )
     return RedirectResponse(url=referer, status_code=303)
+    
+@app.get("/unfollow/{username}")
+async def unfollow_user(request: Request, username: str, claims: dict = Depends(require_frontend_auth)):
+    token = request.cookies.get("access_token")
+    referer = request.headers.get("referer", "/")
+    this_user = claims.get("sub")
+    await post(USER_INTERNAL_BASE, "unfollow", headers={"Cookie" : f"access_token={token}"}, 
+                                             json={"inviter": this_user, "invitee": username}
+                                             )
+    return RedirectResponse(url=referer, status_code=303)
 
 @app.get("/accept_follow/{username}")
 async def accept_follow(request: Request, username: str, claims: dict = Depends(require_frontend_auth)):
