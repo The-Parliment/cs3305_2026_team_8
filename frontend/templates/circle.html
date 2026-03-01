@@ -3,13 +3,16 @@
 {% block main_content %}
 
 <main id="main">
-    <h2>My Circle</h2>
+    <header>
+        <h1>My Circle</h1>
+    </header>
+    <h2>Friends in my circle</h2>
     <ul>
         {% for user in circle %}
-            <li>{{ user }} - <a href="/circle/remove_from_circle/{{ user }}">Remove</a></li>
+            <li>{{ user }} <a href="/circle/remove_from_circle/{{ user }}" class="remove">Remove</a></li>
         {% endfor %}
     </ul>
-    <h2>Friends not in circle</h2>
+    <h3>Friends not in circle</h3>
     <ul>
         {% for friend in friends %}
             {% if friend not in circle %}
@@ -23,7 +26,7 @@
             {% endif %}
         {% endfor %}
     </ul>
-    <h2>Pending Invitations</h2>
+    <h3>Pending Invitations</h3>
     <ul>
         {% for user in pending_invites %}
             <li>{{ user }} - <a href="/circle/accept/{{ user }}">Accept</a> | <a href="/circle/decline/{{ user }}">Decline</a></li>
