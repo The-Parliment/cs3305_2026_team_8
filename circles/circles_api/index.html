@@ -10,7 +10,7 @@
 <link href="../../auth/auth_design/" rel="prev"/>
 <link href="../circles_design/" rel="next"/>
 <link href="../../assets/images/favicon.png" rel="icon"/>
-<meta content="mkdocs-1.6.1, mkdocs-material-9.7.1" name="generator"/>
+<meta content="mkdocs-1.6.1, mkdocs-material-9.7.3" name="generator"/>
 <title>API Reference - GoClub Technical Documentation</title>
 <link href="../../assets/stylesheets/main.484c7ddc.min.css" rel="stylesheet"/>
 <link href="../../assets/stylesheets/palette.ab4e12ef.min.css" rel="stylesheet"/>
@@ -110,47 +110,20 @@
         </a>
 </li>
 <li class="md-tabs__item">
-<a class="md-tabs__link" href="../../auth/auth_api/">
+<a class="md-tabs__link" href="../../UserManagment/">
           
   
   
-  Auth Service
+  Core Concepts
 
         </a>
 </li>
 <li class="md-tabs__item md-tabs__item--active">
-<a class="md-tabs__link" href="./">
+<a class="md-tabs__link" href="../../auth/auth_api/">
           
   
   
-  Circle Service
-
-        </a>
-</li>
-<li class="md-tabs__item">
-<a class="md-tabs__link" href="../../events/events_api/">
-          
-  
-  
-  Events Service
-
-        </a>
-</li>
-<li class="md-tabs__item">
-<a class="md-tabs__link" href="../../groups/groups_api/">
-          
-  
-  
-  Groups Service
-
-        </a>
-</li>
-<li class="md-tabs__item">
-<a class="md-tabs__link" href="../../proximity/proximity_api/">
-          
-  
-  
-  Proximity Service
+  Services
 
         </a>
 </li>
@@ -252,7 +225,7 @@
 <span class="md-ellipsis">
     
   
-    Auth Service
+    Core Concepts
   
 
     
@@ -264,7 +237,92 @@
 <span class="md-nav__icon md-icon"></span>
             
   
-    Auth Service
+    Core Concepts
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../UserManagment/">
+<span class="md-ellipsis">
+    
+  
+    User Management
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../request_table/">
+<span class="md-ellipsis">
+    
+  
+    The requests Table
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../common_lib/">
+<span class="md-ellipsis">
+    
+  
+    Common Library
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_4" type="checkbox"/>
+<label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+<span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_4_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_4">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Services
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item md-nav__item--section md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_4_1" type="checkbox"/>
+<label class="md-nav__link" for="__nav_4_1" id="__nav_4_1_label" tabindex="">
+<span class="md-ellipsis">
+    
+  
+    Auth
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_4_1_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_4_1">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Auth
   
 
           </label>
@@ -286,7 +344,7 @@
 <span class="md-ellipsis">
     
   
-    User Management
+    Design
   
 
     
@@ -297,24 +355,24 @@
 </nav>
 </li>
 <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
-<input checked="" class="md-nav__toggle md-toggle" id="__nav_4" type="checkbox"/>
-<label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_4_2" type="checkbox"/>
+<label class="md-nav__link" for="__nav_4_2" id="__nav_4_2_label" tabindex="">
 <span class="md-ellipsis">
     
   
-    Circle Service
+    Circles
   
 
     
   </span>
 <span class="md-nav__icon md-icon"></span>
 </label>
-<nav aria-expanded="true" aria-labelledby="__nav_4_label" class="md-nav" data-md-level="1">
-<label class="md-nav__title" for="__nav_4">
+<nav aria-expanded="true" aria-labelledby="__nav_4_2_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_4_2">
 <span class="md-nav__icon md-icon"></span>
             
   
-    Circle Service
+    Circles
   
 
           </label>
@@ -349,10 +407,28 @@
     </label>
 <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
 <li class="md-nav__item">
+<a class="md-nav__link" href="#authentication">
+<span class="md-ellipsis">
+      
+        Authentication
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
 <a class="md-nav__link" href="#endpoints">
 <span class="md-ellipsis">
       
         Endpoints
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#endpoint-notes">
+<span class="md-ellipsis">
+      
+        Endpoint Notes
       
     </span>
 </a>
@@ -374,7 +450,7 @@
 <span class="md-ellipsis">
     
   
-    Circle Design
+    Design
   
 
     
@@ -384,75 +460,25 @@
 </ul>
 </nav>
 </li>
-<li class="md-nav__item md-nav__item--nested">
-<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_5" type="checkbox"/>
-<label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+<li class="md-nav__item md-nav__item--section md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_4_3" type="checkbox"/>
+<label class="md-nav__link" for="__nav_4_3" id="__nav_4_3_label" tabindex="">
 <span class="md-ellipsis">
     
   
-    Events Service
+    Groups
   
 
     
   </span>
 <span class="md-nav__icon md-icon"></span>
 </label>
-<nav aria-expanded="false" aria-labelledby="__nav_5_label" class="md-nav" data-md-level="1">
-<label class="md-nav__title" for="__nav_5">
+<nav aria-expanded="false" aria-labelledby="__nav_4_3_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_4_3">
 <span class="md-nav__icon md-icon"></span>
             
   
-    Events Service
-  
-
-          </label>
-<ul class="md-nav__list" data-md-scrollfix="">
-<li class="md-nav__item">
-<a class="md-nav__link" href="../../events/events_api/">
-<span class="md-ellipsis">
-    
-  
-    API Reference
-  
-
-    
-  </span>
-</a>
-</li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="../../events/events_design/">
-<span class="md-ellipsis">
-    
-  
-    Events Design
-  
-
-    
-  </span>
-</a>
-</li>
-</ul>
-</nav>
-</li>
-<li class="md-nav__item md-nav__item--nested">
-<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_6" type="checkbox"/>
-<label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
-<span class="md-ellipsis">
-    
-  
-    Groups Service
-  
-
-    
-  </span>
-<span class="md-nav__icon md-icon"></span>
-</label>
-<nav aria-expanded="false" aria-labelledby="__nav_6_label" class="md-nav" data-md-level="1">
-<label class="md-nav__title" for="__nav_6">
-<span class="md-nav__icon md-icon"></span>
-            
-  
-    Groups Service
+    Groups
   
 
           </label>
@@ -474,7 +500,7 @@
 <span class="md-ellipsis">
     
   
-    Groups Design
+    Design
   
 
     
@@ -484,25 +510,75 @@
 </ul>
 </nav>
 </li>
-<li class="md-nav__item md-nav__item--nested">
-<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_7" type="checkbox"/>
-<label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+<li class="md-nav__item md-nav__item--section md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_4_4" type="checkbox"/>
+<label class="md-nav__link" for="__nav_4_4" id="__nav_4_4_label" tabindex="">
 <span class="md-ellipsis">
     
   
-    Proximity Service
+    Events
   
 
     
   </span>
 <span class="md-nav__icon md-icon"></span>
 </label>
-<nav aria-expanded="false" aria-labelledby="__nav_7_label" class="md-nav" data-md-level="1">
-<label class="md-nav__title" for="__nav_7">
+<nav aria-expanded="false" aria-labelledby="__nav_4_4_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_4_4">
 <span class="md-nav__icon md-icon"></span>
             
   
-    Proximity Service
+    Events
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../events/events_api/">
+<span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../events/events_design/">
+<span class="md-ellipsis">
+    
+  
+    Design
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--section md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_4_5" type="checkbox"/>
+<label class="md-nav__link" for="__nav_4_5" id="__nav_4_5_label" tabindex="">
+<span class="md-ellipsis">
+    
+  
+    Proximity
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_4_5_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_4_5">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Proximity
   
 
           </label>
@@ -524,12 +600,15 @@
 <span class="md-ellipsis">
     
   
-    Proximity Design
+    Design
   
 
     
   </span>
 </a>
+</li>
+</ul>
+</nav>
 </li>
 </ul>
 </nav>
@@ -549,10 +628,28 @@
     </label>
 <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
 <li class="md-nav__item">
+<a class="md-nav__link" href="#authentication">
+<span class="md-ellipsis">
+      
+        Authentication
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
 <a class="md-nav__link" href="#endpoints">
 <span class="md-ellipsis">
       
         Endpoints
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#endpoint-notes">
+<span class="md-ellipsis">
+      
+        Endpoint Notes
       
     </span>
 </a>
@@ -582,9 +679,16 @@
 </a>
 </li>
 <li class="md-path__item">
+<a class="md-path__link" href="../../auth/auth_api/">
+<span class="md-ellipsis">
+    Services
+  </span>
+</a>
+</li>
+<li class="md-path__item">
 <a class="md-path__link" href="./">
 <span class="md-ellipsis">
-    Circle Service
+    Circles
   </span>
 </a>
 </li>
@@ -592,18 +696,18 @@
 </nav>
 <article class="md-content__inner md-typeset">
 <h1 id="circle-service">Circle Service<a class="headerlink" href="#circle-service" title="Permanent link">¶</a></h1>
-<p>The concept of a circle, is a grouping of users(people), Which is tightly controlled, e.g. a friendgroup.
-For simplicity we will assume a user can only be <strong>ONE</strong> circle.
-The pier <em>GROUP SERVICE</em> will allow users to join multiple groupings of individuals.</p>
-<p><strong>Base path:</strong> <code>/circles</code>
+<p>A circle is a small, invitation-based group of users — think a close friend group. For simplicity, a user can only belong to <strong>one</strong> circle. The peer Group Service handles larger, multi-membership groupings.</p>
+<p><strong>Base path:</strong> <code>/circles</code><br/>
 <strong>Port:</strong> 8002 (internal)</p>
+<h2 id="authentication">Authentication<a class="headerlink" href="#authentication" title="Permanent link">¶</a></h2>
+<p>Endpoints that act on the authenticated user read identity from the <code>access_token</code> cookie. Endpoints that take explicit <code>inviter</code>/<code>invitee</code> in the request body do not enforce an auth guard.</p>
 <h2 id="endpoints">Endpoints<a class="headerlink" href="#endpoints" title="Permanent link">¶</a></h2>
 <table>
 <thead>
 <tr>
 <th>Method</th>
-<th>Endpoints</th>
-<th>Request Body/Query Params</th>
+<th>Endpoint</th>
+<th>Request Body</th>
 <th>Response</th>
 </tr>
 </thead>
@@ -611,58 +715,60 @@ The pier <em>GROUP SERVICE</em> will allow users to join multiple groupings of i
 <tr>
 <td>POST</td>
 <td><code>/invite</code></td>
-<td><strong>Head:</strong> <code>Authorization</code> <strong>Body:</strong> <code>inviter, invitee</code></td>
+<td><code>inviter, invitee</code></td>
 <td><code>message</code></td>
 </tr>
 <tr>
 <td>GET</td>
 <td><code>/get_invites</code></td>
-<td><strong>Head:</strong> <code>Authorization</code></td>
-<td>Array of: <code>inviter_usernames</code></td>
+<td>—</td>
+<td><code>user_names[]</code></td>
 </tr>
 <tr>
 <td>GET</td>
 <td><code>/get_invites_sent</code></td>
-<td><strong>Head:</strong> <code>Authorization</code></td>
-<td>Array of: <code>inviter_usernames</code></td>
+<td>—</td>
+<td><code>user_names[]</code></td>
 </tr>
 <tr>
 <td>POST</td>
 <td><code>/accept</code></td>
-<td><strong>Head:</strong> <code>Authorization</code> <strong>Body:</strong> <code>inviter, invitee</code></td>
+<td><code>inviter, invitee</code></td>
 <td><code>message</code></td>
 </tr>
 <tr>
 <td>POST</td>
 <td><code>/decline</code></td>
-<td><strong>Head:</strong> <code>Authorization</code> <strong>Body:</strong> <code>inviter, invitee</code></td>
+<td><code>inviter, invitee</code></td>
 <td><code>message</code></td>
 </tr>
 <tr>
 <td>GET</td>
 <td><code>/mycircle</code></td>
-<td><strong>Head:</strong> <code>Authorization</code></td>
-<td>Array of: <code>invitee_usernames</code></td>
+<td>—</td>
+<td><code>user_names[]</code></td>
 </tr>
 <tr>
 <td>POST</td>
 <td><code>/remove</code></td>
-<td><strong>Head:</strong> <code>Authorization</code> <strong>Body:</strong> <code>inviter, invitee</code></td>
+<td><code>inviter, invitee</code></td>
 <td><code>message</code></td>
 </tr>
 </tbody>
 </table>
+<h2 id="endpoint-notes">Endpoint Notes<a class="headerlink" href="#endpoint-notes" title="Permanent link">¶</a></h2>
+<p><strong><code>GET /get_invites</code></strong> — returns the usernames of everyone who has sent the authenticated user a pending circle invite.</p>
+<p><strong><code>GET /get_invites_sent</code></strong> — returns the usernames of everyone the authenticated user has invited who hasn't responded yet.</p>
+<p><strong><code>GET /mycircle</code></strong> — returns the usernames of everyone whose invite the authenticated user has accepted, i.e. the members of their circle.</p>
+<p><strong><code>POST /decline</code> and <code>POST /remove</code></strong> — both hard-delete the row from the database rather than transitioning to a <code>DECLINED</code> or <code>REMOVED</code> status. There is no record of the invite after either action.</p>
 <h2 id="state-machine">State Machine<a class="headerlink" href="#state-machine" title="Permanent link">¶</a></h2>
 <pre class="mermaid"><code>stateDiagram-v2
-    [*] --&gt; PENDING : send_invite
+    [*] --&gt; PENDING : POST /invite
 
-    PENDING --&gt; ACCEPTED : accept
-    PENDING --&gt; DECLINED : decline
+    PENDING --&gt; ACCEPTED : POST /accept
+    PENDING --&gt; [*] : POST /decline (row deleted)
 
-    ACCEPTED --&gt; REMOVED : remove
-
-    DECLINED --&gt; [*]
-    REMOVED --&gt; [*]</code></pre>
+    ACCEPTED --&gt; [*] : POST /remove (row deleted)</code></pre>
 </article>
 </div>
 <script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
@@ -692,6 +798,5 @@ The pier <em>GROUP SERVICE</em> will allow users to join multiple groupings of i
 </div>
 <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.expand", "navigation.path", "navigation.top", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
 <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
-<script src="https://unpkg.com/mermaid@10/dist/mermaid.min.js"></script>
 </body>
 </html>

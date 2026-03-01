@@ -7,9 +7,11 @@
 <meta content="width=device-width,initial-scale=1" name="viewport"/>
 <meta content="Social Networking Microservices Platform - Technical Documentation" name="description"/>
 <meta content="Parliament Team" name="author"/>
+<link href="../Directory_structrure/" rel="prev"/>
+<link href="../request_table/" rel="next"/>
 <link href="../assets/images/favicon.png" rel="icon"/>
-<meta content="mkdocs-1.6.1, mkdocs-material-9.7.1" name="generator"/>
-<title>UserManagment - GoClub Technical Documentation</title>
+<meta content="mkdocs-1.6.1, mkdocs-material-9.7.3" name="generator"/>
+<title>User Management - GoClub Technical Documentation</title>
 <link href="../assets/stylesheets/main.484c7ddc.min.css" rel="stylesheet"/>
 <link href="../assets/stylesheets/palette.ab4e12ef.min.css" rel="stylesheet"/>
 <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
@@ -22,6 +24,9 @@
 <input autocomplete="off" class="md-toggle" data-md-toggle="search" id="__search" type="checkbox"/>
 <label class="md-overlay" for="__drawer"></label>
 <div data-md-component="skip">
+<a class="md-skip" href="#user-management">
+          Skip to content
+        </a>
 </div>
 <div data-md-component="announce">
 </div>
@@ -43,7 +48,7 @@
 <div class="md-header__topic" data-md-component="header-topic">
 <span class="md-ellipsis">
             
-              UserManagment
+              User Management
             
           </span>
 </div>
@@ -104,48 +109,21 @@
 
         </a>
 </li>
+<li class="md-tabs__item md-tabs__item--active">
+<a class="md-tabs__link" href="./">
+          
+  
+  
+  Core Concepts
+
+        </a>
+</li>
 <li class="md-tabs__item">
 <a class="md-tabs__link" href="../auth/auth_api/">
           
   
   
-  Auth Service
-
-        </a>
-</li>
-<li class="md-tabs__item">
-<a class="md-tabs__link" href="../circles/circles_api/">
-          
-  
-  
-  Circle Service
-
-        </a>
-</li>
-<li class="md-tabs__item">
-<a class="md-tabs__link" href="../events/events_api/">
-          
-  
-  
-  Events Service
-
-        </a>
-</li>
-<li class="md-tabs__item">
-<a class="md-tabs__link" href="../groups/groups_api/">
-          
-  
-  
-  Groups Service
-
-        </a>
-</li>
-<li class="md-tabs__item">
-<a class="md-tabs__link" href="../proximity/proximity_api/">
-          
-  
-  
-  Proximity Service
+  Services
 
         </a>
 </li>
@@ -241,25 +219,184 @@
 </ul>
 </nav>
 </li>
-<li class="md-nav__item md-nav__item--nested">
-<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_3" type="checkbox"/>
-<label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+<li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_3" type="checkbox"/>
+<label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
 <span class="md-ellipsis">
     
   
-    Auth Service
+    Core Concepts
   
 
     
   </span>
 <span class="md-nav__icon md-icon"></span>
 </label>
-<nav aria-expanded="false" aria-labelledby="__nav_3_label" class="md-nav" data-md-level="1">
+<nav aria-expanded="true" aria-labelledby="__nav_3_label" class="md-nav" data-md-level="1">
 <label class="md-nav__title" for="__nav_3">
 <span class="md-nav__icon md-icon"></span>
             
   
-    Auth Service
+    Core Concepts
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item md-nav__item--active">
+<input class="md-nav__toggle md-toggle" id="__toc" type="checkbox"/>
+<label class="md-nav__link md-nav__link--active" for="__toc">
+<span class="md-ellipsis">
+    
+  
+    User Management
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<a class="md-nav__link md-nav__link--active" href="./">
+<span class="md-ellipsis">
+    
+  
+    User Management
+  
+
+    
+  </span>
+</a>
+<nav aria-label="Table of contents" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#the-user-lifecycle">
+<span class="md-ellipsis">
+      
+        The User Lifecycle
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#identity-username-is-the-universal-key">
+<span class="md-ellipsis">
+      
+        Identity — username is the Universal Key
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#the-two-table-user-model">
+<span class="md-ellipsis">
+      
+        The Two-Table User Model
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#jwt-tokens">
+<span class="md-ellipsis">
+      
+        JWT Tokens
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#follows-and-friends">
+<span class="md-ellipsis">
+      
+        Follows and Friends
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#how-identity-propagates-across-services">
+<span class="md-ellipsis">
+      
+        How Identity Propagates Across Services
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../request_table/">
+<span class="md-ellipsis">
+    
+  
+    The requests Table
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../common_lib/">
+<span class="md-ellipsis">
+    
+  
+    Common Library
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_4" type="checkbox"/>
+<label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_4_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_4">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Services
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_4_1" type="checkbox"/>
+<label class="md-nav__link" for="__nav_4_1" id="__nav_4_1_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Auth
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_4_1_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_4_1">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Auth
   
 
           </label>
@@ -281,7 +418,7 @@
 <span class="md-ellipsis">
     
   
-    User Management
+    Design
   
 
     
@@ -292,24 +429,24 @@
 </nav>
 </li>
 <li class="md-nav__item md-nav__item--nested">
-<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_4" type="checkbox"/>
-<label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_4_2" type="checkbox"/>
+<label class="md-nav__link" for="__nav_4_2" id="__nav_4_2_label" tabindex="0">
 <span class="md-ellipsis">
     
   
-    Circle Service
+    Circles
   
 
     
   </span>
 <span class="md-nav__icon md-icon"></span>
 </label>
-<nav aria-expanded="false" aria-labelledby="__nav_4_label" class="md-nav" data-md-level="1">
-<label class="md-nav__title" for="__nav_4">
+<nav aria-expanded="false" aria-labelledby="__nav_4_2_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_4_2">
 <span class="md-nav__icon md-icon"></span>
             
   
-    Circle Service
+    Circles
   
 
           </label>
@@ -331,7 +468,7 @@
 <span class="md-ellipsis">
     
   
-    Circle Design
+    Design
   
 
     
@@ -342,74 +479,24 @@
 </nav>
 </li>
 <li class="md-nav__item md-nav__item--nested">
-<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_5" type="checkbox"/>
-<label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_4_3" type="checkbox"/>
+<label class="md-nav__link" for="__nav_4_3" id="__nav_4_3_label" tabindex="0">
 <span class="md-ellipsis">
     
   
-    Events Service
+    Groups
   
 
     
   </span>
 <span class="md-nav__icon md-icon"></span>
 </label>
-<nav aria-expanded="false" aria-labelledby="__nav_5_label" class="md-nav" data-md-level="1">
-<label class="md-nav__title" for="__nav_5">
+<nav aria-expanded="false" aria-labelledby="__nav_4_3_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_4_3">
 <span class="md-nav__icon md-icon"></span>
             
   
-    Events Service
-  
-
-          </label>
-<ul class="md-nav__list" data-md-scrollfix="">
-<li class="md-nav__item">
-<a class="md-nav__link" href="../events/events_api/">
-<span class="md-ellipsis">
-    
-  
-    API Reference
-  
-
-    
-  </span>
-</a>
-</li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="../events/events_design/">
-<span class="md-ellipsis">
-    
-  
-    Events Design
-  
-
-    
-  </span>
-</a>
-</li>
-</ul>
-</nav>
-</li>
-<li class="md-nav__item md-nav__item--nested">
-<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_6" type="checkbox"/>
-<label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
-<span class="md-ellipsis">
-    
-  
-    Groups Service
-  
-
-    
-  </span>
-<span class="md-nav__icon md-icon"></span>
-</label>
-<nav aria-expanded="false" aria-labelledby="__nav_6_label" class="md-nav" data-md-level="1">
-<label class="md-nav__title" for="__nav_6">
-<span class="md-nav__icon md-icon"></span>
-            
-  
-    Groups Service
+    Groups
   
 
           </label>
@@ -431,7 +518,7 @@
 <span class="md-ellipsis">
     
   
-    Groups Design
+    Design
   
 
     
@@ -442,24 +529,74 @@
 </nav>
 </li>
 <li class="md-nav__item md-nav__item--nested">
-<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_7" type="checkbox"/>
-<label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_4_4" type="checkbox"/>
+<label class="md-nav__link" for="__nav_4_4" id="__nav_4_4_label" tabindex="0">
 <span class="md-ellipsis">
     
   
-    Proximity Service
+    Events
   
 
     
   </span>
 <span class="md-nav__icon md-icon"></span>
 </label>
-<nav aria-expanded="false" aria-labelledby="__nav_7_label" class="md-nav" data-md-level="1">
-<label class="md-nav__title" for="__nav_7">
+<nav aria-expanded="false" aria-labelledby="__nav_4_4_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_4_4">
 <span class="md-nav__icon md-icon"></span>
             
   
-    Proximity Service
+    Events
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../events/events_api/">
+<span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../events/events_design/">
+<span class="md-ellipsis">
+    
+  
+    Design
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_4_5" type="checkbox"/>
+<label class="md-nav__link" for="__nav_4_5" id="__nav_4_5_label" tabindex="0">
+<span class="md-ellipsis">
+    
+  
+    Proximity
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_4_5_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_4_5">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Proximity
   
 
           </label>
@@ -481,12 +618,15 @@
 <span class="md-ellipsis">
     
   
-    Proximity Design
+    Design
   
 
     
   </span>
 </a>
+</li>
+</ul>
+</nav>
 </li>
 </ul>
 </nav>
@@ -500,13 +640,188 @@
 <div class="md-sidebar__scrollwrap">
 <div class="md-sidebar__inner">
 <nav aria-label="Table of contents" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#the-user-lifecycle">
+<span class="md-ellipsis">
+      
+        The User Lifecycle
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#identity-username-is-the-universal-key">
+<span class="md-ellipsis">
+      
+        Identity — username is the Universal Key
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#the-two-table-user-model">
+<span class="md-ellipsis">
+      
+        The Two-Table User Model
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#jwt-tokens">
+<span class="md-ellipsis">
+      
+        JWT Tokens
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#follows-and-friends">
+<span class="md-ellipsis">
+      
+        Follows and Friends
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#how-identity-propagates-across-services">
+<span class="md-ellipsis">
+      
+        How Identity Propagates Across Services
+      
+    </span>
+</a>
+</li>
+</ul>
 </nav>
 </div>
 </div>
 </div>
 <div class="md-content" data-md-component="content">
+<nav aria-label="Navigation" class="md-path">
+<ol class="md-path__list">
+<li class="md-path__item">
+<a class="md-path__link" href="..">
+<span class="md-ellipsis">
+    Home
+  </span>
+</a>
+</li>
+<li class="md-path__item">
+<a class="md-path__link" href="./">
+<span class="md-ellipsis">
+    Core Concepts
+  </span>
+</a>
+</li>
+</ol>
+</nav>
 <article class="md-content__inner md-typeset">
-<h1>UserManagment</h1>
+<h1 id="user-management">User Management<a class="headerlink" href="#user-management" title="Permanent link">¶</a></h1>
+<p>This document explains how identity and user relationships work across GoClub as a whole. For endpoint-level detail see the <a href="../auth/auth_api/">Auth API</a> and its <a href="../auth/auth_design/">design doc</a>.</p>
+<h2 id="the-user-lifecycle">The User Lifecycle<a class="headerlink" href="#the-user-lifecycle" title="Permanent link">¶</a></h2>
+<pre class="mermaid"><code>sequenceDiagram
+    actor User
+    participant FE as frontend
+    participant Auth as auth_service
+    participant DB as PostgreSQL
+
+    User-&gt;&gt;FE: Fills in register form
+    FE-&gt;&gt;Auth: POST /auth/register {username, password, email, phone_number}
+    Auth-&gt;&gt;DB: INSERT into users (username, hashed_password)
+    Auth-&gt;&gt;DB: INSERT into user_details (username, email, phone_number, ...)
+    Auth--&gt;&gt;FE: {message, valid}
+    FE--&gt;&gt;User: Redirects to login
+
+    User-&gt;&gt;FE: Fills in login form
+    FE-&gt;&gt;Auth: POST /auth/login {username, password}
+    Auth-&gt;&gt;Auth: Verify bcrypt hash
+    Auth--&gt;&gt;FE: Sets access_token + refresh_token cookies
+    FE--&gt;&gt;User: Logged in — cookies stored in browser</code></pre>
+<p>From this point every request the browser makes carries the <code>access_token</code> cookie automatically. No service ever needs to call auth to validate it — each service decodes the token locally.</p>
+<h2 id="identity-username-is-the-universal-key">Identity — <code>username</code> is the Universal Key<a class="headerlink" href="#identity-username-is-the-universal-key" title="Permanent link">¶</a></h2>
+<p>GoClub does not use integer user IDs. The <code>username</code> chosen at registration is the primary key in <code>users</code>, the primary key in <code>user_details</code>, the <code>sub</code> claim in every JWT, the <code>host</code> column in events, the <code>owner</code> column in groups, and <code>field1</code>/<code>field2</code> in the shared <code>requests</code> table.</p>
+<p>This means every service can identify the caller from the token alone, and every inter-service call that references a user does so by username string.</p>
+<h2 id="the-two-table-user-model">The Two-Table User Model<a class="headerlink" href="#the-two-table-user-model" title="Permanent link">¶</a></h2>
+<p>User data is split across two tables, both owned by the auth service:</p>
+<table>
+<thead>
+<tr>
+<th>Table</th>
+<th>Columns</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>users</code></td>
+<td><code>username</code>, <code>hashed_password</code></td>
+<td>Credentials only — needed for login</td>
+</tr>
+<tr>
+<td><code>user_details</code></td>
+<td><code>username</code>, <code>first_name</code>, <code>last_name</code>, <code>email</code>, <code>phone_number</code></td>
+<td>Profile info — needed for display</td>
+</tr>
+</tbody>
+</table>
+<p>Both rows are written in the same transaction on registration. Splitting them keeps authentication logic (password hashing, token minting) separate from profile data (display names, contact info). The auth service is the only service that writes to either table.</p>
+<h2 id="jwt-tokens">JWT Tokens<a class="headerlink" href="#jwt-tokens" title="Permanent link">¶</a></h2>
+<p>On login the auth service mints two tokens:</p>
+<table>
+<thead>
+<tr>
+<th>Token</th>
+<th>Claim <code>typ</code></th>
+<th>Lifetime</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Access token</td>
+<td><code>access</code></td>
+<td>Short (minutes)</td>
+<td>Proves identity on every request</td>
+</tr>
+<tr>
+<td>Refresh token</td>
+<td><code>refresh</code></td>
+<td>Long (days)</td>
+<td>Used to get a new access token when it expires</td>
+</tr>
+</tbody>
+</table>
+<p>Both are stored as <code>HttpOnly</code> cookies. The <code>sub</code> claim in both tokens is the <code>username</code>.</p>
+<p>Every backend service decodes the access token locally using <code>decode_and_verify()</code> from <code>common/JWTSecurity.py</code>. The <code>typ</code> claim is validated on decode — a refresh token cannot be used in place of an access token. No service calls auth to check if a token is valid.</p>
+<p>When the access token expires the frontend calls <code>POST /auth/refresh</code> with the refresh token cookie to get a new pair.</p>
+<h2 id="follows-and-friends">Follows and Friends<a class="headerlink" href="#follows-and-friends" title="Permanent link">¶</a></h2>
+<p>The user service manages directional follow relationships, stored in the shared <code>requests</code> table as <code>FOLLOW_REQUEST</code> rows.</p>
+<ul>
+<li><strong>Follow</strong>: Darren follows Cillian → one row, <code>field1=darren, field2=cillian, type=FOLLOW_REQUEST, status=ACCEPTED</code></li>
+<li><strong>Friend</strong>: Darren and Cillian are friends → two rows, one in each direction, both <code>ACCEPTED</code></li>
+</ul>
+<p>Friendship is derived — there is no separate friends table. The user service checks for bidirectional accepted follow rows to determine if two users are friends. This derived friendship is what other services use:</p>
+<ul>
+<li>Events <code>/inviteallfriends</code> — calls user service <code>/friends</code></li>
+<li>Groups <code>/inviteallfriends</code> and <code>/friends_groups_exclusive</code> — calls user service <code>/friends</code></li>
+</ul>
+<h2 id="how-identity-propagates-across-services">How Identity Propagates Across Services<a class="headerlink" href="#how-identity-propagates-across-services" title="Permanent link">¶</a></h2>
+<p>Once logged in, the <code>username</code> extracted from the cookie flows through the entire system:</p>
+<ul>
+<li><strong>Circles</strong> — <code>GET /mycircle</code> returns circle members for the authenticated user</li>
+<li><strong>Events</strong> — <code>POST /create</code> sets <code>host = authorized_user</code> from the cookie; the event is permanently associated with the creator's username</li>
+<li><strong>Groups</strong> — <code>POST /create</code> sets <code>owner = authorized_user</code> from the cookie</li>
+<li><strong>Proximity</strong> — <code>POST /get_friends</code> calls circles <code>/mycircle</code> (forwarding the cookie) to get the circle, then filters nearby users to that set</li>
+<li><strong><code>requests</code> table</strong> — <code>field1</code> and <code>field2</code> are always usernames, so any row can be traced back to the users involved without a join to the users table</li>
+</ul>
 </article>
 </div>
 <script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
@@ -536,6 +851,5 @@
 </div>
 <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.expand", "navigation.path", "navigation.top", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
 <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
-<script src="https://unpkg.com/mermaid@10/dist/mermaid.min.js"></script>
 </body>
 </html>

@@ -13,10 +13,10 @@
       
       
       
-        <link rel="prev" href="..">
+        <link rel="prev" href="../request_table/">
       
       
-        <link rel="next" href="../end_to_end_flow/">
+        <link rel="next" href="../auth/auth_api/">
       
       
         
@@ -27,7 +27,7 @@
     
     
       
-        <title>Architecture - GoClub Technical Documentation</title>
+        <title>Common Library - GoClub Technical Documentation</title>
       
     
     
@@ -76,7 +76,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#architecture" class="md-skip">
+        <a href="#common-library" class="md-skip">
           Skip to content
         </a>
       
@@ -112,7 +112,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Architecture
+              Common Library
             
           </span>
         </div>
@@ -198,13 +198,11 @@
   
   
   
-    
-  
   
     
     
-      <li class="md-tabs__item md-tabs__item--active">
-        <a href="./" class="md-tabs__link">
+      <li class="md-tabs__item">
+        <a href="../Architecture/" class="md-tabs__link">
           
   
   
@@ -220,10 +218,12 @@
   
   
   
+    
+  
   
     
     
-      <li class="md-tabs__item">
+      <li class="md-tabs__item md-tabs__item--active">
         <a href="../UserManagment/" class="md-tabs__link">
           
   
@@ -336,31 +336,28 @@
       
   
   
-    
   
   
-  
     
     
     
     
-      
-        
-        
       
       
         
       
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
         
           
-          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
             
   
   
@@ -378,7 +375,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_2">
             <span class="md-nav__icon md-icon"></span>
             
@@ -393,37 +390,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Architecture
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../Architecture/" class="md-nav__link">
         
   
   
@@ -439,142 +409,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#system-overview" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        System Overview
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#services" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Services
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#key-architectural-decisions" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Key Architectural Decisions
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Key Architectural Decisions">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#api-gateway-path-stripping" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        API Gateway — Path Stripping
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#shared-common-library" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Shared common/ Library
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#jwt-authentication" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        JWT Authentication
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#shared-requests-table" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Shared requests Table
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#inter-service-calls" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Inter-Service Calls
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#frontend-server-side-rendering" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Frontend — Server-Side Rendering
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#proximity-valkey-vs-postgresql" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Proximity — Valkey vs PostgreSQL
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -647,28 +481,31 @@
       
   
   
+    
   
   
+  
     
     
     
     
+      
+        
+        
       
       
         
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
       
         
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
         
           
-        
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
-        
-          
-          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
             
   
   
@@ -686,7 +523,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_3">
             <span class="md-nav__icon md-icon"></span>
             
@@ -757,10 +594,37 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../common_lib/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Common Library
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -776,6 +640,92 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Structure
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#jwtsecuritypy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        JWTSecurity.py
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#jwtsettingspy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        JWTSettings.py
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#clientsclientpy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        clients/client.py
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#dbdbpy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        db/db.py
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#dbstructuresstructurespy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        db/structures/structures.py
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -1466,10 +1416,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#system-overview" class="md-nav__link">
+  <a href="#structure" class="md-nav__link">
     <span class="md-ellipsis">
       
-        System Overview
+        Structure
       
     </span>
   </a>
@@ -1477,10 +1427,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#services" class="md-nav__link">
+  <a href="#jwtsecuritypy" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Services
+        JWTSecurity.py
       
     </span>
   </a>
@@ -1488,96 +1438,46 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#key-architectural-decisions" class="md-nav__link">
+  <a href="#jwtsettingspy" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Key Architectural Decisions
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Key Architectural Decisions">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#api-gateway-path-stripping" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        API Gateway — Path Stripping
+        JWTSettings.py
       
     </span>
   </a>
   
 </li>
-        
-          <li class="md-nav__item">
-  <a href="#shared-common-library" class="md-nav__link">
+      
+        <li class="md-nav__item">
+  <a href="#clientsclientpy" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Shared common/ Library
+        clients/client.py
       
     </span>
   </a>
   
 </li>
-        
-          <li class="md-nav__item">
-  <a href="#jwt-authentication" class="md-nav__link">
+      
+        <li class="md-nav__item">
+  <a href="#dbdbpy" class="md-nav__link">
     <span class="md-ellipsis">
       
-        JWT Authentication
+        db/db.py
       
     </span>
   </a>
   
 </li>
-        
-          <li class="md-nav__item">
-  <a href="#shared-requests-table" class="md-nav__link">
+      
+        <li class="md-nav__item">
+  <a href="#dbstructuresstructurespy" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Shared requests Table
+        db/structures/structures.py
       
     </span>
   </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#inter-service-calls" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Inter-Service Calls
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#frontend-server-side-rendering" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Frontend — Server-Side Rendering
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#proximity-valkey-vs-postgresql" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Proximity — Valkey vs PostgreSQL
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
@@ -1624,10 +1524,10 @@
     
     
       <li class="md-path__item">
-        <a href="./" class="md-path__link">
+        <a href="../UserManagment/" class="md-path__link">
           
   <span class="md-ellipsis">
-    System Overview
+    Core Concepts
   </span>
 
         </a>
@@ -1646,118 +1546,132 @@
 
 
 
-<h1 id="architecture">Architecture<a class="headerlink" href="#architecture" title="Permanent link">&para;</a></h1>
-<h2 id="system-overview">System Overview<a class="headerlink" href="#system-overview" title="Permanent link">&para;</a></h2>
-<p>GoClub is a microservices platform. All traffic enters through an Nginx API gateway. The frontend is a server-side rendered Jinja2 application that calls the backend APIs. Backend services communicate with each other directly over the internal Docker network using the shared HTTP client in <code>common/clients/client.py</code>.</p>
-<p><img alt="GoClub Architecture" src="../images/GoClub_Arch.drawio.png" /></p>
-<h2 id="services">Services<a class="headerlink" href="#services" title="Permanent link">&para;</a></h2>
+<h1 id="common-library">Common Library<a class="headerlink" href="#common-library" title="Permanent link">&para;</a></h1>
+<p><code>common/</code> is a shared Python package mounted as a volume into every backend container. It is not a service — it has no port and runs no server. It provides four things: JWT security, database access, ORM models, and the inter-service HTTP client.</p>
+<h2 id="structure">Structure<a class="headerlink" href="#structure" title="Permanent link">&para;</a></h2>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>common/
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>├── JWTSecurity.py          # decode_and_verify() — validates tokens
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>├── JWTSettings.py          # JWT config loaded from environment variables
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>├── FastAPIAuth.py          # Reusable FastAPI dependency for protected routes
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>├── clients/
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>│   └── client.py           # Async HTTP client for inter-service calls
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>└── db/
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>    ├── base.py             # SQLAlchemy declarative base
+</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>    ├── db.py               # get_db() session context manager
+</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>    ├── engine.py           # Engine initialisation from env vars
+</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>    ├── session.py          # Session factory
+</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>    └── structures/
+</span><span id="__span-0-13"><a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>        └── structures.py   # All ORM models — single source of truth for DB schema
+</span></code></pre></div>
+<h2 id="jwtsecuritypy"><code>JWTSecurity.py</code><a class="headerlink" href="#jwtsecuritypy" title="Permanent link">&para;</a></h2>
+<p>Every service that needs to identify the caller uses <code>decode_and_verify()</code>:</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">common.JWTSecurity</span><span class="w"> </span><span class="kn">import</span> <span class="n">decode_and_verify</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="n">claims</span> <span class="o">=</span> <span class="n">decode_and_verify</span><span class="p">(</span><span class="n">token</span><span class="p">,</span> <span class="n">expected_type</span><span class="o">=</span><span class="s2">&quot;access&quot;</span><span class="p">)</span>
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="n">username</span> <span class="o">=</span> <span class="n">claims</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;sub&quot;</span><span class="p">)</span>  <span class="c1"># username is the subject claim</span>
+</span></code></pre></div>
+<p>It validates: signature, expiry, issuer, audience, and the <code>typ</code> claim. Passing <code>expected_type="refresh"</code> on an access token raises a <code>ValueError</code> — refresh tokens cannot be used where access tokens are expected.</p>
+<p>Services read the token from the cookie and extract the username like this in practice:</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="k">def</span><span class="w"> </span><span class="nf">get_username_from_request</span><span class="p">(</span><span class="n">request</span><span class="p">:</span> <span class="n">Request</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>    <span class="n">token</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">cookies</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;access_token&quot;</span><span class="p">)</span>
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>    <span class="k">if</span> <span class="ow">not</span> <span class="n">token</span><span class="p">:</span>
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>        <span class="k">return</span> <span class="kc">None</span>
+</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>    <span class="n">claims</span> <span class="o">=</span> <span class="n">decode_and_verify</span><span class="p">(</span><span class="n">token</span><span class="p">,</span> <span class="n">expected_type</span><span class="o">=</span><span class="s2">&quot;access&quot;</span><span class="p">)</span>
+</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>    <span class="k">return</span> <span class="n">claims</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;sub&quot;</span><span class="p">)</span>
+</span></code></pre></div>
+<p>This pattern appears in every service. None of them need to call the auth service to validate a token.</p>
+<h2 id="jwtsettingspy"><code>JWTSettings.py</code><a class="headerlink" href="#jwtsettingspy" title="Permanent link">&para;</a></h2>
+<p>Reads JWT configuration from environment variables. The <code>jwt_secret</code> and <code>jwt_algorithm</code> must be identical across all containers — they are set in <code>docker-compose.yml</code>.</p>
 <table>
 <thead>
 <tr>
-<th>Service</th>
-<th>Internal Port</th>
-<th>Responsibility</th>
+<th>Variable</th>
+<th>Purpose</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>api_gateway</td>
-<td>443 (public)</td>
-<td>Nginx — single entry point, strips path prefix, proxies to backend</td>
+<td><code>JWT_SECRET</code></td>
+<td>Signing key</td>
 </tr>
 <tr>
-<td>frontend</td>
-<td>—</td>
-<td>FastAPI + Jinja2 SSR — calls backend APIs, renders HTML</td>
+<td><code>JWT_ALGORITHM</code></td>
+<td>e.g. <code>HS256</code></td>
 </tr>
 <tr>
+<td><code>JWT_ISSUER</code></td>
+<td>Validated on decode</td>
+</tr>
+<tr>
+<td><code>JWT_AUDIENCE</code></td>
+<td>Validated on decode</td>
+</tr>
+<tr>
+<td><code>ACCESS_TOKEN_MINUTES</code></td>
+<td>Access token lifetime</td>
+</tr>
+<tr>
+<td><code>REFRESH_TOKEN_DAYS</code></td>
+<td>Refresh token lifetime</td>
+</tr>
+</tbody>
+</table>
+<h2 id="clientsclientpy"><code>clients/client.py</code><a class="headerlink" href="#clientsclientpy" title="Permanent link">&para;</a></h2>
+<p>All inter-service calls go through this async HTTP client. The <code>access_token</code> cookie is forwarded manually so the downstream service can authenticate the caller using its own <code>decode_and_verify()</code>:</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">common.clients.client</span><span class="w"> </span><span class="kn">import</span> <span class="n">get</span>
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="n">response</span> <span class="o">=</span> <span class="k">await</span> <span class="n">get</span><span class="p">(</span>
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>    <span class="n">CIRCLES_INTERNAL_BASE</span><span class="p">,</span>
+</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>    <span class="s2">&quot;mycircle&quot;</span><span class="p">,</span>
+</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>    <span class="n">headers</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;Cookie&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;access_token=</span><span class="si">{</span><span class="n">request</span><span class="o">.</span><span class="n">cookies</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;access_token&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">}</span>
+</span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="p">)</span>
+</span></code></pre></div>
+<h2 id="dbdbpy"><code>db/db.py</code><a class="headerlink" href="#dbdbpy" title="Permanent link">&para;</a></h2>
+<p>All services access the database through the same session context manager:</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">common.db.db</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_db</span>
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="k">with</span> <span class="n">get_db</span><span class="p">()</span> <span class="k">as</span> <span class="n">db</span><span class="p">:</span>
+</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>    <span class="n">result</span> <span class="o">=</span> <span class="n">db</span><span class="o">.</span><span class="n">scalar</span><span class="p">(</span><span class="n">select</span><span class="p">(</span><span class="n">Events</span><span class="p">)</span><span class="o">.</span><span class="n">filter_by</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">event_id</span><span class="p">))</span>
+</span></code></pre></div>
+<h2 id="dbstructuresstructurespy"><code>db/structures/structures.py</code><a class="headerlink" href="#dbstructuresstructurespy" title="Permanent link">&para;</a></h2>
+<p>The single source of truth for the entire database schema. All services import ORM models from here — no service defines its own DB models.</p>
+<table>
+<thead>
+<tr>
+<th>Model</th>
+<th>Table</th>
+<th>Primary owner</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>User</code></td>
+<td><code>users</code></td>
 <td>auth</td>
-<td>8001</td>
-<td>Registration, login, JWT issuance, user profile CRUD</td>
 </tr>
 <tr>
-<td>circles</td>
-<td>8002</td>
-<td>Invitation-based friend circles</td>
+<td><code>UserDetails</code></td>
+<td><code>user_details</code></td>
+<td>auth</td>
 </tr>
 <tr>
+<td><code>UserRequest</code></td>
+<td><code>requests</code></td>
+<td>shared across all services</td>
+</tr>
+<tr>
+<td><code>Group</code></td>
+<td><code>groups</code></td>
 <td>groups</td>
-<td>8003</td>
-<td>Public and private interest groups</td>
 </tr>
 <tr>
+<td><code>Events</code></td>
+<td><code>events</code></td>
 <td>events</td>
-<td>8005</td>
-<td>Event creation, invitations, attendance, geo search</td>
-</tr>
-<tr>
-<td>proximity</td>
-<td>8004</td>
-<td>Real-time location tracking and nearby friend lookup</td>
-</tr>
-<tr>
-<td>user</td>
-<td>8006</td>
-<td>Follow/friend relationships</td>
 </tr>
 </tbody>
 </table>
-<h2 id="key-architectural-decisions">Key Architectural Decisions<a class="headerlink" href="#key-architectural-decisions" title="Permanent link">&para;</a></h2>
-<h3 id="api-gateway-path-stripping">API Gateway — Path Stripping<a class="headerlink" href="#api-gateway-path-stripping" title="Permanent link">&para;</a></h3>
-<p>Nginx strips the service prefix before proxying. A browser request to <code>/auth/login</code> becomes <code>/login</code> by the time it reaches the auth service. Each service is unaware it sits behind a gateway and registers its routes without any prefix.</p>
-<h3 id="shared-common-library">Shared <code>common/</code> Library<a class="headerlink" href="#shared-common-library" title="Permanent link">&para;</a></h3>
-<p>JWT validation, database session management, ORM models, and the inter-service HTTP client are extracted into a shared <code>common/</code> package mounted as a volume into every backend container. All services share the same <code>decode_and_verify()</code>, <code>get_db()</code>, and ORM models. Any change to <code>common/</code> affects all services simultaneously.</p>
-<h3 id="jwt-authentication">JWT Authentication<a class="headerlink" href="#jwt-authentication" title="Permanent link">&para;</a></h3>
-<p>The auth service mints signed JWTs on login with the <code>username</code> as the <code>sub</code> claim. The access token is stored as a cookie (<code>access_token</code>) on the client. Every service decodes this cookie locally using <code>decode_and_verify()</code> — no service needs to call auth to validate a token. Tokens carry a <code>typ</code> claim (<code>access</code> or <code>refresh</code>) that is validated on decode, preventing refresh tokens from being used as access tokens.</p>
-<h3 id="shared-requests-table">Shared <code>requests</code> Table<a class="headerlink" href="#shared-requests-table" title="Permanent link">&para;</a></h3>
-<p>All social relationship state — circle invites, group memberships, event attendance, follow requests — is stored in a single <code>requests</code> table with a composite primary key <code>(field1, field2, field3, type)</code>. The <code>type</code> column scopes each row to its owning service. See <a href="../request_table/">requests_table.md</a> for the full breakdown.</p>
-<h3 id="inter-service-calls">Inter-Service Calls<a class="headerlink" href="#inter-service-calls" title="Permanent link">&para;</a></h3>
-<p>Services call each other directly over the Docker internal network using <code>common/clients/client.py</code>. The <code>access_token</code> cookie is forwarded so the downstream service can authenticate the caller. Key inter-service dependencies:</p>
-<table>
-<thead>
-<tr>
-<th>Caller</th>
-<th>Calls</th>
-<th>For</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>events</td>
-<td>circles <code>/mycircle</code></td>
-<td>Bulk invite circle to event</td>
-</tr>
-<tr>
-<td>events</td>
-<td>groups <code>/listmembers</code></td>
-<td>Bulk invite group to event</td>
-</tr>
-<tr>
-<td>events</td>
-<td>user <code>/friends</code></td>
-<td>Bulk invite all friends to event</td>
-</tr>
-<tr>
-<td>groups</td>
-<td>circles <code>/mycircle</code></td>
-<td>Bulk invite circle to group</td>
-</tr>
-<tr>
-<td>groups</td>
-<td>user <code>/friends</code></td>
-<td>Friend-based group discovery</td>
-</tr>
-<tr>
-<td>proximity</td>
-<td>circles <code>/mycircle</code></td>
-<td>Filter nearby users to circle members only</td>
-</tr>
-</tbody>
-</table>
-<h3 id="frontend-server-side-rendering">Frontend — Server-Side Rendering<a class="headerlink" href="#frontend-server-side-rendering" title="Permanent link">&para;</a></h3>
-<p>The frontend is a FastAPI application. <code>frontend/main.py</code> contains route handlers that call the backend APIs and pass data into Jinja2 templates. JavaScript is used only for map interactions (proximity map, event location picker). The frontend itself sits behind the API gateway and is proxied like any other service.</p>
-<h3 id="proximity-valkey-vs-postgresql">Proximity — Valkey vs PostgreSQL<a class="headerlink" href="#proximity-valkey-vs-postgresql" title="Permanent link">&para;</a></h3>
-<p>The proximity service is the only one not backed by PostgreSQL. Location data is written frequently, expires naturally when users go offline, and requires efficient radius queries — all properties that make Valkey's in-memory geospatial store a better fit than a relational database. <code>GEOADD</code> and <code>GEORADIUS</code> handle all distance calculations natively.</p>
+<p>Any schema change must be made here. Since all services mount the same <code>common/</code> volume, a migration needs to be coordinated — there is no independent schema versioning per service.</p>
 
 
 

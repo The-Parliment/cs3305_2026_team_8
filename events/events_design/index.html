@@ -8,10 +8,10 @@
 <meta content="Social Networking Microservices Platform - Technical Documentation" name="description"/>
 <meta content="Parliament Team" name="author"/>
 <link href="../events_api/" rel="prev"/>
-<link href="../../groups/groups_api/" rel="next"/>
+<link href="../../proximity/proximity_api/" rel="next"/>
 <link href="../../assets/images/favicon.png" rel="icon"/>
-<meta content="mkdocs-1.6.1, mkdocs-material-9.7.1" name="generator"/>
-<title>Events Design - GoClub Technical Documentation</title>
+<meta content="mkdocs-1.6.1, mkdocs-material-9.7.3" name="generator"/>
+<title>Design - GoClub Technical Documentation</title>
 <link href="../../assets/stylesheets/main.484c7ddc.min.css" rel="stylesheet"/>
 <link href="../../assets/stylesheets/palette.ab4e12ef.min.css" rel="stylesheet"/>
 <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
@@ -24,7 +24,7 @@
 <input autocomplete="off" class="md-toggle" data-md-toggle="search" id="__search" type="checkbox"/>
 <label class="md-overlay" for="__drawer"></label>
 <div data-md-component="skip">
-<a class="md-skip" href="#event-service">
+<a class="md-skip" href="#events-service-design">
           Skip to content
         </a>
 </div>
@@ -48,7 +48,7 @@
 <div class="md-header__topic" data-md-component="header-topic">
 <span class="md-ellipsis">
             
-              Events Design
+              Design
             
           </span>
 </div>
@@ -110,47 +110,20 @@
         </a>
 </li>
 <li class="md-tabs__item">
-<a class="md-tabs__link" href="../../auth/auth_api/">
+<a class="md-tabs__link" href="../../UserManagment/">
           
   
   
-  Auth Service
-
-        </a>
-</li>
-<li class="md-tabs__item">
-<a class="md-tabs__link" href="../../circles/circles_api/">
-          
-  
-  
-  Circle Service
+  Core Concepts
 
         </a>
 </li>
 <li class="md-tabs__item md-tabs__item--active">
-<a class="md-tabs__link" href="../events_api/">
+<a class="md-tabs__link" href="../../auth/auth_api/">
           
   
   
-  Events Service
-
-        </a>
-</li>
-<li class="md-tabs__item">
-<a class="md-tabs__link" href="../../groups/groups_api/">
-          
-  
-  
-  Groups Service
-
-        </a>
-</li>
-<li class="md-tabs__item">
-<a class="md-tabs__link" href="../../proximity/proximity_api/">
-          
-  
-  
-  Proximity Service
+  Services
 
         </a>
 </li>
@@ -252,7 +225,7 @@
 <span class="md-ellipsis">
     
   
-    Auth Service
+    Core Concepts
   
 
     
@@ -264,7 +237,92 @@
 <span class="md-nav__icon md-icon"></span>
             
   
-    Auth Service
+    Core Concepts
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../UserManagment/">
+<span class="md-ellipsis">
+    
+  
+    User Management
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../request_table/">
+<span class="md-ellipsis">
+    
+  
+    The requests Table
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../common_lib/">
+<span class="md-ellipsis">
+    
+  
+    Common Library
+  
+
+    
+  </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_4" type="checkbox"/>
+<label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+<span class="md-ellipsis">
+    
+  
+    Services
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="true" aria-labelledby="__nav_4_label" class="md-nav" data-md-level="1">
+<label class="md-nav__title" for="__nav_4">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Services
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item md-nav__item--section md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_4_1" type="checkbox"/>
+<label class="md-nav__link" for="__nav_4_1" id="__nav_4_1_label" tabindex="">
+<span class="md-ellipsis">
+    
+  
+    Auth
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_4_1_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_4_1">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Auth
   
 
           </label>
@@ -286,7 +344,7 @@
 <span class="md-ellipsis">
     
   
-    User Management
+    Design
   
 
     
@@ -296,25 +354,25 @@
 </ul>
 </nav>
 </li>
-<li class="md-nav__item md-nav__item--nested">
-<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_4" type="checkbox"/>
-<label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+<li class="md-nav__item md-nav__item--section md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_4_2" type="checkbox"/>
+<label class="md-nav__link" for="__nav_4_2" id="__nav_4_2_label" tabindex="">
 <span class="md-ellipsis">
     
   
-    Circle Service
+    Circles
   
 
     
   </span>
 <span class="md-nav__icon md-icon"></span>
 </label>
-<nav aria-expanded="false" aria-labelledby="__nav_4_label" class="md-nav" data-md-level="1">
-<label class="md-nav__title" for="__nav_4">
+<nav aria-expanded="false" aria-labelledby="__nav_4_2_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_4_2">
 <span class="md-nav__icon md-icon"></span>
             
   
-    Circle Service
+    Circles
   
 
           </label>
@@ -336,7 +394,7 @@
 <span class="md-ellipsis">
     
   
-    Circle Design
+    Design
   
 
     
@@ -346,76 +404,25 @@
 </ul>
 </nav>
 </li>
-<li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
-<input checked="" class="md-nav__toggle md-toggle" id="__nav_5" type="checkbox"/>
-<label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
+<li class="md-nav__item md-nav__item--section md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_4_3" type="checkbox"/>
+<label class="md-nav__link" for="__nav_4_3" id="__nav_4_3_label" tabindex="">
 <span class="md-ellipsis">
     
   
-    Events Service
+    Groups
   
 
     
   </span>
 <span class="md-nav__icon md-icon"></span>
 </label>
-<nav aria-expanded="true" aria-labelledby="__nav_5_label" class="md-nav" data-md-level="1">
-<label class="md-nav__title" for="__nav_5">
+<nav aria-expanded="false" aria-labelledby="__nav_4_3_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_4_3">
 <span class="md-nav__icon md-icon"></span>
             
   
-    Events Service
-  
-
-          </label>
-<ul class="md-nav__list" data-md-scrollfix="">
-<li class="md-nav__item">
-<a class="md-nav__link" href="../events_api/">
-<span class="md-ellipsis">
-    
-  
-    API Reference
-  
-
-    
-  </span>
-</a>
-</li>
-<li class="md-nav__item md-nav__item--active">
-<input class="md-nav__toggle md-toggle" id="__toc" type="checkbox"/>
-<a class="md-nav__link md-nav__link--active" href="./">
-<span class="md-ellipsis">
-    
-  
-    Events Design
-  
-
-    
-  </span>
-</a>
-</li>
-</ul>
-</nav>
-</li>
-<li class="md-nav__item md-nav__item--nested">
-<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_6" type="checkbox"/>
-<label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
-<span class="md-ellipsis">
-    
-  
-    Groups Service
-  
-
-    
-  </span>
-<span class="md-nav__icon md-icon"></span>
-</label>
-<nav aria-expanded="false" aria-labelledby="__nav_6_label" class="md-nav" data-md-level="1">
-<label class="md-nav__title" for="__nav_6">
-<span class="md-nav__icon md-icon"></span>
-            
-  
-    Groups Service
+    Groups
   
 
           </label>
@@ -437,7 +444,7 @@
 <span class="md-ellipsis">
     
   
-    Groups Design
+    Design
   
 
     
@@ -447,25 +454,158 @@
 </ul>
 </nav>
 </li>
-<li class="md-nav__item md-nav__item--nested">
-<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_7" type="checkbox"/>
-<label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+<li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_4_4" type="checkbox"/>
+<label class="md-nav__link" for="__nav_4_4" id="__nav_4_4_label" tabindex="">
 <span class="md-ellipsis">
     
   
-    Proximity Service
+    Events
   
 
     
   </span>
 <span class="md-nav__icon md-icon"></span>
 </label>
-<nav aria-expanded="false" aria-labelledby="__nav_7_label" class="md-nav" data-md-level="1">
-<label class="md-nav__title" for="__nav_7">
+<nav aria-expanded="true" aria-labelledby="__nav_4_4_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_4_4">
 <span class="md-nav__icon md-icon"></span>
             
   
-    Proximity Service
+    Events
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../events_api/">
+<span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item md-nav__item--active">
+<input class="md-nav__toggle md-toggle" id="__toc" type="checkbox"/>
+<label class="md-nav__link md-nav__link--active" for="__toc">
+<span class="md-ellipsis">
+    
+  
+    Design
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<a class="md-nav__link md-nav__link--active" href="./">
+<span class="md-ellipsis">
+    
+  
+    Design
+  
+
+    
+  </span>
+</a>
+<nav aria-label="Table of contents" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#database-schema">
+<span class="md-ellipsis">
+      
+        Database Schema
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#public-vs-private-events">
+<span class="md-ellipsis">
+      
+        Public vs Private Events
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#invite-vs-self-request">
+<span class="md-ellipsis">
+      
+        Invite vs Self-Request
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#attendance-state-machine">
+<span class="md-ellipsis">
+      
+        Attendance State Machine
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#bulk-invites-inter-service-calls">
+<span class="md-ellipsis">
+      
+        Bulk Invites — Inter-Service Calls
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#cancellation">
+<span class="md-ellipsis">
+      
+        Cancellation
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#geographic-search">
+<span class="md-ellipsis">
+      
+        Geographic Search
+      
+    </span>
+</a>
+</li>
+</ul>
+</nav>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--section md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_4_5" type="checkbox"/>
+<label class="md-nav__link" for="__nav_4_5" id="__nav_4_5_label" tabindex="">
+<span class="md-ellipsis">
+    
+  
+    Proximity
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_4_5_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_4_5">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Proximity
   
 
           </label>
@@ -487,12 +627,15 @@
 <span class="md-ellipsis">
     
   
-    Proximity Design
+    Design
   
 
     
   </span>
 </a>
+</li>
+</ul>
+</nav>
 </li>
 </ul>
 </nav>
@@ -506,6 +649,75 @@
 <div class="md-sidebar__scrollwrap">
 <div class="md-sidebar__inner">
 <nav aria-label="Table of contents" class="md-nav md-nav--secondary">
+<label class="md-nav__title" for="__toc">
+<span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+<ul class="md-nav__list" data-md-component="toc" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="#database-schema">
+<span class="md-ellipsis">
+      
+        Database Schema
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#public-vs-private-events">
+<span class="md-ellipsis">
+      
+        Public vs Private Events
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#invite-vs-self-request">
+<span class="md-ellipsis">
+      
+        Invite vs Self-Request
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#attendance-state-machine">
+<span class="md-ellipsis">
+      
+        Attendance State Machine
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#bulk-invites-inter-service-calls">
+<span class="md-ellipsis">
+      
+        Bulk Invites — Inter-Service Calls
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#cancellation">
+<span class="md-ellipsis">
+      
+        Cancellation
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#geographic-search">
+<span class="md-ellipsis">
+      
+        Geographic Search
+      
+    </span>
+</a>
+</li>
+</ul>
 </nav>
 </div>
 </div>
@@ -521,18 +733,101 @@
 </a>
 </li>
 <li class="md-path__item">
+<a class="md-path__link" href="../../auth/auth_api/">
+<span class="md-ellipsis">
+    Services
+  </span>
+</a>
+</li>
+<li class="md-path__item">
 <a class="md-path__link" href="../events_api/">
 <span class="md-ellipsis">
-    Events Service
+    Events
   </span>
 </a>
 </li>
 </ol>
 </nav>
 <article class="md-content__inner md-typeset">
-<h1 id="event-service">Event Service<a class="headerlink" href="#event-service" title="Permanent link">¶</a></h1>
-<p>This service is responsible for <em>Event Creation</em>, <em>invitations</em> and <em>RSVP</em> managment.
-Document will be progressed parallel to progress.</p>
+<h1 id="events-service-design">Events Service Design<a class="headerlink" href="#events-service-design" title="Permanent link">¶</a></h1>
+<p>The events service handles event creation, invitations, attendance, and discovery. It is more complex than the circles service because events have two axes of variation: public vs private, and invited vs self-requested attendance.</p>
+<h2 id="database-schema">Database Schema<a class="headerlink" href="#database-schema" title="Permanent link">¶</a></h2>
+<p>The events service owns the <code>events</code> table. For all invite and attendance tracking it writes into the shared <code>requests</code> table using <code>type = EVENT_INVITE</code>, with <code>field3</code> carrying the <code>event_id</code> — this is where <code>field3</code> earns its place in the composite primary key.</p>
+<pre class="mermaid"><code>erDiagram
+    users {
+        string username PK
+        string hashed_password
+    }
+
+    user_details {
+        string username PK
+        string first_name
+        string last_name
+        string email
+        string phone_number
+    }
+
+    events["events ← owned by events service"] {
+        int      id             PK
+        string   title
+        string   description
+        float    latitude
+        float    longitude
+        datetime datetime_start
+        datetime datetime_end
+        string   host
+        bool     public
+    }
+
+    requests["requests ← events service uses this"] {
+        string field1 PK "Inviter (or self for requests)"
+        string field2 PK "Invitee"
+        string field3 PK "event_id"
+        enum   type   PK "EVENT_INVITE"
+        enum   status    "PENDING | ACCEPTED | REJECTED | CONFIRMED"
+    }
+
+    users ||--|| user_details : "has profile"
+    users ||--o{ events : "hosts"
+    users ||--o{ requests : "sends/receives invites"
+    events ||--o{ requests : "tracked via field3"</code></pre>
+<h2 id="public-vs-private-events">Public vs Private Events<a class="headerlink" href="#public-vs-private-events" title="Permanent link">¶</a></h2>
+<p>The biggest design split in the service is between public and private events — they follow completely different flows.</p>
+<p>For a <strong>public event</strong>, anyone can join directly with no invite needed. Calling <code>/attend/{event_id}</code> inserts a row immediately with <code>status = ACCEPTED</code>.</p>
+<p>For a <strong>private event</strong>, a user must either be invited by the host or request to attend and wait for the host to approve them.</p>
+<h2 id="invite-vs-self-request">Invite vs Self-Request<a class="headerlink" href="#invite-vs-self-request" title="Permanent link">¶</a></h2>
+<p>The <code>requests</code> table distinguishes between an invite from someone else and a self-submitted attendance request using the <code>field1</code>/<code>field2</code> values. When Darren invites Cillian to an event:</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-0-1"><a href="#__codelineno-0-1" id="__codelineno-0-1" name="__codelineno-0-1"></a>field1 = "darren", field2 = "cillian", field3 = event_id
+</span></code></pre></div>
+<p>When Cillian requests to attend an event on their own:</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-1-1"><a href="#__codelineno-1-1" id="__codelineno-1-1" name="__codelineno-1-1"></a>field1 = "cillian", field2 = "cillian", field3 = event_id
+</span></code></pre></div>
+<p><code>field1 == field2</code> is the signal that this is a self-request. The <code>is_requested()</code> helper in <code>events_database.py</code> checks for exactly this pattern. The <code>/my_invites</code> endpoint explicitly excludes self-requests by filtering <code>field1 != authorized_user</code>.</p>
+<h2 id="attendance-state-machine">Attendance State Machine<a class="headerlink" href="#attendance-state-machine" title="Permanent link">¶</a></h2>
+<pre class="mermaid"><code>stateDiagram-v2
+    [*] --&gt; PENDING_INVITE : POST /invite (host invites user)
+    [*] --&gt; PENDING_REQUEST : POST /request (user requests to attend private event)
+    [*] --&gt; ACCEPTED : POST /attend (public event, join directly)
+
+    PENDING_INVITE --&gt; ACCEPTED : POST /attend (user accepts invite)
+    PENDING_INVITE --&gt; [*] : POST /decline (row deleted)
+
+    PENDING_REQUEST --&gt; ACCEPTED : POST /accept (host approves)
+    PENDING_REQUEST --&gt; [*] : POST /decline (user withdraws request, row deleted)
+
+    ACCEPTED --&gt; [*] : POST /cancel (host cancels — event row and all invite rows deleted)</code></pre>
+<h2 id="bulk-invites-inter-service-calls">Bulk Invites — Inter-Service Calls<a class="headerlink" href="#bulk-invites-inter-service-calls" title="Permanent link">¶</a></h2>
+<p>Three endpoints invite multiple users at once by calling other services internally:</p>
+<ul>
+<li><strong><code>/invitecircle/{event_id}</code></strong> — calls the Circles service (<code>/mycircle</code>) forwarding the cookie. Invites each circle member not already invited.</li>
+<li><strong><code>/inviteallfriends/{event_id}</code></strong> — calls the User service (<code>/friends</code>) forwarding the cookie. Invites each friend not already invited.</li>
+<li><strong><code>/invite_group/{event_id}/{group_id}</code></strong> — calls the Groups service (<code>/group_exists/{group_id}</code> then <code>/listmembers/{group_id}</code>). Available if the authenticated user is the host or the event is public.</li>
+</ul>
+<h2 id="cancellation">Cancellation<a class="headerlink" href="#cancellation" title="Permanent link">¶</a></h2>
+<p>Cancelling an event (<code>/cancel/{event_id}</code>) is host-only and deletes both the event row from <code>events</code> and all associated <code>EVENT_INVITE</code> rows from <code>requests</code> in the same transaction.</p>
+<h2 id="geographic-search">Geographic Search<a class="headerlink" href="#geographic-search" title="Permanent link">¶</a></h2>
+<p>The <code>/search</code> endpoint computes a bounding box from <code>latitude</code>, <code>longitude</code>, and <code>radius</code> (km) and filters within that rectangle. It is not a true radius/distance query — corners of the bounding box will be slightly further away than the radius.</p>
+<p>There is currently a bug in the bounding box filter: the latitude and longitude range checks use Python's <code>and</code> operator instead of SQLAlchemy's <code>and_()</code>, meaning only one side of each comparison is actually applied to the SQL query. Results may be broader than expected until this is fixed.</p>
 </article>
 </div>
 <script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
@@ -562,6 +857,5 @@ Document will be progressed parallel to progress.</p>
 </div>
 <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.sections", "navigation.expand", "navigation.path", "navigation.top", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
 <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
-<script src="https://unpkg.com/mermaid@10/dist/mermaid.min.js"></script>
 </body>
 </html>

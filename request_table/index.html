@@ -13,10 +13,10 @@
       
       
       
-        <link rel="prev" href="..">
+        <link rel="prev" href="../UserManagment/">
       
       
-        <link rel="next" href="../end_to_end_flow/">
+        <link rel="next" href="../common_lib/">
       
       
         
@@ -27,7 +27,7 @@
     
     
       
-        <title>Architecture - GoClub Technical Documentation</title>
+        <title>The requests Table - GoClub Technical Documentation</title>
       
     
     
@@ -76,7 +76,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#architecture" class="md-skip">
+        <a href="#cillian-the-db-structure-is-quite-diffuclt-to-understand-can-you-add-here" class="md-skip">
           Skip to content
         </a>
       
@@ -112,7 +112,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Architecture
+              The requests Table
             
           </span>
         </div>
@@ -198,13 +198,11 @@
   
   
   
-    
-  
   
     
     
-      <li class="md-tabs__item md-tabs__item--active">
-        <a href="./" class="md-tabs__link">
+      <li class="md-tabs__item">
+        <a href="../Architecture/" class="md-tabs__link">
           
   
   
@@ -220,10 +218,12 @@
   
   
   
+    
+  
   
     
     
-      <li class="md-tabs__item">
+      <li class="md-tabs__item md-tabs__item--active">
         <a href="../UserManagment/" class="md-tabs__link">
           
   
@@ -336,31 +336,28 @@
       
   
   
-    
   
   
-  
     
     
     
     
-      
-        
-        
       
       
         
       
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
         
           
-          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
             
   
   
@@ -378,7 +375,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_2">
             <span class="md-nav__icon md-icon"></span>
             
@@ -393,37 +390,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Architecture
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../Architecture/" class="md-nav__link">
         
   
   
@@ -439,142 +409,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#system-overview" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        System Overview
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#services" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Services
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#key-architectural-decisions" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Key Architectural Decisions
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Key Architectural Decisions">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#api-gateway-path-stripping" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        API Gateway — Path Stripping
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#shared-common-library" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Shared common/ Library
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#jwt-authentication" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        JWT Authentication
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#shared-requests-table" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Shared requests Table
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#inter-service-calls" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Inter-Service Calls
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#frontend-server-side-rendering" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Frontend — Server-Side Rendering
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#proximity-valkey-vs-postgresql" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Proximity — Valkey vs PostgreSQL
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -647,28 +481,31 @@
       
   
   
+    
   
   
+  
     
     
     
     
+      
+        
+        
       
       
         
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
       
         
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
         
           
-        
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
-        
-          
-          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
             
   
   
@@ -686,7 +523,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_3">
             <span class="md-nav__icon md-icon"></span>
             
@@ -729,10 +566,19 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../request_table/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -748,6 +594,7 @@
   
 
       </a>
+      
     </li>
   
 
@@ -1459,130 +1306,6 @@
     
   
   
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#system-overview" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        System Overview
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#services" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Services
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#key-architectural-decisions" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Key Architectural Decisions
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Key Architectural Decisions">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#api-gateway-path-stripping" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        API Gateway — Path Stripping
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#shared-common-library" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Shared common/ Library
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#jwt-authentication" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        JWT Authentication
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#shared-requests-table" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Shared requests Table
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#inter-service-calls" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Inter-Service Calls
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#frontend-server-side-rendering" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Frontend — Server-Side Rendering
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#proximity-valkey-vs-postgresql" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Proximity — Valkey vs PostgreSQL
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-    </ul>
-  
 </nav>
                   </div>
                 </div>
@@ -1624,10 +1347,10 @@
     
     
       <li class="md-path__item">
-        <a href="./" class="md-path__link">
+        <a href="../UserManagment/" class="md-path__link">
           
   <span class="md-ellipsis">
-    System Overview
+    Core Concepts
   </span>
 
         </a>
@@ -1646,118 +1369,7 @@
 
 
 
-<h1 id="architecture">Architecture<a class="headerlink" href="#architecture" title="Permanent link">&para;</a></h1>
-<h2 id="system-overview">System Overview<a class="headerlink" href="#system-overview" title="Permanent link">&para;</a></h2>
-<p>GoClub is a microservices platform. All traffic enters through an Nginx API gateway. The frontend is a server-side rendered Jinja2 application that calls the backend APIs. Backend services communicate with each other directly over the internal Docker network using the shared HTTP client in <code>common/clients/client.py</code>.</p>
-<p><img alt="GoClub Architecture" src="../images/GoClub_Arch.drawio.png" /></p>
-<h2 id="services">Services<a class="headerlink" href="#services" title="Permanent link">&para;</a></h2>
-<table>
-<thead>
-<tr>
-<th>Service</th>
-<th>Internal Port</th>
-<th>Responsibility</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>api_gateway</td>
-<td>443 (public)</td>
-<td>Nginx — single entry point, strips path prefix, proxies to backend</td>
-</tr>
-<tr>
-<td>frontend</td>
-<td>—</td>
-<td>FastAPI + Jinja2 SSR — calls backend APIs, renders HTML</td>
-</tr>
-<tr>
-<td>auth</td>
-<td>8001</td>
-<td>Registration, login, JWT issuance, user profile CRUD</td>
-</tr>
-<tr>
-<td>circles</td>
-<td>8002</td>
-<td>Invitation-based friend circles</td>
-</tr>
-<tr>
-<td>groups</td>
-<td>8003</td>
-<td>Public and private interest groups</td>
-</tr>
-<tr>
-<td>events</td>
-<td>8005</td>
-<td>Event creation, invitations, attendance, geo search</td>
-</tr>
-<tr>
-<td>proximity</td>
-<td>8004</td>
-<td>Real-time location tracking and nearby friend lookup</td>
-</tr>
-<tr>
-<td>user</td>
-<td>8006</td>
-<td>Follow/friend relationships</td>
-</tr>
-</tbody>
-</table>
-<h2 id="key-architectural-decisions">Key Architectural Decisions<a class="headerlink" href="#key-architectural-decisions" title="Permanent link">&para;</a></h2>
-<h3 id="api-gateway-path-stripping">API Gateway — Path Stripping<a class="headerlink" href="#api-gateway-path-stripping" title="Permanent link">&para;</a></h3>
-<p>Nginx strips the service prefix before proxying. A browser request to <code>/auth/login</code> becomes <code>/login</code> by the time it reaches the auth service. Each service is unaware it sits behind a gateway and registers its routes without any prefix.</p>
-<h3 id="shared-common-library">Shared <code>common/</code> Library<a class="headerlink" href="#shared-common-library" title="Permanent link">&para;</a></h3>
-<p>JWT validation, database session management, ORM models, and the inter-service HTTP client are extracted into a shared <code>common/</code> package mounted as a volume into every backend container. All services share the same <code>decode_and_verify()</code>, <code>get_db()</code>, and ORM models. Any change to <code>common/</code> affects all services simultaneously.</p>
-<h3 id="jwt-authentication">JWT Authentication<a class="headerlink" href="#jwt-authentication" title="Permanent link">&para;</a></h3>
-<p>The auth service mints signed JWTs on login with the <code>username</code> as the <code>sub</code> claim. The access token is stored as a cookie (<code>access_token</code>) on the client. Every service decodes this cookie locally using <code>decode_and_verify()</code> — no service needs to call auth to validate a token. Tokens carry a <code>typ</code> claim (<code>access</code> or <code>refresh</code>) that is validated on decode, preventing refresh tokens from being used as access tokens.</p>
-<h3 id="shared-requests-table">Shared <code>requests</code> Table<a class="headerlink" href="#shared-requests-table" title="Permanent link">&para;</a></h3>
-<p>All social relationship state — circle invites, group memberships, event attendance, follow requests — is stored in a single <code>requests</code> table with a composite primary key <code>(field1, field2, field3, type)</code>. The <code>type</code> column scopes each row to its owning service. See <a href="../request_table/">requests_table.md</a> for the full breakdown.</p>
-<h3 id="inter-service-calls">Inter-Service Calls<a class="headerlink" href="#inter-service-calls" title="Permanent link">&para;</a></h3>
-<p>Services call each other directly over the Docker internal network using <code>common/clients/client.py</code>. The <code>access_token</code> cookie is forwarded so the downstream service can authenticate the caller. Key inter-service dependencies:</p>
-<table>
-<thead>
-<tr>
-<th>Caller</th>
-<th>Calls</th>
-<th>For</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>events</td>
-<td>circles <code>/mycircle</code></td>
-<td>Bulk invite circle to event</td>
-</tr>
-<tr>
-<td>events</td>
-<td>groups <code>/listmembers</code></td>
-<td>Bulk invite group to event</td>
-</tr>
-<tr>
-<td>events</td>
-<td>user <code>/friends</code></td>
-<td>Bulk invite all friends to event</td>
-</tr>
-<tr>
-<td>groups</td>
-<td>circles <code>/mycircle</code></td>
-<td>Bulk invite circle to group</td>
-</tr>
-<tr>
-<td>groups</td>
-<td>user <code>/friends</code></td>
-<td>Friend-based group discovery</td>
-</tr>
-<tr>
-<td>proximity</td>
-<td>circles <code>/mycircle</code></td>
-<td>Filter nearby users to circle members only</td>
-</tr>
-</tbody>
-</table>
-<h3 id="frontend-server-side-rendering">Frontend — Server-Side Rendering<a class="headerlink" href="#frontend-server-side-rendering" title="Permanent link">&para;</a></h3>
-<p>The frontend is a FastAPI application. <code>frontend/main.py</code> contains route handlers that call the backend APIs and pass data into Jinja2 templates. JavaScript is used only for map interactions (proximity map, event location picker). The frontend itself sits behind the API gateway and is proxied like any other service.</p>
-<h3 id="proximity-valkey-vs-postgresql">Proximity — Valkey vs PostgreSQL<a class="headerlink" href="#proximity-valkey-vs-postgresql" title="Permanent link">&para;</a></h3>
-<p>The proximity service is the only one not backed by PostgreSQL. Location data is written frequently, expires naturally when users go offline, and requires efficient radius queries — all properties that make Valkey's in-memory geospatial store a better fit than a relational database. <code>GEOADD</code> and <code>GEORADIUS</code> handle all distance calculations natively.</p>
+<h1 id="cillian-the-db-structure-is-quite-diffuclt-to-understand-can-you-add-here">Cillian - the db structure is quite diffuclt to understand - can you add here?<a class="headerlink" href="#cillian-the-db-structure-is-quite-diffuclt-to-understand-can-you-add-here" title="Permanent link">&para;</a></h1>
 
 
 
