@@ -35,13 +35,13 @@ html {
   background-color: #6EBDC7;
   height: 100%;
   margin: 0;
-
 }
 
 body {
   font-family: Verdana, Geneva, Tahoma, sans-serif;
   height: 100%;
   margin: 0;
+  font-size: 1.02em;
 }
 
 #main {
@@ -51,8 +51,10 @@ body {
 }
 
 #submit {
-  background-color: #E4B969;
+  background-color: #6E2242;
   font-size: 1.1em;
+  color: #E4B969;
+  padding: 0.3em;
 }
 
 #mySidenav img {
@@ -61,6 +63,14 @@ body {
   height: 3.5em;
   margin-bottom: -0.5em;
   margin-left: 0.5em;
+}
+#envelope{
+  position: sticky;
+  display: block;
+  margin-left: -0.2em;
+  margin-right: 3em;
+  margin-top: -1.6em;
+  font-size: 3.4em;
 }
 
 header {
@@ -101,6 +111,7 @@ h3 {
 
 p, a{
   margin-left: 0.5em;
+  font-size: 1em;
 }
 
 a{
@@ -108,16 +119,23 @@ a{
   font-size:0.9em;
 }
 
-#changeDetails {
+.changeDetails {
   position: absolute;
   top: 95%;
-  left: 89%;
+  left: 85%;
   color: #AE2456;
   font-size: 1.1em;
 }
 
 form {
-  margin: 0.5em;
+  margin: auto;
+  margin-top: 2em;
+  text-align: center;
+  background-color: #E4B969;
+  border: 2px solid #b19053;
+  border-radius: 1.5em;
+  width: 30%;
+  padding: 0.5em;
 }
 
 form p {
@@ -167,7 +185,7 @@ tr:nth-child(even) {
   position: absolute;
   top: 0;
   left: 5em;
-  font-size: 36px;
+  font-size: 2.25em;
 }
 
 .sidenav .bottom{
@@ -188,7 +206,7 @@ tr:nth-child(even) {
 }
 
 .menu-btn {
-  font-size: 30px;
+  font-size: 1.86em;
   cursor: pointer;
   position: fixed;
   right: 20px;
@@ -202,4 +220,12 @@ tr:nth-child(even) {
   left: 1rem;
   z-index: 9000;
   background-color: rgba(228, 185, 105, 0.95);
+}
+
+#map a{
+  margin-left: 0;
+}
+
+ul{
+  list-style-type: none;
 }

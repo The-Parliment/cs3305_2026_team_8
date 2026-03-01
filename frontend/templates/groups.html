@@ -2,22 +2,25 @@
 
 {% block main_content %}
 
-<main>
-    <h2>Groups you manage</h2>
+<main id="main">
+    <header>
+        <h1>Groups</h1>
+    </header>
+    <h3>Groups you manage</h3>
     <ul>
         {% for group in owned_groups %}
             <li><a href="/groups/group_info/{{ group.group_id }}">{{ group.group_name }}</a></li>
         {% endfor %}
     </ul>
 
-    <h2>My Groups</h2>
+    <h3>My Groups</h3>
     <ul>
         {% for group in my_groups %}
             <li><a href="/groups/group_info/{{ group.group_id }}">{{ group.group_name }}</a></li>
         {% endfor %}
     </ul>
 
-    <h2>Friends' Groups</h2>
+    <h3>Friends' Groups</h3>
     <ul>
         {% for group in friends_groups %}
             <li><a href="/groups/group_info/{{ group.group_id }}">{{ group.group_name }}</a></li>

@@ -2,14 +2,36 @@
 
 {% block main_content %}
 
-<main>
+<main id="main">
+    <header>
+        <h1>Group Information</h1>
+    </header>
     <h2>{{ group["group_name"] }}</h2>
+    <h3>Group Description</h3>
     <p>{{ group["group_desc"] }}</p>
-    <p>Group Owner: {{ group["owner"] }}</p>
-    {% if group["is_public"]|default(false) %}
-        <p>This group is public.</p>
-    {% else %}
-        <p>This group is private.</p>
+    <h3>Group Owner</h3>
+    <p>{{ group["owner"] }}</p>
+    <h3>Members</h3>
+    <ul>
+        {% for member in group_members %}
+            {% if authorized_user == group["owner"] %}
+                {% if member != authorized_user %}
+                    <li><a href="/profile/{{ member }}">{{ member }}</a> - <a href="/groups/remove/{{ group['id'] }}/{{ member }}">Remove from Group</a></li>
+                {% else %}
+                    <li><a href="/profile/{{ member }}">{{ member }}</a></li>
+                {% endif %}
+            {% else %}
+                <li><a href="/profile/{{ member }}">{{ member }}</a></li>
+            {% endif %}
+        {% endfor %}
+    </ul>
+    
+    {% if authorized_user in group_members %}
+        {% if authorized_user == group["owner"] %}
+            <a href="/groups/delete/{{ group['id'] }}">Delete Group</a>
+        {% else %}
+            <p><a href="/groups/leave/{{ group['id'] }}">Leave Group</a></p>
+        {% endif %}
     {% endif %}
     
     {% if authorized_user == group["owner"] %}
