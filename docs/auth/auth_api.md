@@ -1,19 +1,25 @@
 # Auth Service
 
-**Base path:** `/auth`
+**Base path:** `/auth`  
 **Port:** 8001 (internal)
+
+## Authentication
+
+Protected endpoints require a valid JWT access token passed as a cookie named `access_token`.
 
 ## Endpoints
 
-| Method | Endpoints | Request Body/Query Params | Response |
-| -------- | -------- | -------- | -------- |
-| POST | `/register` | **Body:** `username, password, email, phonenumber` | `user_id, message` | 
+| Method | Endpoint | Request Body / Query Params | Response |
+|--------|----------|-----------------------------|----------|
+| POST | `/register` | **Body:** `username, password, email, phone_number, first_name?, last_name?` | `message, valid` |
 | POST | `/login` | **Body:** `username, password` | `access_token, refresh_token, token_type` |
-| POST | `/refresh` | **Body:** `refresh_token` |  `access_token, refresh_token, token_type` |  
-| POST | `/logout` | **Head:** `Authorization` **Body:** `refresh_token` | `message` | 
-| GET | `/users/me` | **Head:** `Authorization` | `username, password, email, phonenumber` | 
-| POST | `/users/me` | **Head:** `Authorization` **Body:** `username, email, phonenumber` | `username, email, phonenumber` |
-| PUT | `/users/me/password` | **Head:** `Authorization` **Body:**  `old_password, new_password` | `message` |
-| GET | `/users/{user_id}` | **Head:** `Authorization` **Path:** `user_id` | `username, user_id` |
+| POST | `/refresh` | **Body:** `refresh_token` | `access_token, refresh_token, token_type` |
+| GET | `/users/me` | **Cookie:** `access_token` | `username, first_name, last_name, email, phone_number` |
+| POST | `/users/me` | **Cookie:** `access_token` **Body:** `first_name?, last_name?, email, phone_number` | `message, valid` |
+| GET | `/users/{username}` | **Cookie:** `access_token` **Path:** `username` | `username, first_name, last_name, email, phone_number` |
+| GET | `/user_exists` | **Query:** `username` | `message, valid` |
+| GET | `/email_exists` | **Query:** `username` | `message, valid` |
+| GET | `/phone_number_exists` | **Query:** `username` | `message, valid` |
 
-  
+
+
