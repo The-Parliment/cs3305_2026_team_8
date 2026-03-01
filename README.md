@@ -171,6 +171,8 @@ docker compose up --build
 
 This project follows an Agile methodology managed through GitHub Projects.
 
+See [Contributing](./CONTRIBUTING.md) to get details on how to contribut to this project.
+
 ### Workflow
 - Work is organised into **Epics** broken down into **User Stories** and **Tasks**
 - Each feature is developed on a **dedicated branch** linked to its GitHub issue
