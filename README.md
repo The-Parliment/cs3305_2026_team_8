@@ -70,6 +70,8 @@ cs3305_2026_team_8/
 └── docker-compose.yml  # Full stack orchestration
 ```
 
+![GoClub Architecture](docs/images/GoClub_Arch.drawio.png)
+
 ---
 
 ## Running the Project
