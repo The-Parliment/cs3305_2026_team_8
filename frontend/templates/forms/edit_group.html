@@ -3,17 +3,20 @@
 {% block main_content %}
 
 <main id="main">
+    <header>
+        <h1>Edit Group Details</h1>
+    </header>
     <form action="" method="POST" novalidate>
 
-        {{ form.group_name.label }}
+        <p>{{ form.group_name.label }}</p>
         {{ form.group_name() }}
         <br/>
 
-        {{ form.group_desc.label }}
+        <p>{{ form.group_desc.label }}</p>
         {{ form.group_desc() }}
         <br/>
         
-        {{ form.is_public.label }}
+        <p>{{ form.is_public.label }}</p>
         {{ form.is_public() }}
         <br/>
         
@@ -25,7 +28,7 @@
             </ul>
         {% endif %}
         
-        {{ form.submit() }}
+        <p>{{ form.submit() }}</p>
     </form>
 </main>
 
