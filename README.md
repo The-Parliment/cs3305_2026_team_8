@@ -29,6 +29,7 @@ For an in-depth look at the internals of each microservice, the MkDocs generated
 ## What is GoClub?
 
 GoClub allows users to:
+
 - Share their location and see nearby circle members in real-time
 - Create and manage public or private groups
 - Build an **Inner Circle** — a trusted list of close contacts whose location you can see
@@ -153,8 +154,13 @@ This will stop and remove all containers, networks, images, and volumes not used
 If you need a completely clean slate:
 
 ```bash
+
+# Clean down the system to-be-sure-to-be sure
 docker compose down --volumes --remove-orphans
 docker system prune -af
+
+# Now with this 1 command, build entire stack and stand it up
+docker compose up --build
 ```
 
 > **Warning:** This removes all containers, images, and volumes. Use with caution.
@@ -181,12 +187,17 @@ task/decode-jwt-token
 Full backlog, sprint progress, and issue tracking:  
 [GitHub Projects Board](https://github.com/orgs/The-Parliment/projects/3)
 
+
+![GitHub Project Page](docs/images/GH_Project.png)
 ---
 
 ## Documentation
 
 Full project documentation is available in the `/docs` folder. A MkDocs generated version is hosted at — [GoClub Website](https://the-parliment.github.io/cs3305_2026_team_8/)
 
+Once design documents are updated in `docs` folder, running `serve.sh` generates an updated site reflecting the new design automatically.
+
+![Mkdocs Generated Technical Website](docs/images/WebSite.png)
 ---
 
 ## License
