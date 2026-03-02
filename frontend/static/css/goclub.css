@@ -149,6 +149,13 @@ header p {
   grid-template-columns: 1fr 1fr;
 }
 
+.aInvites{
+  background-color: #E4B969;
+  border-radius: 0.5em;
+  padding: 0.3em;
+  margin-right: 0.3em;
+  border: 2px solid #b19053;
+}
 
 /* =========================================
    FORMS
