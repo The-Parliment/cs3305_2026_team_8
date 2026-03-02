@@ -140,6 +140,15 @@ async def get_friends(request:Request, authorized_user : str = Depends(get_usern
             if result:
                 friends.append(name)
         return UsernameListResponse(user_names=friends)
+    
+@app.get("/search_users/{query}", response_model=UsernameListResponse)
+async def search_users(query: str, request: Request, authorized_user : str = Depends(get_username_from_request)) -> UsernameListResponse:
+    if not authorized_user:
+        return MessageResponse(message="Unauthorized", valid=False)
+    with get_db() as db:
+        result = select(User.username).filter(User.username.ilike(f"%{query}%"))
+        names = db.scalars(result).all()
+        return UsernameListResponse(user_names=names)
 
 @app.post("/withdraw_follow_request", response_model=MessageResponse)
 async def withdraw(inbound:UsersRequest) -> MessageResponse:

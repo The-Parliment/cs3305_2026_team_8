@@ -36,3 +36,7 @@ class GroupForm(Form):
     group_desc = TextAreaField("Group Description", validators=[Length(min=2, max=256), DataRequired()])
     is_public = BooleanField("Public Group", default=True)
     submit = SubmitField("Submit")
+    
+class CommunityForm(Form):
+    user = StringField("Username")
+    submit = SubmitField("Submit")

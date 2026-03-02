@@ -25,9 +25,14 @@
                     {% endfor %}
                 </ul>
             </td>
-            {% if all_users %}
             <td>
-                <p>All Users</p>
+                <form action="" method="POST" novalidate>
+                <h3>Search</h3>
+                <br>
+                {{ form.user() }} <div id="community-submit">{{ form.submit() }}</div>
+                </form>
+                {% if all_users %}
+                <p>Results</p>
                 <ul>
                     {% for user in all_users %}
                     <li>
@@ -48,8 +53,8 @@
                     </li>
                     {% endfor %}
                 </ul>
+                {% endif %}
             </td>
-            {% endif %}
         </tr>
         <tr>
             <td>

@@ -92,8 +92,8 @@ def get_bounding_box(lat, lng, radius_km):
 async def search_events(request:SearchRequest) -> ListEventResponse:
     with get_db() as db:
         bb = get_bounding_box(request.latitude, request.longitude, request.radius)
-        stmt = select(Events).filter(Events.title.like(f"%{request.title}%") if request.title else True,
-                                     Events.host.like(f"%{request.host}%") if request.host else True,
+        stmt = select(Events).filter(Events.title.ilike(f"%{request.title}%") if request.title else True,
+                                     Events.host.ilike(f"%{request.host}%") if request.host else True,
                                      Events.datetime_start >= request.datetime_start if request.datetime_start else True,
                                      Events.datetime_end <= request.datetime_end if request.datetime_end else True,
                                      Events.latitude >= bb["min_lat"] and Events.latitude <= bb["max_lat"],

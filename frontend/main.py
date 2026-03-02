@@ -5,7 +5,7 @@ from fastapi.templating import Jinja2Templates
 from starlette.middleware.sessions import SessionMiddleware
 from common.JWTSecurity import decode_and_verify
 from common.clients.client import post, get
-from forms import ChangeDetailsForm, EventForm, GroupForm, LoginForm, RegisterForm
+from forms import ChangeDetailsForm, CommunityForm, EventForm, GroupForm, LoginForm, RegisterForm
 from common.db.init import init_db
 import os
 from passlib.context import CryptContext
@@ -257,12 +257,63 @@ async def get_community(request : Request, claims : dict = Depends(require_front
 
     authorized_user = claims.get("sub")
     
+    form = CommunityForm()
+    all_users = []
+    
     return templates.TemplateResponse(
             request=request, name="community.html", context={"authorized_user" : authorized_user,
                                                              "follow_requests_sent" : follow_requests_sent,
                                                              "follow_requests_received" : follow_requests_received,
                                                              "friends_list" : friends_list,
-                                                             "all_users" : all_users}
+                                                             "all_users" : all_users,
+                                                             "form" : form}
+    )
+    
+@app.post("/community", response_class=HTMLResponse)
+async def post_community(request : Request, claims : dict = Depends(require_frontend_auth)):
+    data = await request.form()
+    form = CommunityForm(data=data)
+    
+    follow_requests_sent_data = await get(USER_INTERNAL_BASE, "get_follow_requests_sent", 
+                              headers={"Cookie" : f"access_token={request.cookies.get('access_token')}"})
+    follow_requests_sent = follow_requests_sent_data.get("user_names", []) if follow_requests_sent_data is not None else []
+
+    follow_requests_received_data = await get(USER_INTERNAL_BASE, "get_follow_requests_received", 
+                               headers={"Cookie" : f"access_token={request.cookies.get('access_token')}"})
+    follow_requests_received = follow_requests_received_data.get("user_names", []) if follow_requests_received_data is not None else []
+    
+    friends_list_data = await get(USER_INTERNAL_BASE, "friends", 
+                        headers={"Cookie" : f"access_token={request.cookies.get('access_token')}"})
+    friends_list = friends_list_data.get("user_names", []) if friends_list_data is not None else []
+
+    all_users_data = await get(USER_INTERNAL_BASE, "list_users", headers={"Cookie" : f"access_token={request.cookies.get('access_token')}"})
+    all_users = all_users_data.get("user_names", []) if all_users_data is not None else []
+
+    authorized_user = claims.get("sub")
+    all_users = []
+
+    if not form.validate():
+        for field, errors in form.errors.items():
+            form.form_errors.extend(f"{field}: {error}" for error in errors)
+        return templates.TemplateResponse(
+            request=request, name="community.html", context={"authorized_user" : authorized_user,
+                                                             "follow_requests_sent" : follow_requests_sent,
+                                                             "follow_requests_received" : follow_requests_received,
+                                                             "friends_list" : friends_list,
+                                                             "all_users" : all_users,
+                                                             "form" : form}, status_code=400
+        )
+    
+    response = await get(USER_INTERNAL_BASE, f"search_users/{form.user.data}", headers={"Cookie" : f"access_token={request.cookies.get('access_token')}"})
+    all_users = response.get("user_names", []) if response is not None else []
+    
+    return templates.TemplateResponse(
+            request=request, name="community.html", context={"authorized_user" : authorized_user,
+                                                             "follow_requests_sent" : follow_requests_sent,
+                                                             "follow_requests_received" : follow_requests_received,
+                                                             "friends_list" : friends_list,
+                                                             "all_users" : all_users,
+                                                             "form" : form}
     )
 
 @app.get("/invites", response_class=HTMLResponse)
