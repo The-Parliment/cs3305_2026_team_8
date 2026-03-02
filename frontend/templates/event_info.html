@@ -14,10 +14,14 @@
     <h2>{{ event_title }}</h2>
     <section class="status">
         <div class="division">
-            <p>Event Host: {{ event_host }}</p>
-            <p>Event Start Time: {{ event_start_time }}</p>
-            <p>Event End Time: {{ event_end_time }}</p>
-            <p>Event Description: {{ event_description }}</p>
+            <h3>Event Host</h3>
+            <p>{{ event_host }}</p>
+            <h3>Event Start Time</h3>
+            <p>{{ event_start_time }}</p>
+            <h3>Event End Time</h3>
+            <p>{{ event_end_time }}</p>
+            <h3>Event Description</h3>
+            <p>{{ event_description }}</p>
             {% if event_public|default(false) %}
                 <p>This event is public.</p>
             {% else %}
@@ -32,21 +36,21 @@
                 <a href="/events/invitecircle/{{ event_id }}">Invite your Circle</a>
                 <a href="/events/inviteallfriends/{{ event_id }}">Invite all Friends</a>
                 
-                <p>My Groups</p>
+                <h3>My Groups</h3>
                 <ul class="list-scroll-bar">
                     {% for group in my_groups %}
                         <li>{{ group.group_name }} - <a href="/events/invite_group/{{ event_id }}/{{ group.group_id }}">Invite</a></li>
                     {% endfor %}
                 </ul>
 
-                <p>Attendees:</p>
+                <h3>Attendees:</h3>
                 <ul class="list-scroll-bar">
                     {% for attendee in attendees %}
                         <li><a href="/profile/{{ attendee }}">{{ attendee }}</a></li>
                     {% endfor %}
                 </ul>
 
-                <p>Pending Requests:</p>
+                <h3>Pending Requests:</h3>
                 <ul class="list-scroll-bar">
                     {% for request in pending_requests %}
                         <li><a href="/profile/{{ request }}">{{ request["username"] }}</a> - <a href="/events/accept/{{ event_id }}/{{ request['username'] }}">Approve</a> | <a href="/events/decline/{{ event_id }}/{{ request['username'] }}">Decline</a></li>
@@ -74,7 +78,7 @@
                         <a href="/events/invitecircle/{{ event_id }}">Invite your Circle</a>
                         <a href="/events/inviteallfriends/{{ event_id }}">Invite all Friends</a>
                         
-                        <p>My Groups</p>
+                        <h3>My Groups</h3>
                         <ul class="list-scroll-bar">
                             {% for group in my_groups %}
                                 <li>{{ group.group_name }} - <a href="/events/invite_group/{{ event_id }}/{{ group.group_id }}">Invite</a></li>
