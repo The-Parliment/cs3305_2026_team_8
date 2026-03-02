@@ -1,4 +1,4 @@
-from wtforms import BooleanField, DateTimeLocalField, Form, StringField, PasswordField, SubmitField, DateTimeField, FloatField, TextAreaField
+from wtforms import BooleanField, DateTimeLocalField, Form, StringField, PasswordField, SubmitField, DateTimeField, FloatField, TextAreaField, IntegerRangeField
 from wtforms.validators import DataRequired, Length, InputRequired
 from wtforms.widgets import HiddenInput
 import datetime
@@ -40,3 +40,13 @@ class GroupForm(Form):
 class CommunityForm(Form):
     user = StringField("Username")
     submit = SubmitField("Submit")
+    
+class SearchEventForm(Form):
+    title = StringField("Title")
+    host = StringField("Host")
+    datetime_start = DateTimeLocalField("Start Time", format=['%Y-%m-%dT%H:%M', '%Y-%m-%dT%H:%M:%S'])
+    datetime_end = DateTimeLocalField("End Time", format=['%Y-%m-%dT%H:%M', '%Y-%m-%dT%H:%M:%S'])
+    latitude = FloatField("Latitude")
+    longitude = FloatField("Longitude")
+    radius = IntegerRangeField("Radius (km)", default=50)
+    submit = SubmitField("Search")

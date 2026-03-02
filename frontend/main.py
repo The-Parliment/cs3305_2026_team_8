@@ -5,7 +5,7 @@ from fastapi.templating import Jinja2Templates
 from starlette.middleware.sessions import SessionMiddleware
 from common.JWTSecurity import decode_and_verify
 from common.clients.client import post, get
-from forms import ChangeDetailsForm, CommunityForm, EventForm, GroupForm, LoginForm, RegisterForm
+from forms import ChangeDetailsForm, CommunityForm, EventForm, GroupForm, LoginForm, RegisterForm, SearchEventForm
 from common.db.init import init_db
 import os
 from passlib.context import CryptContext
@@ -427,7 +427,7 @@ async def event_info(request: Request, event_id: int, claims: dict = Depends(req
                                                           "pending_requests": event_requests}
     )
 
-@app.get("/events", response_class=HTMLResponse)
+@app.get("/all_events", response_class=HTMLResponse)
 async def all_events(request: Request, claims: dict = Depends(require_frontend_auth)):
     token = request.cookies.get("access_token")
     all_events_data = await get(EVENTS_INTERNAL_BASE, "all_events", headers={"Cookie" : f"access_token={token}"})
@@ -448,6 +448,56 @@ async def all_events(request: Request, claims: dict = Depends(require_frontend_a
     authorized_user = claims.get("sub")
     return templates.TemplateResponse(
         request=request, name="events_map.html", context={"all_events": all_events, "display_map": True, "authorized_user": authorized_user}
+    )
+
+@app.get("/events", response_class=HTMLResponse)
+async def events(request: Request, claims: dict = Depends(require_frontend_auth)):
+    form = SearchEventForm()
+    
+    events = []
+    
+    return templates.TemplateResponse(
+        request=request, name="events_map.html", context={"form": form, "display_map": True, "authorized_user": claims.get("sub"), "all_events" : events}
+    )
+    
+@app.post("/events", response_class=HTMLResponse)
+async def search_events(request: Request, claims: dict = Depends(require_frontend_auth)):
+    data = await request.form()
+    form = SearchEventForm(data=data)
+
+    if not form.validate():
+        for field, errors in form.errors.items():
+            form.form_errors.extend(f"{field}: {error}" for error in errors)
+        return templates.TemplateResponse(
+            request=request, name="events_map.html", context={"form": form, "display_map": True, "authorized_user": claims.get("sub")}, status_code=400
+        )
+    
+    token = request.cookies.get("access_token")
+    search_params = {
+        "title": form.title.data,
+        "datetime_start": form.datetime_start.data.isoformat() if form.datetime_start.data else None,
+        "datetime_end": form.datetime_end.data.isoformat() if form.datetime_end.data else None,
+        "latitude": form.latitude.data,
+        "longitude": form.longitude.data,
+        "radius": form.radius.data
+    }
+    response = await post(EVENTS_INTERNAL_BASE, "search", headers={"Cookie" : f"access_token={token}"}, json=search_params)
+    search_results_info = [] if response is None else response.get("events", [])
+    search_results = []
+    for event in search_results_info:
+        search_results.append({
+            "id": event["id"],
+            "title": event["title"],
+            "latitude": event["latitude"],
+            "longitude": event["longitude"],
+            "start_time": event["datetime_start"],
+            "end_time": event["datetime_end"],
+            "host": event["host"],
+            "description": event["description"]
+        })
+    
+    return templates.TemplateResponse(
+        request=request, name="events_map.html", context={"form": form, "display_map": True, "authorized_user": claims.get("sub"), "all_events": search_results}
     )
 
 @app.get("/events/create_event", response_class=HTMLResponse)

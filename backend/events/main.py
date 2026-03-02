@@ -88,7 +88,7 @@ def get_bounding_box(lat, lng, radius_km):
         "max_lng": lng + delta_lng
     }
 
-@app.get("/search", response_model = ListEventResponse)
+@app.post("/search", response_model = ListEventResponse)
 async def search_events(request:SearchRequest) -> ListEventResponse:
     with get_db() as db:
         bb = get_bounding_box(request.latitude, request.longitude, request.radius)
