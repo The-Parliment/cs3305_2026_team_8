@@ -209,6 +209,18 @@ form p {
   margin-right: -0.85em;
 }
 
+#community-submit{
+  margin-top: 1em;
+}
+
+.division form {
+  background-color: transparent;
+  text-align: left;
+  border: none;
+  margin: 0;
+  padding: 0;
+}
+
 /* =========================================
    TABLES
 ========================================= */

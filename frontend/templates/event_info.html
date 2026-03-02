@@ -3,11 +3,6 @@
 {% block main_content %}
 
 <main id="main">
-    {% if is_user_host|default(false) %}
-        <a href="/events/edit/{{ event_id }}">Edit Event</a>
-        <a href="/events/cancel/{{ event_id }}">Cancel Event</a>
-        <a href="/events/invitecircle/{{ event_id }}/">Invite Circle</a>
-    {% endif %}
     <header>
         <h1>Event Information</h1>
     </header>
@@ -30,12 +25,6 @@
         </div>
         <div class="division">
             {% if is_host|default(false) %}
-                <a href="/events/cancel/{{ event_id }}">Cancel Event</a>
-                <a href="/events/edit/{{ event_id }}">Edit Event</a>
-                <br>
-                <a href="/events/invitecircle/{{ event_id }}">Invite your Circle</a>
-                <a href="/events/inviteallfriends/{{ event_id }}">Invite all Friends</a>
-                
                 <h3>My Groups</h3>
                 <ul class="list-scroll-bar">
                     {% for group in my_groups %}
@@ -43,14 +32,14 @@
                     {% endfor %}
                 </ul>
 
-                <h3>Attendees:</h3>
+                <h3>Attendees</h3>
                 <ul class="list-scroll-bar">
                     {% for attendee in attendees %}
                         <li><a href="/profile/{{ attendee }}">{{ attendee }}</a></li>
                     {% endfor %}
                 </ul>
 
-                <h3>Pending Requests:</h3>
+                <h3>Pending Requests</h3>
                 <ul class="list-scroll-bar">
                     {% for request in pending_requests %}
                         {% if request["username"] != authorized_user %}
@@ -58,7 +47,11 @@
                         {% endif %}
                     {% endfor %}
                 </ul>
-
+                <h3>Actions</h3>
+                <a href="/events/cancel/{{ event_id }}">Cancel Event</a>
+                <a href="/events/edit/{{ event_id }}">Edit Event</a>
+                <a href="/events/invitecircle/{{ event_id }}">Invite your Circle</a>
+                <a href="/events/inviteallfriends/{{ event_id }}">Invite all Friends</a>
             {% else %}
 
                 {% if is_invited|default(false) %}
