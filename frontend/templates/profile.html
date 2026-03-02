@@ -5,11 +5,11 @@
 <main id="main">
     <header>
     {% if authorized_user %}
-        <h1>Logged in as </h1>
+        <h1>Profile</h1>
         <p>{{ authorized_user }}</p>
     {% endif %}
     </header>
-    <h2>Profile Details</h2>
+    <h2>Details</h2>
     {% if user_details %}
         <h3>First Name</h3>
         <p>{{ user_details["first_name"] }}</p>
