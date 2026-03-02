@@ -806,11 +806,11 @@ async def get_group_info(request: Request, group_id: int, claims: dict = Depends
         join_requests = join_requests_data.get("invites", []) if join_requests_data else []
 
     invitees = []
-    if group_owner == claims.get("sub"):
-        invitees_data = await get(GROUPS_INTERNAL_BASE, f"get_this_group_invites/{group_id}", headers={"Cookie" : f"access_token={token}"})
-        invitees_raw = invitees_data.get("invites", []) if invitees_data else []
-        for invite in invitees_raw:
-            invitees.append(invite.get("username", "Unknown User"))
+    invitees_data = await get(GROUPS_INTERNAL_BASE, f"get_this_group_invites/{group_id}", headers={"Cookie" : f"access_token={token}"})
+    invitees_raw = invitees_data.get("invites", []) if invitees_data else []
+    for invite in invitees_raw:
+        print(f"DEBUG: Processing invite: {invite.get('username', 'Unknown User')}")
+        invitees.append(invite.get("username", "Unknown User"))
 
     return templates.TemplateResponse(
         request=request, name="group_info.html", context={"group": group, 
