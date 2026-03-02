@@ -1,4 +1,4 @@
-var marker = L.marker([x, y], {color : 'red'}).addTo(map)
+var centerMarker = L.marker([x, y], {color : '#AA4A44'}).addTo(map)
 
 function setLocation(){
     document.getElementById("latitude").value = map.getCenter().lat;
@@ -11,7 +11,9 @@ document.getElementById("longitude").value = map.getCenter().lng;
 const radiusSlider = document.getElementById("radius");
 console.log("Radius Slider: " + radiusSlider.value);
 
-var circle = L.circle(map.getCenter(), {radius: 1}).addTo(map);
+var tempRad = (parseFloat(radiusSlider.value) || 1) * 250;
+
+var circle = L.circle(map.getCenter(), {radius: tempRad}).addTo(map);
 var bounds = circle.getBounds();
 map.removeLayer(circle); 
 
@@ -19,11 +21,12 @@ var square = L.rectangle(bounds, {
     color: "blue",
     weight: 1
 }).addTo(map);
+square.setBounds(bounds);
 
 radiusSlider.addEventListener('input', function() {
     var radius = this.value;
     console.log("Radius: " + radius);
-    radius = radius * 1000; // Convert km to meters
+    radius = radius * 250;
 
     var tempCircle = L.circle(map.getCenter(), {radius: (radius)}).addTo(map);
     var newBounds = tempCircle.getBounds();
@@ -32,8 +35,15 @@ radiusSlider.addEventListener('input', function() {
     map.removeLayer(tempCircle); 
 });
 
-function onDrag(e){
-    marker.setLatLng(map.getCenter());
+function onDrag(e){var center = map.getCenter();
+    centerMarker.setLatLng(center);
+
+    var radius = (parseFloat(radiusSlider.value) || 1) * 250;
+
+    var tempCircle = L.circle(centerMarker.getLatLng(), {radius: radius}).addTo(map);
+    square.setBounds(tempCircle.getBounds());
+    map.removeLayer(tempCircle);
+
     document.getElementById("latitude").value = map.getCenter().lat;
     document.getElementById("longitude").value = map.getCenter().lng;
 }

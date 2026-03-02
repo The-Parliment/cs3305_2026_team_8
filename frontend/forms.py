@@ -48,5 +48,5 @@ class SearchEventForm(Form):
     datetime_end = DateTimeLocalField("End Time", format=['%Y-%m-%dT%H:%M', '%Y-%m-%dT%H:%M:%S'])
     latitude = FloatField("Latitude")
     longitude = FloatField("Longitude")
-    radius = IntegerRangeField("Radius (km)", default=50)
+    radius = IntegerRangeField("Area", default=5)
     submit = SubmitField("Search")

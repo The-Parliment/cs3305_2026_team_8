@@ -475,6 +475,7 @@ async def search_events(request: Request, claims: dict = Depends(require_fronten
     token = request.cookies.get("access_token")
     search_params = {
         "title": form.title.data,
+        "host": form.host.data,
         "datetime_start": form.datetime_start.data.isoformat() if form.datetime_start.data else None,
         "datetime_end": form.datetime_end.data.isoformat() if form.datetime_end.data else None,
         "latitude": form.latitude.data,
@@ -497,7 +498,12 @@ async def search_events(request: Request, claims: dict = Depends(require_fronten
         })
     
     return templates.TemplateResponse(
-        request=request, name="events_map.html", context={"form": form, "display_map": True, "authorized_user": claims.get("sub"), "all_events": search_results}
+        request=request, name="events_map.html", context={"form": form, 
+                                                          "display_map": True, 
+                                                          "authorized_user": claims.get("sub"), 
+                                                          "all_events": search_results, 
+                                                          "x" : form.latitude.data, 
+                                                          "y" : form.longitude.data}
     )
 
 @app.get("/events/create_event", response_class=HTMLResponse)
