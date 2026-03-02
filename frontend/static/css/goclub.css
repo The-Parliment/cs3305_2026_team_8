@@ -186,7 +186,7 @@ form p {
 
 .form-on-map {
   position: fixed;
-  top: 22em;
+  top: 5em;
   left: 1em;
   z-index: 9000;
   background-color: #e4b969ca;
@@ -276,7 +276,6 @@ tr:nth-child(even) {
 .sidenav .bottom {
   position: sticky;
   display: inline;
-  top: 33em;
   margin-left: 1em;
   font-size: 1.3em;
 }
