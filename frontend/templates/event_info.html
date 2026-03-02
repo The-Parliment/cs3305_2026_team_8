@@ -53,7 +53,9 @@
                 <h3>Pending Requests:</h3>
                 <ul class="list-scroll-bar">
                     {% for request in pending_requests %}
+                        {% if request["username"] != authorized_user %}
                         <li><a href="/profile/{{ request }}">{{ request["username"] }}</a> - <a href="/events/accept/{{ event_id }}/{{ request['username'] }}">Approve</a> | <a href="/events/decline/{{ event_id }}/{{ request['username'] }}">Decline</a></li>
+                        {% endif %}
                     {% endfor %}
                 </ul>
 
@@ -74,23 +76,27 @@
                 <p>You are attending this event.</p>
                 <a href="/events/decline/{{ event_id }}">Leave Event</a>
 
-                    {% if event_public|default(false) %}
-                        <a href="/events/invitecircle/{{ event_id }}">Invite your Circle</a>
-                        <a href="/events/inviteallfriends/{{ event_id }}">Invite all Friends</a>
-                        
-                        <h3>My Groups</h3>
-                        <ul class="list-scroll-bar">
-                            {% for group in my_groups %}
-                                <li>{{ group.group_name }} - <a href="/events/invite_group/{{ event_id }}/{{ group.group_id }}">Invite</a></li>
-                            {% endfor %}
-                        </ul>
-                    {% endif %}
+                {% if event_public|default(false) %}
+                    <a href="/events/invitecircle/{{ event_id }}">Invite your Circle</a>
+                    <a href="/events/inviteallfriends/{{ event_id }}">Invite all Friends</a>
+                    
+                    <h3>My Groups</h3>
+                    <ul class="list-scroll-bar">
+                        {% for group in my_groups %}
+                            <li>{{ group.group_name }} - <a href="/events/invite_group/{{ event_id }}/{{ group.group_id }}">Invite</a></li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
 
                 {% endif %}
                 
                 {% if not is_attending|default(false) and not is_requested|default(false) and not is_invited|default(false) %}
-                <p>You are not attending this event.</p>
-                <a href="/events/request/{{ event_id }}">Request to Attend</a>
+                        {% if event_public|default(false) %}
+                            <a href="/events/attend/{{ event_id }}">Attend</a>
+                        {% else %}
+                            <p>You are not attending this event.</p>
+                            <a href="/events/request/{{ event_id }}">Request to Attend</a>
+                        {% endif %}
                 {% endif %}
             {% endif %}
         </div>
