@@ -1,0 +1,207 @@
+html {
+  background-color: #6EBDC7;
+  height: 100%;
+  margin: 0;
+
+}
+
+body {
+  font-family: Verdana, Geneva, Tahoma, sans-serif;
+  height: 100%;
+  margin: 0;
+}
+
+#main {
+  transition: margin-right 0.3s ease;
+  height: 100%;
+  position: relative;
+}
+
+#submit {
+  background-color: #E4B969;
+  font-size: 1.1em;
+}
+
+#mySidenav img {
+  display: inline;
+  width: 3.5em;
+  height: 3.5em;
+  margin-bottom: -0.5em;
+  margin-left: 0.5em;
+}
+
+header {
+  background-color: #6E2242;
+  padding: 0.4em;
+  border-radius: 0px 0px 5px 5px;
+  border-bottom: 3px solid #5f1e39;
+}
+
+header * {
+  color: #E4B969;
+}
+
+header p {
+  font-size: 1.4em;
+  margin-top: -0.5em;
+}
+
+h2 {
+  color: #6E2242;
+  background-color: #E4B969;
+  padding: 0.3em;
+  border-radius: 3px;
+  border: 2px solid #b19053;
+  margin-top: -10px;
+}
+
+#logo {
+  position: fixed;
+  top: 60%;
+  z-index: 9999;
+}
+
+h3 {
+  color: #1a706d;
+  margin-left: 0.5em;
+}
+
+p, a{
+  margin-left: 0.5em;
+}
+
+a{
+  color: #AE2456;
+  font-size:0.9em;
+}
+
+#changeDetails {
+  position: absolute;
+  top: 95%;
+  left: 89%;
+  color: #AE2456;
+  font-size: 1.1em;
+}
+
+form {
+  margin: 0.5em;
+}
+
+form p {
+  margin: 0.25em;
+}
+
+table{
+  border-collapse:collapse;
+  width:100%;
+}
+th, td{
+  border-bottom: 0.1em solid #1a706d;
+}
+
+th{
+  color:#6E2242;
+  font-size:1.2em;
+  text-align: left;
+  padding:0.5em;
+}
+
+tr:nth-child(even) {
+  background-color: #66b3bd;
+}
+
+.sidenav {
+  height: 100%;
+  width: 0;
+  position: fixed;
+  z-index: 1;
+  top: 0;
+  right: 0;
+  background-color: #E4B969;
+  overflow-x: hidden;
+  transition: 0.5s;
+  padding-top: 60px;
+  z-index: 10000;
+  border-radius: 4px;
+}
+
+
+.sidenav a:hover {
+  color: #AE2456;
+}
+
+.sidenav .closebtn{
+  position: absolute;
+  top: 0;
+  left: 5em;
+  font-size: 36px;
+}
+
+.sidenav .bottom{
+  position: sticky;
+  display:inline;
+  top: 85%;
+  margin-left: 1em;
+  font-size: 1.3em;
+}
+
+#form-on-map {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    background-color: rgba(255, 255, 255, 0.8);
+    padding: 20px;
+    border-radius: 10px;
+    z-index: 10000;
+}
+
+  
+.sidenav a {
+  padding: 0.5em;
+  text-decoration: none;
+  font-size: 1.5em;
+  color: #6E2242;
+  display: inline-block;
+  transition: 0.3s;
+}
+
+.menu-btn {
+  font-size: 30px;
+  cursor: pointer;
+  position: fixed;
+  right: 20px;
+  top: 10px;
+  z-index: 9999;
+}
+
+@media screen and (max-width: 768px) {
+  body {
+    font-size: 16px;
+  }
+
+  .sidenav a {
+    font-size: 20px;
+  }
+
+  .menu-btn {
+    font-size: 36px;
+    right: 16px;
+    top: 16px;
+  }
+}
+
+@media screen and (max-height: 450px) {
+  .sidenav {
+    padding-top: 15px;
+  }
+
+  .sidenav a {
+    font-size: 18px;
+  }
+}
+
+@media screen and (max-width: 600px) {
+  #logo {
+    width: 20px;
+  }
+}

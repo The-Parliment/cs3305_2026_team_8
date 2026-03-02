@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+<!-- Template for displaying a user's events, hosting, invited, public subsections -->
+<!-- Page needs to include search bar -->
+<!-- Each event should have options to delete/edit/invite (3 options)/show more information-->
+{% block main_content %}   
+<main>
+    <h1>Events</h1>
+    
+    <h2>Hosting</h2>
+    <ul>
+        {% for event in events %}
+            <li><a href="{{ url_for('event_info', event_id=event.id) }}">{{ event.title }}</a></li>
+        {% endfor %}
+    </ul>
+    <h2>Invited</h2>
+    <ul>
+        {% for event in invited_events %}
+            <li><a href="{{ url_for('event_info', event_id=event.id) }}">{{ event.title }}</a></li>
+        {% endfor %}
+    </ul>
+    <h2>Public Events</h2>
+    <ul>
+        {% for event in public_events %}
+            <li><a href="{{ url_for('event_info', event_id=event.id) }}">{{ event.title }}</a></li>
+        {% endfor %}    
+    </ul>
+</main>
+{% endblock %}

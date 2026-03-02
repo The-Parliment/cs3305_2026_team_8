@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block main_content %}
+
+<main id="main">
+    <div id="map"></div>
+        {% if display_map|default(false) %}
+            <script type="text/javascript">
+                var x = {{ x|default(53.347878221572344)|tojson }};
+                var y = {{ y|default(-6.275954663866795)|tojson }};
+                var authorizedUser = {{ authorized_user|default(None)|tojson }};
+            </script>
+            <script type="text/javascript" src="/static/js/map.js"></script>
+        {% endif %}
+    <img src="../static/images/logo.png" id="logo" alt="go club" style="max-width: none;width:40em;height:25em;">
+</main>
+
+{% endblock %}

@@ -1,36 +1,72 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="utf-8">
-        {% if display_map|default(false) %}
-            <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-                integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
-                crossorigin=""/>
-            <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-                integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
-                crossorigin=""></script>
-            <style>#map{ 
-                height: 50em;
-                width: 50em;
-                        }</style>
-        <title>Test</title> 
-        {% endif %}
-    </head>
-    <header>
-    </header>
-    <body>
-        <div id="map"></div>
-        {% if display_map|default(false) %}
-            <script type="text/javascript">
-                var x = {{ x|default(53.347878221572344)|tojson }};
-                var y = {{ y|default(-6.275954663866795)|tojson }};
-            </script>
-            <script type="text/javascript" src="{{ url_for('static', path='/js/map.js') }}"></script>
-        {% endif %}
-        <a href="/login">Login</a>
-        <a href="/circle">Circle</a>
-        {% block main_content %}
-        
-        {% endblock %}
-    </body>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>GoClub</title>
+  <link href="{{ url_for('static', path='/css/goclub.css') }}" rel="stylesheet">
+  {% if display_map|default(false) %}
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <style>
+    #map {
+      width: 100%;
+      height: 100vh;
+    }
+  </style>
+  {% endif %}
+</head>
+
+<body>
+  <div id="mySidenav" class="sidenav">
+    <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
+    {% if logged_in|default(true) %}
+    <img src="../static/images/map.png"><a href="/home">Map</a>
+    <br />
+    <img src="../static/images/event.png"><a href="/events">Events</a>
+    <br />
+    <img src="../static/images/group.png"><a href="/community">Community</a>
+    <br />
+    <img src="../static/images/group.png"><a href="/groups">Groups</a>
+    <br />
+    <img src="../static/images/user.png"><a href="/profile">My Profile</a>
+    <br />
+    <img src="../static/images/circle.png"><a href="/circle">My Circle</a>
+    <br />
+    <a href="/logout" class="bottom">Log Out</a>
+    {% else %}
+    <img src="../static/images/map.png"><a href="/home">Map</a>
+    <br />
+    <a href="/login" class="bottom">Login</a>
+    <a href="/register" class="bottom">Register</a>
+    {% endif %}
+  </div>
+  <script>
+    function openNav() {
+      document.getElementById("mySidenav").style.width = "250px";
+      document.getElementById("main").style.marginRight = "250px";
+      document.getElementById("menuBtn").style.display = "none";
+
+      setTimeout(function () {
+        map.invalidateSize();
+      }, 310);
+    }
+    function closeNav() {
+      document.getElementById("mySidenav").style.width = "0";
+      document.getElementById("main").style.marginRight = "0";
+      document.getElementById("menuBtn").style.display = "block";
+
+      setTimeout(function () {
+        map.invalidateSize();
+      }, 310);
+    }
+  </script>
+  <span id="menuBtn" class="menu-btn" onclick="openNav()">&#9776;</span>
+  {% block main_content %}
+  {% endblock %}
+</body>
+
 </html>

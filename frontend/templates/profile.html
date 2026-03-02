@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block main_content %}
+
+<main id="main">
+    <header>
+        <h1>Your profile</h1>
+        <p>{{ authorized_user }}</p>  
+    </header>
+    
+    <h2>Profile Details</h2>
+    {% if user_details %}
+        <h3>First Name</h3>
+        <p>{{ user_details["first_name"] }}</p> 
+        <h3>Last Name</h3>
+        <p>{{ user_details["last_name"] }}</p>
+        <h3>Email</h3>
+        <p>{{ user_details["email"] }}</p>
+        <h3>Phone Number</h3>
+        <p>{{ user_details["phone_number"] }}</p>
+        <a href="/change_details" id="changeDetails">Change Details</a>
+    {% else %}
+        <p>No profile details available.</p>
+    {% endif %}
+</main>
+
+{% endblock %}

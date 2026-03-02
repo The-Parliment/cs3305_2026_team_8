@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block main_content %}
+
+<main id="main">
+    <header>
+        <h1>Change Details</h1>
+    </header>
+    <form action="" method="POST" novalidate>
+
+        <p>{{ form.first_name.label }}</p>
+        {{ form.first_name() }}
+        <br />
+
+        <p>{{ form.last_name.label }}</p>
+        {{ form.last_name() }}
+        <br />
+
+        <p>{{ form.email.label }}</p>
+        {{ form.email() }}
+        <br />
+
+        <p>{{ form.phone_number.label }}</p>
+        {{ form.phone_number() }}
+        <br />
+
+        {% if form.form_errors %}
+        <ul class="error-list">
+            {% for error in form.form_errors %}
+            <li>{{ error }}</li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+
+        <p>{{ form.submit() }}</p>
+    </form>
+</main>
+
+{% endblock %}

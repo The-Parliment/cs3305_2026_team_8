@@ -24,6 +24,34 @@ services:
       - circle_network
     environment:
       - JWT_SECRET=rosebud
+    depends_on:
+      - auth
+    volumes:
+      - ./common:/app/common
+      
+  user:
+    build: ./backend/user
+    container_name: user
+    networks:
+      - circle_network
+    environment:
+      - JWT_SECRET=rosebud
+    depends_on:
+      - auth
+    volumes:
+      - ./common:/app/common
+
+  events:
+    build: ./backend/events
+    container_name: events 
+    networks:
+      - circle_network
+    depends_on:
+      - auth
+      - circles
+    environment:
+      - CIRCLES_INTERNAL_BASE=http://circles:8002
+      - GROUPS_INTERNAL_BASE=http://groups:8003
     volumes:
       - ./common:/app/common
 
@@ -35,10 +63,14 @@ services:
     environment:
       - AUTH_INTERNAL_BASE=http://auth:8001
       - CIRCLES_INTERNAL_BASE=http://circles:8002
+      - GROUPS_INTERNAL_BASE=http://groups:8003
+      - EVENTS_INTERNAL_BASE=http://events:8005
+      - USER_INTERNAL_BASE=http://user:8005
       - JWT_SECRET=rosebud
     depends_on:
       - auth
       - circles
+      - user
     volumes:
       - ./common:/app/common
 
@@ -47,12 +79,16 @@ services:
     container_name: api_gateway
     ports:
       - "80:80"
+      - "443:443"
     depends_on:
       - auth
+      - events
       - frontend
       - circles
     networks:
       - circle_network
+    volumes:
+      - ./api_gateway/certs:/etc/nginx/certs
 
   proximity:
     build: ./backend/proximity
@@ -65,6 +101,8 @@ services:
       - valkey
     networks:
       - circle_network
+    volumes:
+      - ./common:/app/common
 
   groups:
     build:

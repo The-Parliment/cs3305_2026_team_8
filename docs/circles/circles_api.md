@@ -19,3 +19,17 @@ The pier _GROUP SERVICE_ will allow users to join multiple groupings of individu
 | GET | `/mycircle` | **Head:** `Authorization` | Array of: `invitee_usernames` |
 | POST | `/remove` | **Head:** `Authorization` **Body:** `inviter, invitee` | `message` |
 
+## State Machine
+
+```mermaid
+stateDiagram-v2
+    [*] --> PENDING : send_invite
+
+    PENDING --> ACCEPTED : accept
+    PENDING --> DECLINED : decline
+
+    ACCEPTED --> REMOVED : remove
+
+    DECLINED --> [*]
+    REMOVED --> [*]
+```
