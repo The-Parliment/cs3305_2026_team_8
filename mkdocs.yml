@@ -5,6 +5,9 @@ site_author: Parliament Team
 docs_dir: ./docs
 site_dir: site
 
+extra_css:          # <-- here
+  - stylesheets/extra.css
+
 theme:
   name: material
   palette:
