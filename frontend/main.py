@@ -3,6 +3,8 @@ from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from starlette.middleware.sessions import SessionMiddleware
+from starlette.middleware.trustedhost import TrustedHostMiddleware
+from uvicorn.middleware.proxy_headers import ProxyHeadersMiddleware
 from common.JWTSecurity import decode_and_verify
 from common.clients.client import post, get
 from forms import ChangeDetailsForm, CommunityForm, EventForm, GroupForm, LoginForm, RegisterForm, SearchEventForm
@@ -23,6 +25,9 @@ USER_INTERNAL_BASE = os.getenv("USER_INTERNAL_BASE", "http://user:8006")
 
 app = FastAPI(title="frontend_service")
 init_db()
+
+# Trust proxy headers from Nginx for proper HTTPS URL generation
+app.add_middleware(ProxyHeadersMiddleware, trusted_hosts="*")
 
 #This basically allows us to hold JWT's in a session, a soft substitute for Flask's "g" object
 app.add_middleware(
