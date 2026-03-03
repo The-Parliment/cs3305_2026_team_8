@@ -186,7 +186,7 @@ form p {
 
 .form-on-map {
   position: fixed;
-  top: 5em;
+  top: 2em;
   left: 1em;
   z-index: 9000;
   background-color: #e4b969ca;
@@ -201,6 +201,36 @@ form p {
 }
 
 .form-on-map h1 {
+  color: #6E2242;
+  width: 100%;
+}
+
+.list-on-map {
+  position: fixed;
+  bottom: 2em;
+  z-index: 9000;
+  background-color: #e4b969ca;
+  border: 2px solid #b19053d6;
+  border-radius: 1.5em;
+}
+
+.list-on-map * {
+  width: 95%;
+  border: none;
+  text-align: center;
+}
+
+.list-on-map ul {
+  list-style-type: disc;
+  list-style-position: inside;
+  text-align: left;
+  max-height: 15em; 
+  overflow-y: auto; 
+  overflow-x: hidden;
+  padding-left: -1em;
+}
+
+.list-on-map h1 {
   color: #6E2242;
   width: 100%;
 }

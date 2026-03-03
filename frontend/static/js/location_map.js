@@ -10,9 +10,9 @@ var liveRefreshTimer = null;
 // This function initializes the Leaflet map with a tile layer (OpenStreetMap)
 // and sets up the friend markers layer as a separate group so we can update it easily
 function initMap() {
-    // Create a map centered at coordinates [x, y] with zoom level 17
+    // Create a map centered at coordinates [x, y] with zoom level 13
     // The variables x and y are passed from the HTML template
-    map = L.map('map').setView([x, y], 17);
+    map = L.map('map').setView([x, y], 13);
 
     // Add the tile layer (the base map from OpenStreetMap)
     L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
