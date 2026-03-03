@@ -63,6 +63,9 @@ nav:
       - Auth:
           - API Reference: auth/auth_api.md
           - Design: auth/auth_design.md
+      - User:
+          - API Reference: user/user_api.md
+          - Design: user/user_design.md
       - Circles:
           - API Reference: circles/circles_api.md
           - Design: circles/circles_design.md
