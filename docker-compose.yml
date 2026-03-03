@@ -79,6 +79,7 @@ services:
       - AUTH_INTERNAL_BASE=http://auth:8001
       - CIRCLES_INTERNAL_BASE=http://circles:8002
       - GROUPS_INTERNAL_BASE=http://groups:8003
+      - PROXIMITY_INTERNAL_BASE=http://proximity:8004
       - EVENTS_INTERNAL_BASE=http://events:8005
       - USER_INTERNAL_BASE=http://user:8006
       - JWT_SECRET=rosebud
@@ -88,6 +89,8 @@ services:
       - user
       - events
       - groups
+      - proximity
+      - valkey
     volumes:
       - ./common:/app/common
 

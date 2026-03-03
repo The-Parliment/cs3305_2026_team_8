@@ -173,6 +173,16 @@ async def unfollow(inbound:UsersRequest) -> MessageResponse:
             UserRequest.type == RequestTypes.FOLLOW_REQUEST,
             UserRequest.status == Status.ACCEPTED)
         db.execute(stmt)
+        stmt2 = delete(UserRequest).where(
+            UserRequest.field1 == inbound.inviter,
+            UserRequest.field2 == inbound.invitee,
+            UserRequest.type == RequestTypes.CIRCLE_INVITE)
+        db.execute(stmt2)
+        stmt3 = delete(UserRequest).where(
+            UserRequest.field2 == inbound.inviter,
+            UserRequest.field1 == inbound.invitee,
+            UserRequest.type == RequestTypes.CIRCLE_INVITE)
+        db.execute(stmt3)
         db.commit()
         return MessageResponse(
             message=f"{inbound.invitee} has been unfollowed."

@@ -66,6 +66,7 @@
         var events = {{ all_events|tojson }};
     </script>
     <script type="text/javascript" src="{{ url_for('static', path='/js/events_map.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', path='/js/event_display.js') }}"></script>
 </main>
 
 {% endblock %}

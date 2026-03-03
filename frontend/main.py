@@ -17,6 +17,7 @@ templates = Jinja2Templates(directory="templates")
 AUTH_INTERNAL_BASE = os.getenv("AUTH_INTERNAL_BASE", "http://auth:8001")
 CIRCLES_INTERNAL_BASE = os.getenv("CIRCLES_INTERNAL_BASE", "http://circles:8002")
 GROUPS_INTERNAL_BASE = os.getenv("GROUPS_INTERNAL_BASE", "http://groups:8003")
+PROXIMITY_INTERNAL_BASE = os.getenv("PROXIMITY_INTERNAL_BASE", "http://proximity:8004")
 EVENTS_INTERNAL_BASE = os.getenv("EVENTS_INTERNAL_BASE", "http://events:8005")
 USER_INTERNAL_BASE = os.getenv("USER_INTERNAL_BASE", "http://user:8006")
 
@@ -69,7 +70,8 @@ def is_logged_in(request: Request) -> bool | None:
 
 @app.get("/", response_class=HTMLResponse)
 @app.get("/home", response_class=HTMLResponse)
-async def index(request: Request):
+@app.get("/home/{mode}", response_class=HTMLResponse)
+async def index(request: Request, mode: str = None):
     authorized_user = None
     token = request.cookies.get("access_token")
     if token:
@@ -78,8 +80,39 @@ async def index(request: Request):
             authorized_user = claims.get("sub")
         except Exception:
             authorized_user = None
+    
+    if mode not in ["location", "events"]:
+        mode = None
+
+    all_friends = []
+    all_events = []
+    location_map = False
+    events_map = False
+    if authorized_user:
+        if mode == "location":
+            location_map = True
+            events_map = False
+            friends_response = await get(CIRCLES_INTERNAL_BASE, "mycircle", headers={"Cookie" : f"access_token={token}"})
+            all_friends = friends_response.get("user_names", []) if friends_response else []
+            print(f"DEBUG: Retrieved friends list: {all_friends}")
+        elif mode == "events":
+            events_map = True
+            location_map = False
+            events_response = await get(EVENTS_INTERNAL_BASE, "myevents", headers={"Cookie" : f"access_token={token}"})
+            all_events = events_response.get("events", []) if events_response else []
+            user = claims.get("sub")
+            hosting_events_data = await get(EVENTS_INTERNAL_BASE, f"events_hosted_by/{user}", headers={"Cookie" : f"access_token={token}"})
+            hosting_events = hosting_events_data.get("events", []) if hosting_events_data else []
+            all_events.extend(hosting_events)
+            print(f"DEBUG: Retrieved events list: {all_events}")
+
     return templates.TemplateResponse(
-        request=request, name="home.html", context={"display_map": True, "authorized_user": authorized_user}
+        request=request, name="home.html", context={"display_map": True, 
+                                                    "authorized_user": authorized_user,
+                                                    "location_map": location_map,
+                                                    "events_map": events_map,
+                                                    "all_friends": all_friends,
+                                                    "all_events": all_events}
     )
 
 # Authentication Endpoints

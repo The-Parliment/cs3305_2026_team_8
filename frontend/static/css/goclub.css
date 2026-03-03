@@ -184,7 +184,7 @@ form p {
   border-radius: 0.5em;
 }
 
-.form-on-map {
+.form-on-map, .list-on-map2 {
   position: fixed;
   top: 2em;
   left: 1em;
@@ -194,15 +194,25 @@ form p {
   border-radius: 1.5em;
 }
 
-.form-on-map * {
+.form-on-map *, .list-on-map2 * {
   width: 95%;
   border: none;
   text-align: center;
 }
 
-.form-on-map h1 {
+.form-on-map h1, .list-on-map2 h1 {
   color: #6E2242;
   width: 100%;
+}
+
+.list-on-map2 ul {
+  list-style-type: disc;
+  list-style-position: inside;
+  text-align: left;
+  max-height: 15em; 
+  overflow-y: auto; 
+  overflow-x: hidden;
+  padding-left: -1em;
 }
 
 .list-on-map {
@@ -341,6 +351,24 @@ tr:nth-child(even) {
   cursor: pointer;
   position: fixed;
   right: 20px;
+  top: 10px;
+  z-index: 9999;
+}
+
+.event_button {
+  font-size: 1.86em;
+  cursor: pointer;
+  position: fixed;
+  left: 20px;
+  top: 10px;
+  z-index: 9999;
+}
+
+.friends_button {
+  font-size: 1.86em;
+  cursor: pointer;
+  position: fixed;
+  left: 50px;
   top: 10px;
   z-index: 9999;
 }
