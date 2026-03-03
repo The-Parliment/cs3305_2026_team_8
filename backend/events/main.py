@@ -329,6 +329,7 @@ async def accept_event(inbound: Request, event_id: int, username: str, authorize
         if not user_is_host(event_id, authorized_user):
             return MessageResponse(message="You are not the host of this event, so you cannot accept invitations to this event.")
         if is_requested(event_id, username):
+            print(f"DEBUG: Accepting invitation for user {username} to event {event_id}")
             stmt = update(UserRequest).values(
                 status=Status.ACCEPTED
             ).filter_by(
@@ -341,6 +342,7 @@ async def accept_event(inbound: Request, event_id: int, username: str, authorize
             db.commit()
             return MessageResponse(message="Invitation accepted, you are now attending the event!")
         else:
+            print(f"DEBUG: No pending invitation found for user {username} to event {event_id}")
             return MessageResponse(message="You were not invited to this event, so you cannot accept it.")
 
 @app.get("/myevents", response_model=ListEventResponse)

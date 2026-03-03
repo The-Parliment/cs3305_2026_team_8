@@ -5,14 +5,15 @@ var friendMarkersLayer;
 var DEFAULT_FRIENDS_RADIUS_KM = 2; // Default search radius for nearby friends in kilometers
 var LIVE_REFRESH_INTERVAL_MS = 5000; // Refresh location every 5 seconds (in milliseconds)
 var liveRefreshTimer = null;
+var first_time = true;
 
 // Geolocation pattern heavily inspired by https://www.w3schools.com/html/html5_geolocation.asp
 // This function initializes the Leaflet map with a tile layer (OpenStreetMap)
 // and sets up the friend markers layer as a separate group so we can update it easily
 function initMap() {
-    // Create a map centered at coordinates [x, y] with zoom level 17
+    // Create a map centered at coordinates [x, y] with zoom level 13
     // The variables x and y are passed from the HTML template
-    map = L.map('map').setView([x, y], 17);
+    map = L.map('map').setView([x, y], 13);
 
     // Add the tile layer (the base map from OpenStreetMap)
     L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -61,7 +62,10 @@ function success(position) {
     }).openTooltip();
 
     // Center the map on the user's location
-    map.setView([userLat, userLng], 17);
+    if (first_time){
+        map.setView([userLat, userLng], 17);
+        first_time = false;
+    }
     
     // If the user is logged in (authorizedUser exists), send their location to the proximity service
     // and fetch their friends' locations
@@ -209,6 +213,7 @@ function renderFriendMarkers(friends) {
         // If we have distance data, add a popup that shows how far away they are
         if (typeof friend.distance === 'number') {
             marker.bindPopup('Distance: ' + friend.distance.toFixed(2) + ' km');
+            marker.bindPopup("<a href='/profile/" + friend.username + "'> View Profile </a>")
         }
 
         // Add the marker to the friend layer (so it appears on the map)

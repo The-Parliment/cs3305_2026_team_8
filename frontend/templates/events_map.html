@@ -43,6 +43,16 @@
             {{ form.submit() }}
         </form>
     </div>
+    {% if all_events %}
+    <div class="list-on-map">
+        <h1>Events</h1>
+        <ul>
+            {% for event in all_events %}
+                <li><a href="/eventinfo/{{ event.id }}">{{ event.title }}</a></li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
     <div id="map"></div>
         {% if display_map|default(false) %}
             <script type="text/javascript">
@@ -56,6 +66,7 @@
         var events = {{ all_events|tojson }};
     </script>
     <script type="text/javascript" src="{{ url_for('static', path='/js/events_map.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', path='/js/event_display.js') }}"></script>
 </main>
 
 {% endblock %}

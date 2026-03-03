@@ -1,4 +1,4 @@
-var centerMarker = L.marker([x, y], {color : '#AA4A44'}).addTo(map)
+var centerMarker = L.marker([x, y]).addTo(map)
 
 function setLocation(){
     document.getElementById("latitude").value = map.getCenter().lat;
@@ -35,7 +35,8 @@ radiusSlider.addEventListener('input', function() {
     map.removeLayer(tempCircle); 
 });
 
-function onDrag(e){var center = map.getCenter();
+function onDrag(e){
+    var center = map.getCenter();
     centerMarker.setLatLng(center);
 
     var radius = (parseFloat(radiusSlider.value) || 1) * 250;
@@ -49,10 +50,4 @@ function onDrag(e){var center = map.getCenter();
 }
 
 map.on("move", onDrag);
-
-events.forEach(element => {
-    var marker = L.marker([element.latitude, element.longitude]).addTo(map);
-    marker.bindPopup("<b>" + element.title + "</b><br>" + 
-        element.description + "<br>" + "<a href='/eventinfo/" + element.id + "'>View Event</a>");
-});
 
