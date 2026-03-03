@@ -149,6 +149,13 @@ header p {
   grid-template-columns: 1fr 1fr;
 }
 
+.aInvites{
+  background-color: #E4B969;
+  border-radius: 0.5em;
+  padding: 0.3em;
+  margin-right: 0.3em;
+  border: 2px solid #b19053;
+}
 
 /* =========================================
    FORMS
@@ -179,8 +186,8 @@ form p {
 
 .form-on-map {
   position: fixed;
-  top: 22rem;
-  left: 1rem;
+  top: 5em;
+  left: 1em;
   z-index: 9000;
   background-color: #e4b969ca;
   border: 2px solid #b19053d6;
@@ -200,6 +207,18 @@ form p {
 
 #editting-button * {
   margin-right: -0.85em;
+}
+
+#community-submit{
+  margin-top: 1em;
+}
+
+.division form {
+  background-color: transparent;
+  text-align: left;
+  border: none;
+  margin: 0;
+  padding: 0;
 }
 
 /* =========================================
@@ -269,7 +288,6 @@ tr:nth-child(even) {
 .sidenav .bottom {
   position: sticky;
   display: inline;
-  top: 85%;
   margin-left: 1em;
   font-size: 1.3em;
 }

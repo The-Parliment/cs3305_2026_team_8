@@ -5,7 +5,7 @@ from fastapi.templating import Jinja2Templates
 from starlette.middleware.sessions import SessionMiddleware
 from common.JWTSecurity import decode_and_verify
 from common.clients.client import post, get
-from forms import ChangeDetailsForm, EventForm, GroupForm, LoginForm, RegisterForm
+from forms import ChangeDetailsForm, CommunityForm, EventForm, GroupForm, LoginForm, RegisterForm, SearchEventForm
 from common.db.init import init_db
 import os
 from passlib.context import CryptContext
@@ -257,12 +257,63 @@ async def get_community(request : Request, claims : dict = Depends(require_front
 
     authorized_user = claims.get("sub")
     
+    form = CommunityForm()
+    all_users = []
+    
     return templates.TemplateResponse(
             request=request, name="community.html", context={"authorized_user" : authorized_user,
                                                              "follow_requests_sent" : follow_requests_sent,
                                                              "follow_requests_received" : follow_requests_received,
                                                              "friends_list" : friends_list,
-                                                             "all_users" : all_users}
+                                                             "all_users" : all_users,
+                                                             "form" : form}
+    )
+    
+@app.post("/community", response_class=HTMLResponse)
+async def post_community(request : Request, claims : dict = Depends(require_frontend_auth)):
+    data = await request.form()
+    form = CommunityForm(data=data)
+    
+    follow_requests_sent_data = await get(USER_INTERNAL_BASE, "get_follow_requests_sent", 
+                              headers={"Cookie" : f"access_token={request.cookies.get('access_token')}"})
+    follow_requests_sent = follow_requests_sent_data.get("user_names", []) if follow_requests_sent_data is not None else []
+
+    follow_requests_received_data = await get(USER_INTERNAL_BASE, "get_follow_requests_received", 
+                               headers={"Cookie" : f"access_token={request.cookies.get('access_token')}"})
+    follow_requests_received = follow_requests_received_data.get("user_names", []) if follow_requests_received_data is not None else []
+    
+    friends_list_data = await get(USER_INTERNAL_BASE, "friends", 
+                        headers={"Cookie" : f"access_token={request.cookies.get('access_token')}"})
+    friends_list = friends_list_data.get("user_names", []) if friends_list_data is not None else []
+
+    all_users_data = await get(USER_INTERNAL_BASE, "list_users", headers={"Cookie" : f"access_token={request.cookies.get('access_token')}"})
+    all_users = all_users_data.get("user_names", []) if all_users_data is not None else []
+
+    authorized_user = claims.get("sub")
+    all_users = []
+
+    if not form.validate():
+        for field, errors in form.errors.items():
+            form.form_errors.extend(f"{field}: {error}" for error in errors)
+        return templates.TemplateResponse(
+            request=request, name="community.html", context={"authorized_user" : authorized_user,
+                                                             "follow_requests_sent" : follow_requests_sent,
+                                                             "follow_requests_received" : follow_requests_received,
+                                                             "friends_list" : friends_list,
+                                                             "all_users" : all_users,
+                                                             "form" : form}, status_code=400
+        )
+    
+    response = await get(USER_INTERNAL_BASE, f"search_users/{form.user.data}", headers={"Cookie" : f"access_token={request.cookies.get('access_token')}"})
+    all_users = response.get("user_names", []) if response is not None else []
+    
+    return templates.TemplateResponse(
+            request=request, name="community.html", context={"authorized_user" : authorized_user,
+                                                             "follow_requests_sent" : follow_requests_sent,
+                                                             "follow_requests_received" : follow_requests_received,
+                                                             "friends_list" : friends_list,
+                                                             "all_users" : all_users,
+                                                             "form" : form}
     )
 
 @app.get("/invites", response_class=HTMLResponse)
@@ -376,7 +427,7 @@ async def event_info(request: Request, event_id: int, claims: dict = Depends(req
                                                           "pending_requests": event_requests}
     )
 
-@app.get("/events", response_class=HTMLResponse)
+@app.get("/all_events", response_class=HTMLResponse)
 async def all_events(request: Request, claims: dict = Depends(require_frontend_auth)):
     token = request.cookies.get("access_token")
     all_events_data = await get(EVENTS_INTERNAL_BASE, "all_events", headers={"Cookie" : f"access_token={token}"})
@@ -397,6 +448,62 @@ async def all_events(request: Request, claims: dict = Depends(require_frontend_a
     authorized_user = claims.get("sub")
     return templates.TemplateResponse(
         request=request, name="events_map.html", context={"all_events": all_events, "display_map": True, "authorized_user": authorized_user}
+    )
+
+@app.get("/events", response_class=HTMLResponse)
+async def events(request: Request, claims: dict = Depends(require_frontend_auth)):
+    form = SearchEventForm()
+    
+    events = []
+    
+    return templates.TemplateResponse(
+        request=request, name="events_map.html", context={"form": form, "display_map": True, "authorized_user": claims.get("sub"), "all_events" : events}
+    )
+    
+@app.post("/events", response_class=HTMLResponse)
+async def search_events(request: Request, claims: dict = Depends(require_frontend_auth)):
+    data = await request.form()
+    form = SearchEventForm(data=data)
+
+    if not form.validate():
+        for field, errors in form.errors.items():
+            form.form_errors.extend(f"{field}: {error}" for error in errors)
+        return templates.TemplateResponse(
+            request=request, name="events_map.html", context={"form": form, "display_map": True, "authorized_user": claims.get("sub")}, status_code=400
+        )
+    
+    token = request.cookies.get("access_token")
+    search_params = {
+        "title": form.title.data,
+        "host": form.host.data,
+        "datetime_start": form.datetime_start.data.isoformat() if form.datetime_start.data else None,
+        "datetime_end": form.datetime_end.data.isoformat() if form.datetime_end.data else None,
+        "latitude": form.latitude.data,
+        "longitude": form.longitude.data,
+        "radius": form.radius.data
+    }
+    response = await post(EVENTS_INTERNAL_BASE, "search", headers={"Cookie" : f"access_token={token}"}, json=search_params)
+    search_results_info = [] if response is None else response.get("events", [])
+    search_results = []
+    for event in search_results_info:
+        search_results.append({
+            "id": event["id"],
+            "title": event["title"],
+            "latitude": event["latitude"],
+            "longitude": event["longitude"],
+            "start_time": event["datetime_start"],
+            "end_time": event["datetime_end"],
+            "host": event["host"],
+            "description": event["description"]
+        })
+    
+    return templates.TemplateResponse(
+        request=request, name="events_map.html", context={"form": form, 
+                                                          "display_map": True, 
+                                                          "authorized_user": claims.get("sub"), 
+                                                          "all_events": search_results, 
+                                                          "x" : form.latitude.data, 
+                                                          "y" : form.longitude.data}
     )
 
 @app.get("/events/create_event", response_class=HTMLResponse)
@@ -806,11 +913,11 @@ async def get_group_info(request: Request, group_id: int, claims: dict = Depends
         join_requests = join_requests_data.get("invites", []) if join_requests_data else []
 
     invitees = []
-    if group_owner == claims.get("sub"):
-        invitees_data = await get(GROUPS_INTERNAL_BASE, f"get_this_group_invites/{group_id}", headers={"Cookie" : f"access_token={token}"})
-        invitees_raw = invitees_data.get("invites", []) if invitees_data else []
-        for invite in invitees_raw:
-            invitees.append(invite.get("username", "Unknown User"))
+    invitees_data = await get(GROUPS_INTERNAL_BASE, f"get_this_group_invites/{group_id}", headers={"Cookie" : f"access_token={token}"})
+    invitees_raw = invitees_data.get("invites", []) if invitees_data else []
+    for invite in invitees_raw:
+        print(f"DEBUG: Processing invite: {invite.get('username', 'Unknown User')}")
+        invitees.append(invite.get("username", "Unknown User"))
 
     return templates.TemplateResponse(
         request=request, name="group_info.html", context={"group": group, 

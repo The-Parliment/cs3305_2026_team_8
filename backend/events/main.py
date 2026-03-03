@@ -76,6 +76,8 @@ async def event_info(request: Request, event_id:int):
                             )
 def get_bounding_box(lat, lng, radius_km):
     lat_rad = math.radians(lat)
+
+    radius_km *= 0.25 
     
     delta_lat = radius_km / 111.1
 
@@ -88,16 +90,18 @@ def get_bounding_box(lat, lng, radius_km):
         "max_lng": lng + delta_lng
     }
 
-@app.get("/search", response_model = ListEventResponse)
+@app.post("/search", response_model = ListEventResponse)
 async def search_events(request:SearchRequest) -> ListEventResponse:
     with get_db() as db:
         bb = get_bounding_box(request.latitude, request.longitude, request.radius)
-        stmt = select(Events).filter(Events.title.like(f"%{request.title}%") if request.title else True,
-                                     Events.host.like(f"%{request.host}%") if request.host else True,
+        stmt = select(Events).filter(Events.title.ilike(f"%{request.title}%") if request.title else True,
+                                     Events.host.ilike(f"%{request.host}%") if request.host else True,
                                      Events.datetime_start >= request.datetime_start if request.datetime_start else True,
                                      Events.datetime_end <= request.datetime_end if request.datetime_end else True,
-                                     Events.latitude >= bb["min_lat"] and Events.latitude <= bb["max_lat"],
-                                     Events.longitude >= bb["min_lng"] and Events.longitude <= bb["max_lng"])
+                                     Events.latitude >= bb["min_lat"],
+                                     Events.latitude <= bb["max_lat"],
+                                     Events.longitude >= bb["min_lng"],
+                                     Events.longitude <= bb["max_lng"])
         result=db.execute(stmt).scalars().all()
         list_of_events = []
         for event in result:
@@ -264,18 +268,7 @@ async def attend_event(inbound: Request, event_id: int, authorized_user=Depends(
     with get_db() as db:
         if not event_exists(event_id):
             return MessageResponse(message="There is no such event")
-        if event_is_public(event_id):
-            stmt = insert(UserRequest).values(
-                field1=authorized_user,
-                field2=authorized_user,
-                field3=event_id,
-                type=RequestTypes.EVENT_INVITE,
-                status=Status.ACCEPTED
-            )
-            db.execute(stmt)
-            db.commit()
-            return MessageResponse(message="You have joined the event!")
-        if is_user_invited_event(event_id, authorized_user):
+        if is_user_invited_event_pending(event_id, authorized_user):
             stmt = update(UserRequest).values(
                 status=Status.ACCEPTED
             ).filter_by(
@@ -287,7 +280,19 @@ async def attend_event(inbound: Request, event_id: int, authorized_user=Depends(
             db.commit()
             return MessageResponse(message="Invitation accepted, you are now attending the event!")
         else:
-            return MessageResponse(message="You were not invited to this event, so you cannot accept it. If you wish to attend, please request to attend the event and wait for the host to accept your request.")
+            if event_is_public(event_id):
+                stmt = insert(UserRequest).values(
+                    field1=authorized_user,
+                    field2=authorized_user,
+                    field3=event_id,
+                    type=RequestTypes.EVENT_INVITE,
+                    status=Status.ACCEPTED
+                )
+                db.execute(stmt)
+                db.commit()
+                return MessageResponse(message="You have joined the event!")
+            else:
+                return MessageResponse(message="You were not invited to this event, so you cannot accept it. If you wish to attend, please request to attend the event and wait for the host to accept your request.")
     
 @app.post("/decline/{event_id}", response_model=MessageResponse)
 async def decline_event(inbound: Request, event_id: int, authorized_user=Depends(get_username_from_request)) -> MessageResponse:

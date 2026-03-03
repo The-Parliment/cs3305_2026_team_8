@@ -439,8 +439,9 @@ async def get_group_invites(request: Request, authorized_user: str = Depends(get
 @app.get("/get_this_group_invites/{group_id}", response_model=ListInviteResponse)
 async def get_this_group_invites(request: Request, group_id: int, authorized_user: str = Depends(get_username_from_request)):
     logger.info("get_this_group_invites called")
+    print(f"DEBUG: Checking invites for group {group_id} and user {authorized_user}")
     with get_db() as db:
-        stmt = select(DBGroup).where(DBGroup.group_id == group_id, DBGroup.owner == authorized_user)
+        stmt = select(DBGroup).where(DBGroup.group_id == group_id)
         group = db.execute(stmt).scalar_one_or_none()
         if not group:
             return ListInviteResponse(invites=[])
@@ -453,6 +454,7 @@ async def get_this_group_invites(request: Request, group_id: int, authorized_use
         result = db.execute(req_stmt).scalars().all()
         invite_list = []
         for req in result:
+            print(f"DEBUG: Found invite for group {group_id} - Invited User: {req.field2}, Invited By: {req.field1}")
             invite_list.append(InviteResponse(group_id=req.field3, group_name=group.group_name, username=req.field2))
         return ListInviteResponse(invites=invite_list)
     
