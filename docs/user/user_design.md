@@ -21,16 +21,16 @@ erDiagram
         string phone_number
     }
 
-    requests["requests ← user service uses this"] {
+    requests {
         string field1 PK "Follower / requester"
         string field2 PK "Target user"
         string field3 PK "Context (unused for follows)"
-        enum   type   PK "FOLLOW_REQUEST"
-        enum   status    "PENDING | ACCEPTED | REJECTED | CONFIRMED"
+        string type PK "FOLLOW_REQUEST"
+        string status "PENDING | ACCEPTED | REJECTED | CONFIRMED"
     }
 
     users ||--|| user_details : "has profile"
-    users ||--o requests : "sends/receives follows"
+    users ||--o{ requests : "sends/receives follows"
 ```
 
 ## Relationship Model
