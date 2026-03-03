@@ -7,8 +7,8 @@
 <meta content="width=device-width,initial-scale=1" name="viewport"/>
 <meta content="Social Networking Microservices Platform - Technical Documentation" name="description"/>
 <meta content="Parliament Team" name="author"/>
-<link href="../circles_api/" rel="prev"/>
-<link href="../../groups/groups_api/" rel="next"/>
+<link href="../user_api/" rel="prev"/>
+<link href="../../circles/circles_api/" rel="next"/>
 <link href="../../assets/images/favicon.png" rel="icon"/>
 <meta content="mkdocs-1.6.1, mkdocs-material-9.7.3" name="generator"/>
 <title>Design - GoClub Technical Documentation</title>
@@ -24,7 +24,7 @@
 <input autocomplete="off" class="md-toggle" data-md-toggle="search" id="__search" type="checkbox"/>
 <label class="md-overlay" for="__drawer"></label>
 <div data-md-component="skip">
-<a class="md-skip" href="#circles-service-design">
+<a class="md-skip" href="#user-service-design">
           Skip to content
         </a>
 </div>
@@ -354,8 +354,8 @@
 </ul>
 </nav>
 </li>
-<li class="md-nav__item md-nav__item--section md-nav__item--nested">
-<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_4_2" type="checkbox"/>
+<li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+<input checked="" class="md-nav__toggle md-toggle" id="__nav_4_2" type="checkbox"/>
 <label class="md-nav__link" for="__nav_4_2" id="__nav_4_2_label" tabindex="">
 <span class="md-ellipsis">
     
@@ -367,7 +367,7 @@
   </span>
 <span class="md-nav__icon md-icon"></span>
 </label>
-<nav aria-expanded="false" aria-labelledby="__nav_4_2_label" class="md-nav" data-md-level="2">
+<nav aria-expanded="true" aria-labelledby="__nav_4_2_label" class="md-nav" data-md-level="2">
 <label class="md-nav__title" for="__nav_4_2">
 <span class="md-nav__icon md-icon"></span>
             
@@ -378,57 +378,7 @@
           </label>
 <ul class="md-nav__list" data-md-scrollfix="">
 <li class="md-nav__item">
-<a class="md-nav__link" href="../../user/user_api/">
-<span class="md-ellipsis">
-    
-  
-    API Reference
-  
-
-    
-  </span>
-</a>
-</li>
-<li class="md-nav__item">
-<a class="md-nav__link" href="../../user/user_design/">
-<span class="md-ellipsis">
-    
-  
-    Design
-  
-
-    
-  </span>
-</a>
-</li>
-</ul>
-</nav>
-</li>
-<li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
-<input checked="" class="md-nav__toggle md-toggle" id="__nav_4_3" type="checkbox"/>
-<label class="md-nav__link" for="__nav_4_3" id="__nav_4_3_label" tabindex="">
-<span class="md-ellipsis">
-    
-  
-    Circles
-  
-
-    
-  </span>
-<span class="md-nav__icon md-icon"></span>
-</label>
-<nav aria-expanded="true" aria-labelledby="__nav_4_3_label" class="md-nav" data-md-level="2">
-<label class="md-nav__title" for="__nav_4_3">
-<span class="md-nav__icon md-icon"></span>
-            
-  
-    Circles
-  
-
-          </label>
-<ul class="md-nav__list" data-md-scrollfix="">
-<li class="md-nav__item">
-<a class="md-nav__link" href="../circles_api/">
+<a class="md-nav__link" href="../user_api/">
 <span class="md-ellipsis">
     
   
@@ -478,19 +428,28 @@
 </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="#how-circles-work">
+<a class="md-nav__link" href="#relationship-model">
 <span class="md-ellipsis">
       
-        How Circles Work
+        Relationship Model
       
     </span>
 </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="#invite-state-machine">
+<a class="md-nav__link" href="#follow-state-machine">
 <span class="md-ellipsis">
       
-        Invite State Machine
+        Follow State Machine
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#endpoint-behavior-notes">
+<span class="md-ellipsis">
+      
+        Endpoint Behavior Notes
       
     </span>
 </a>
@@ -504,8 +463,67 @@
     </span>
 </a>
 </li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#inter-service-usage">
+<span class="md-ellipsis">
+      
+        Inter-Service Usage
+      
+    </span>
+</a>
+</li>
 </ul>
 </nav>
+</li>
+</ul>
+</nav>
+</li>
+<li class="md-nav__item md-nav__item--section md-nav__item--nested">
+<input class="md-nav__toggle md-toggle md-toggle--indeterminate" id="__nav_4_3" type="checkbox"/>
+<label class="md-nav__link" for="__nav_4_3" id="__nav_4_3_label" tabindex="">
+<span class="md-ellipsis">
+    
+  
+    Circles
+  
+
+    
+  </span>
+<span class="md-nav__icon md-icon"></span>
+</label>
+<nav aria-expanded="false" aria-labelledby="__nav_4_3_label" class="md-nav" data-md-level="2">
+<label class="md-nav__title" for="__nav_4_3">
+<span class="md-nav__icon md-icon"></span>
+            
+  
+    Circles
+  
+
+          </label>
+<ul class="md-nav__list" data-md-scrollfix="">
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../circles/circles_api/">
+<span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="../../circles/circles_design/">
+<span class="md-ellipsis">
+    
+  
+    Design
+  
+
+    
+  </span>
+</a>
 </li>
 </ul>
 </nav>
@@ -687,19 +705,28 @@
 </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="#how-circles-work">
+<a class="md-nav__link" href="#relationship-model">
 <span class="md-ellipsis">
       
-        How Circles Work
+        Relationship Model
       
     </span>
 </a>
 </li>
 <li class="md-nav__item">
-<a class="md-nav__link" href="#invite-state-machine">
+<a class="md-nav__link" href="#follow-state-machine">
 <span class="md-ellipsis">
       
-        Invite State Machine
+        Follow State Machine
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#endpoint-behavior-notes">
+<span class="md-ellipsis">
+      
+        Endpoint Behavior Notes
       
     </span>
 </a>
@@ -709,6 +736,15 @@
 <span class="md-ellipsis">
       
         Auth Notes
+      
+    </span>
+</a>
+</li>
+<li class="md-nav__item">
+<a class="md-nav__link" href="#inter-service-usage">
+<span class="md-ellipsis">
+      
+        Inter-Service Usage
       
     </span>
 </a>
@@ -736,21 +772,19 @@
 </a>
 </li>
 <li class="md-path__item">
-<a class="md-path__link" href="../circles_api/">
+<a class="md-path__link" href="../user_api/">
 <span class="md-ellipsis">
-    Circles
+    User
   </span>
 </a>
 </li>
 </ol>
 </nav>
 <article class="md-content__inner md-typeset">
-<h1 id="circles-service-design">Circles Service Design<a class="headerlink" href="#circles-service-design" title="Permanent link">¶</a></h1>
-<p>A circle is a small, invitation-based group representing close friendships. A user can only belong to one circle. The peer Group Service handles larger, multi-membership groupings.</p>
-<p>The defining design decision is the invitation state machine — a circle membership passes through explicit states (pending, accepted) and the service enforces valid transitions. This means a user never appears in circle queries before their invitation has been accepted.</p>
-<p>The circle boundary also acts as the privacy boundary for location sharing. Only accepted circle members can see each other's positions in the Proximity service. The Circles service is the authority on membership; Proximity delegates that question to it rather than reimplementing the logic.</p>
+<h1 id="user-service-design">User Service Design<a class="headerlink" href="#user-service-design" title="Permanent link">¶</a></h1>
+<p>The user service manages social relationships between users: follow requests, accepted follows, and derived friendships. It does not own a dedicated user profile table (that belongs to auth); instead it writes relationship state into the shared <code>requests</code> table using <code>type = FOLLOW_REQUEST</code>.</p>
 <h2 id="database-schema">Database Schema<a class="headerlink" href="#database-schema" title="Permanent link">¶</a></h2>
-<p>The circles service does not own any tables — it reads and writes exclusively to the shared <code>requests</code> table. The <code>users</code> and <code>user_details</code> tables are shown for context but are owned by the auth service.</p>
+<p>The user service relies on auth-owned identity tables for usernames and stores relationship edges in <code>requests</code>.</p>
 <pre class="mermaid"><code>erDiagram
     users {
         string username PK
@@ -765,34 +799,50 @@
         string phone_number
     }
 
-    requests["requests ← circles service uses this"] {
-        string field1 PK "Sender"
-        string field2 PK "Receiver"
-        string field3 PK "Context (unused for circles)"
-        enum   type   PK "CIRCLE_INVITE"
-        enum   status    "PENDING | ACCEPTED | REJECTED | CONFIRMED"
+    requests {
+        string field1 PK "Follower / requester"
+        string field2 PK "Target user"
+        string field3 PK "Context (unused for follows)"
+        string type PK "FOLLOW_REQUEST"
+        string status "PENDING | ACCEPTED | REJECTED | CONFIRMED"
     }
 
     users ||--|| user_details : "has profile"
-    users ||--o{ requests : "sends/receives (field1 or field2)"</code></pre>
-<h2 id="how-circles-work">How Circles Work<a class="headerlink" href="#how-circles-work" title="Permanent link">¶</a></h2>
-<p>The Circles service stores all its data in the shared <code>requests</code> table using <code>type = CIRCLE_INVITE</code>. There is no dedicated circles table — membership is entirely derived from the state of invite rows.</p>
+    users ||--o{ requests : "sends/receives follows"</code></pre>
+<h2 id="relationship-model">Relationship Model<a class="headerlink" href="#relationship-model" title="Permanent link">¶</a></h2>
+<p>A follow is directional. If Darren follows Cillian, one accepted row exists:</p>
 <ul>
-<li>To check if Cillian is in Darren's circle: query for a <code>CIRCLE_INVITE</code> row where <code>field1 = darren</code>, <code>field2 = cillian</code>, <code>status = ACCEPTED</code>.</li>
-<li>To get everyone in Darren's circle: query all <code>CIRCLE_INVITE</code> rows where <code>field1 = darren</code> and <code>status = ACCEPTED</code>, return <code>field2</code>.</li>
+<li><code>field1 = darren</code></li>
+<li><code>field2 = cillian</code></li>
+<li><code>type = FOLLOW_REQUEST</code></li>
+<li><code>status = ACCEPTED</code></li>
 </ul>
-<p>Declining and removing are both hard deletes — the row is gone entirely. There is no <code>DECLINED</code> or <code>REMOVED</code> status stored in the database.</p>
-<h2 id="invite-state-machine">Invite State Machine<a class="headerlink" href="#invite-state-machine" title="Permanent link">¶</a></h2>
+<p>Friendship is derived as bidirectional accepted follows. Two users are friends only when both directed rows exist and are accepted.</p>
+<h2 id="follow-state-machine">Follow State Machine<a class="headerlink" href="#follow-state-machine" title="Permanent link">¶</a></h2>
 <pre class="mermaid"><code>stateDiagram-v2
-    [*] --&gt; PENDING : POST /invite
+    [*] --&gt; PENDING : POST /send_follow_request
 
-    PENDING --&gt; ACCEPTED : POST /accept
-    PENDING --&gt; [*] : POST /decline (row deleted)
+    PENDING --&gt; ACCEPTED : POST /accept_follow_request
+    PENDING --&gt; [*] : POST /decline_follow_request (row deleted)
+    PENDING --&gt; [*] : POST /withdraw_follow_request (row deleted)
 
-    ACCEPTED --&gt; [*] : POST /remove (row deleted)</code></pre>
+    ACCEPTED --&gt; [*] : POST /unfollow (follow row deleted)</code></pre>
+<h2 id="endpoint-behavior-notes">Endpoint Behavior Notes<a class="headerlink" href="#endpoint-behavior-notes" title="Permanent link">¶</a></h2>
+<ul>
+<li><code>GET /followers</code> returns all users where <code>field2 = me</code> and status is accepted.</li>
+<li><code>GET /following</code> returns all users where <code>field1 = me</code> and status is accepted.</li>
+<li><code>GET /friends</code> computes intersection of accepted outgoing follows with accepted incoming follows.</li>
+<li><code>GET /search_users/{query}</code> performs case-insensitive username matching with <code>ILIKE</code>.</li>
+<li><code>POST /unfollow</code> also removes circle invite rows in both directions for that user pair to keep circles aligned with unfollow.</li>
+</ul>
 <h2 id="auth-notes">Auth Notes<a class="headerlink" href="#auth-notes" title="Permanent link">¶</a></h2>
-<p>Endpoints that need to know who the logged-in user is (<code>/get_invites</code>, <code>/get_invites_sent</code>, <code>/mycircle</code>) read identity from the <code>access_token</code> cookie. </p>
-<p>Endpoints that take explicit <code>inviter</code> and <code>invitee</code> in the request body (<code>/invite</code>, <code>/accept</code>, <code>/decline</code>, <code>/remove</code>) do not currently enforce an auth guard — they trust the values passed in the body directly.</p>
+<p>Read endpoints that need caller identity use the <code>access_token</code> cookie. Several mutation endpoints take <code>inviter</code> and <code>invitee</code> in the request body and do not enforce a strict caller/body match in the service itself.</p>
+<h2 id="inter-service-usage">Inter-Service Usage<a class="headerlink" href="#inter-service-usage" title="Permanent link">¶</a></h2>
+<p>Other services consume <code>GET /friends</code> to power social features:</p>
+<ul>
+<li>Events uses it for <code>/inviteallfriends/{event_id}</code>.</li>
+<li>Groups uses it for <code>/inviteallfriends/{group_id}</code> and <code>/friends_groups_exclusive</code>.</li>
+</ul>
 </article>
 </div>
 <script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
