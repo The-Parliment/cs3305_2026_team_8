@@ -3,8 +3,8 @@
 {% block main_content %}
 
 <main id="main">
-    <a id="friends_button" href="/home/location">Circle Location</a>
-    <a id="event_button" href="/home/events">My Events</a>
+    <a id="friends_button" href="/home/location"><img src="../static/images/circle.png" class="imgBtn"></a>
+    <a id="event_button" href="/home/events"><img src="../static/images/event.png" class="imgBtn"></a>
     {% if location_map or events_map %}
     <div class="list-on-map2">
         {% if events_map %}

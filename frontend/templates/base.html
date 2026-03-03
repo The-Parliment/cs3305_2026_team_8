@@ -23,26 +23,26 @@
 <body>
   <div id="mySidenav" class="sidenav">
     <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
-    {% if logged_in|default(true) %}
-    <a href="/invites" id="envelope">&#9993;</a>
-    <img src="../static/images/map.png"><a href="/home">Map</a>
-    <br />
-    <img src="../static/images/event.png"><a href="/events">Events</a>
-    <br />
-    <img src="../static/images/group.png"><a href="/community">Community</a>
-    <br />
-    <img src="../static/images/group.png"><a href="/groups">Groups</a>
-    <br />
-    <img src="../static/images/user.png"><a href="/profile">My Profile</a>
-    <br />
-    <img src="../static/images/circle.png"><a href="/circle">My Circle</a>
-    <br />
-    <a href="/logout" class="bottom">Log Out</a>
+    {% if logged_in|default(false) %}
+      <a href="/invites" id="envelope">&#9993;</a>
+      <img src="../static/images/map.png"><a href="/home">Map</a>
+      <br />
+      <img src="../static/images/event.png"><a href="/events">Events</a>
+      <br />
+      <img src="../static/images/group.png"><a href="/community">Community</a>
+      <br />
+      <img src="../static/images/group.png"><a href="/groups">Groups</a>
+      <br />
+      <img src="../static/images/user.png"><a href="/profile">My Profile</a>
+      <br />
+      <img src="../static/images/circle.png"><a href="/circle">My Circle</a>
+      <br />
+      <a href="/logout" class="bottom">Log Out</a>
     {% else %}
-    <img src="../static/images/map.png"><a href="/home">Map</a>
-    <br />
-    <a href="/login" class="bottom">Login</a>
-    <a href="/register" class="bottom">Register</a>
+      <img src="../static/images/map.png"><a href="/home">Map</a>
+        <br />
+        <a href="/login" class="bottom">Login</a>
+        <a href="/register" class="bottom">Register</a>
     {% endif %}
   </div>
   <script>

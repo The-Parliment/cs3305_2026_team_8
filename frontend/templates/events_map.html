@@ -6,30 +6,28 @@
     <div class="form-on-map">
         <h1>Search Event</h1>
         <form action="" onsubmit="setLocation()" method="POST" novalidate>
-            {{ form.title.label }}
+            <p>{{ form.title.label }}</p>
             {{ form.title() }}
             <br/>
             
-            {{ form.host.label }}
+            <p>{{ form.host.label }}</p>
             {{ form.host() }}
             <br/>
             
-            {{ form.datetime_start.label }}
+            <p>{{ form.datetime_start.label }}</p>
             {{ form.datetime_start() }}
             <br/>
             
-            {{ form.datetime_end.label }}
+            <p>{{ form.datetime_end.label }}</p>
             {{ form.datetime_end() }}
             <br/>
-
+            <div class="gps">
             {{ form.latitude(readOnly=true) }}
-            <br/>
-            
             {{ form.longitude(readOnly=true) }}
+            </div>
             
             {{ form.radius.label }}
             {{ form.radius() }}
-
             <p>Choose the location by using the map.</p>
             
             {% if form.form_errors %}

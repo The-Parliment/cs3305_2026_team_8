@@ -143,7 +143,12 @@ header p {
   color: #AE2456;
   font-size: 1.1em;
 }
-
+.imgBtn{
+  max-width: none;
+  width:3.5em;
+  height:3.5em;
+  padding: 0%;
+}
 .status{
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -184,14 +189,16 @@ form p {
   border-radius: 0.5em;
 }
 
-.form-on-map, .list-on-map2 {
+.form-on-map {
   position: fixed;
-  top: 2em;
-  left: 1em;
+  top: 5em;
+  left: 0.5em;
   z-index: 9000;
   background-color: #e4b969ca;
   border: 2px solid #b19053d6;
-  border-radius: 1.5em;
+  border-radius: 1.5em; 
+  width: fit-content;
+  height: fit-content;
 }
 
 .form-on-map *, .list-on-map2 * {
@@ -199,52 +206,52 @@ form p {
   border: none;
   text-align: center;
 }
-
+.gps{
+  display: none;
+}
 .form-on-map h1, .list-on-map2 h1 {
   color: #6E2242;
   width: 100%;
 }
 
-.list-on-map2 ul {
-  list-style-type: disc;
-  list-style-position: inside;
-  text-align: left;
-  max-height: 15em; 
-  overflow-y: auto; 
-  overflow-x: hidden;
-  padding-left: -1em;
-}
 
-.list-on-map {
+.list-on-map, .list-on-map2{
   position: fixed;
+  width: 21em;
+  height: fit-content;
   bottom: 2em;
-  z-index: 9000;
+  z-index: 9999;
   background-color: #e4b969ca;
   border: 2px solid #b19053d6;
   border-radius: 1.5em;
+  left: 0.5em;
 }
+.list-on-map2{
+  left:0.5em;
+  top: 9em;
 
+}
 .list-on-map * {
   width: 95%;
   border: none;
   text-align: center;
+  padding: 0.2em;
+  max-height: 6.5em;
 }
 
-.list-on-map ul {
-  list-style-type: disc;
-  list-style-position: inside;
+.list-on-map ul, .list-on-map2 ul{
+  list-style-type: none;
   text-align: left;
-  max-height: 15em; 
-  overflow-y: auto; 
+  overflow-y: auto;
   overflow-x: hidden;
-  padding-left: -1em;
+  padding-left: 0.4em;
 }
 
 .list-on-map h1 {
   color: #6E2242;
   width: 100%;
+  margin-bottom: -0.3em;
 }
-
 #editting-button * {
   margin-right: -0.85em;
 }
@@ -326,10 +333,11 @@ tr:nth-child(even) {
 }
 
 .sidenav .bottom {
-  position: sticky;
+  position: relative;
   display: inline;
   margin-left: 1em;
   font-size: 1.3em;
+  top:28.5em;
 }
 
 #mySidenav img {
@@ -355,20 +363,19 @@ tr:nth-child(even) {
   z-index: 9999;
 }
 
-.event_button {
-  font-size: 1.86em;
+#event_button {
   cursor: pointer;
   position: fixed;
-  left: 20px;
-  top: 10px;
+  left: 8em;
+  top: 0;
   z-index: 9999;
+
 }
 
-.friends_button {
-  font-size: 1.86em;
+#friends_button {
   cursor: pointer;
   position: fixed;
-  left: 50px;
-  top: 10px;
+  left: 3em;
+  top: 0;
   z-index: 9999;
 }
