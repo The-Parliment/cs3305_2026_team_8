@@ -124,22 +124,38 @@ async def index(request: Request, mode: str = None):
 
 @app.get("/register", response_class=HTMLResponse)
 async def get_register(request: Request):
+    authorized_user = None
+    token = request.cookies.get("access_token")
+    if token:
+        try:
+            claims = decode_and_verify(token=token, expected_type="access")
+            authorized_user = claims.get("sub")
+        except Exception:
+            authorized_user = None
     form = RegisterForm()
     return templates.TemplateResponse(
-        request=request, name="forms/register.html", context={"form" : form}
+        request=request, name="forms/register.html", context={"form" : form, "authorized_user": authorized_user}
     )
 
 @app.post("/register", response_class=HTMLResponse)
 async def post_register(request : Request):
     data = await request.form()
     form = RegisterForm(data=data)
+    authorized_user = None
+    token = request.cookies.get("access_token")
+    if token:
+        try:
+            claims = decode_and_verify(token=token, expected_type="access")
+            authorized_user = claims.get("sub")
+        except Exception:
+            authorized_user = None
 
     if not form.validate():
         print("DEBUG: Form validation failed with errors:", form.errors)
         for field, errors in form.errors.items():
             form.form_errors.extend(f"{field}: {error}" for error in errors)
         return templates.TemplateResponse(
-            request=request, name="forms/register.html", context={"form" : form}, status_code=400
+            request=request, name="forms/register.html", context={"form" : form, "authorized_user": authorized_user}, status_code=400
         )
     print("DEBUG: Form validated successfully with data:", form.data)
     response = await post(AUTH_INTERNAL_BASE, "register", json={"username": form.username.data, 
@@ -151,7 +167,7 @@ async def post_register(request : Request):
         print("DEBUG: Registration failed, no response from auth service")
         form.form_errors.append(response.get("message", "Registration failed."))
         return templates.TemplateResponse(
-            request=request, name="forms/register.html", context={"form" : form}, status_code=401
+            request=request, name="forms/register.html", context={"form" : form, "authorized_user": authorized_user}, status_code=401
         )
     print("DEBUG: Registration successful, redirecting to login")
     response = RedirectResponse(url=request.query_params.get("next", "/login"), status_code=303)
@@ -160,20 +176,36 @@ async def post_register(request : Request):
 
 @app.get("/login", response_class=HTMLResponse)
 async def get_login(request: Request):
+    authorized_user = None
+    token = request.cookies.get("access_token")
+    if token:
+        try:
+            claims = decode_and_verify(token=token, expected_type="access")
+            authorized_user = claims.get("sub")
+        except Exception:
+            authorized_user = None
     form = LoginForm()
     return templates.TemplateResponse(
-        request=request, name="forms/login.html", context={"form" : form}
+        request=request, name="forms/login.html", context={"form" : form, "authorized_user": authorized_user}
     )
 
 @app.post("/login", response_class=HTMLResponse)
 async def post_login(request : Request):
     data = await request.form()
     form = LoginForm(data=data)
+    authorized_user = None
+    token = request.cookies.get("access_token")
+    if token:
+        try:
+            claims = decode_and_verify(token=token, expected_type="access")
+            authorized_user = claims.get("sub")
+        except Exception:
+            authorized_user = None
 
     # Check form was correctly filled
     if not form.validate():
         return templates.TemplateResponse(
-            request=request, name="forms/login.html", context={"form" : form}, status_code=400
+            request=request, name="forms/login.html", context={"form" : form, "authorized_user": authorized_user}, status_code=400
         )
     
     # Run auth microservice to get token
@@ -182,9 +214,9 @@ async def post_login(request : Request):
     if token_payload is None:
         form.username.errors.append("Invalid username or password.")
         return templates.TemplateResponse(
-            request=request, name="forms/login.html", context={"form" : form}, status_code=401
+            request=request, name="forms/login.html", context={"form" : form, "authorized_user": authorized_user}, status_code=401
         )
-    response = RedirectResponse(url=request.query_params.get("next", "/community"), status_code=303)
+    response = RedirectResponse(url=request.query_params.get("next", "/home"), status_code=303)
 
     response.set_cookie(
         key="access_token",
@@ -207,8 +239,8 @@ async def post_login(request : Request):
 @app.get("/logout")
 async def logout(request: Request):
     if not request.cookies.get("access_token") and not request.cookies.get("refresh_token"):
-        return RedirectResponse(url="/login", status_code=303)
-    response = RedirectResponse(url="/login", status_code=303)
+        return RedirectResponse(url="/home", status_code=303)
+    response = RedirectResponse(url="/home", status_code=303)
     response.delete_cookie(key="access_token", path="/")
     response.delete_cookie(key="refresh_token", path="/")
     return response
@@ -243,20 +275,22 @@ async def get_change_details(request: Request, claims: dict = Depends(require_fr
         form.last_name.data = user_details.get("last_name", "")
         form.email.data = user_details.get("email", "")
         form.phone_number.data = user_details.get("phone_number", "")
+    authorized_user = claims.get("sub")
     return templates.TemplateResponse(
-        request=request, name="forms/change_details.html", context={"form" : form}
+        request=request, name="forms/change_details.html", context={"form" : form, "authorized_user": authorized_user}
     )
 
 @app.post("/change_details", response_class=HTMLResponse)
 async def post_change_details(request: Request, claims: dict = Depends(require_frontend_auth)):
     data = await request.form()
     form = ChangeDetailsForm(data=data)
+    authorized_user = claims.get("sub")
 
     if not form.validate():
         for field, errors in form.errors.items():
             form.form_errors.extend(f"{field}: {error}" for error in errors)
         return templates.TemplateResponse(
-            request=request, name="forms/change_details.html", context={"form" : form}, status_code=400
+            request=request, name="forms/change_details.html", context={"form" : form, "authorized_user": authorized_user}, status_code=400
         )
     
     response = await post(AUTH_INTERNAL_BASE, "users/me", headers={"Cookie" : f"access_token={request.cookies.get('access_token')}"}, 
@@ -269,7 +303,7 @@ async def post_change_details(request: Request, claims: dict = Depends(require_f
     if response is None or not response.get("valid", True):
         form.form_errors.append(response.get("message", "Update failed."))
         return templates.TemplateResponse(
-            request=request, name="forms/change_details.html", context={"form" : form}, status_code=401
+            request=request, name="forms/change_details.html", context={"form" : form, "authorized_user": authorized_user}, status_code=401
         )
 
     response = RedirectResponse(url=request.query_params.get("next", "/profile"), status_code=303)
@@ -368,6 +402,7 @@ async def get_invites(request: Request, invite_type: str | None = "all", claims:
     event_invites = []
     event_requests = []
     group_requests = []
+    authorized_user = claims.get("sub")
     if invite_type == "follow_requests" or invite_type == "all":
         follow_request_data = await get(USER_INTERNAL_BASE, "get_follow_requests_received", headers={"Cookie" : f"access_token={token}"})
         follow_requests = follow_request_data.get("user_names", []) if follow_request_data is not None else []
@@ -396,7 +431,8 @@ async def get_invites(request: Request, invite_type: str | None = "all", claims:
                                                        "group_invites": group_invites, 
                                                        "group_requests": group_requests,
                                                        "event_invites": event_invites,
-                                                       "event_requests": event_requests}
+                                                       "event_requests": event_requests,
+                                                       "authorized_user": authorized_user,}
     )
 
 # Event Management Endpoints
@@ -462,7 +498,8 @@ async def event_info(request: Request, event_id: int, claims: dict = Depends(req
                                                           "is_requested" : is_user_requested,
                                                           "my_groups": my_groups,
                                                           "attendees": attendees,
-                                                          "pending_requests": event_requests}
+                                                          "pending_requests": event_requests,
+                                                          "authorized_user": user}
     )
 
 @app.get("/all_events", response_class=HTMLResponse)
@@ -485,7 +522,9 @@ async def all_events(request: Request, claims: dict = Depends(require_frontend_a
     
     authorized_user = claims.get("sub")
     return templates.TemplateResponse(
-        request=request, name="events_map.html", context={"all_events": all_events, "display_map": True, "authorized_user": authorized_user}
+        request=request, name="events_map.html", context={"all_events": all_events, 
+                                                          "display_map": True, 
+                                                          "authorized_user": authorized_user}
     )
 
 @app.get("/events", response_class=HTMLResponse)
@@ -495,19 +534,25 @@ async def events(request: Request, claims: dict = Depends(require_frontend_auth)
     events = []
     
     return templates.TemplateResponse(
-        request=request, name="events_map.html", context={"form": form, "display_map": True, "authorized_user": claims.get("sub"), "all_events" : events}
+        request=request, name="events_map.html", context={"form": form, 
+                                                          "display_map": True, 
+                                                          "authorized_user": claims.get("sub"), 
+                                                          "all_events" : events}
     )
     
 @app.post("/events", response_class=HTMLResponse)
 async def search_events(request: Request, claims: dict = Depends(require_frontend_auth)):
     data = await request.form()
     form = SearchEventForm(data=data)
+    authorized_user = claims.get("sub")
 
     if not form.validate():
         for field, errors in form.errors.items():
             form.form_errors.extend(f"{field}: {error}" for error in errors)
         return templates.TemplateResponse(
-            request=request, name="events_map.html", context={"form": form, "display_map": True, "authorized_user": claims.get("sub")}, status_code=400
+            request=request, name="events_map.html", context={"form": form, 
+                                                              "display_map": True, 
+                                                              "authorized_user": authorized_user}, status_code=400
         )
     
     token = request.cookies.get("access_token")
@@ -538,7 +583,7 @@ async def search_events(request: Request, claims: dict = Depends(require_fronten
     return templates.TemplateResponse(
         request=request, name="events_map.html", context={"form": form, 
                                                           "display_map": True, 
-                                                          "authorized_user": claims.get("sub"), 
+                                                          "authorized_user": authorized_user, 
                                                           "all_events": search_results, 
                                                           "x" : form.latitude.data, 
                                                           "y" : form.longitude.data}
@@ -549,7 +594,9 @@ async def get_create_event(request : Request, claims : dict = Depends(require_fr
     form = EventForm()
     authorized_user = claims.get("sub")
     return templates.TemplateResponse(
-        request=request, name="forms/edit_event.html", context={"form": form, "display_map": True, "authorized_user": authorized_user}
+        request=request, name="forms/edit_event.html", context={"form": form, 
+                                                                "display_map": True, 
+                                                                "authorized_user": authorized_user}
     )
 
 @app.post("/events/create_event", response_class=HTMLResponse)
@@ -597,11 +644,17 @@ async def edit_event(request: Request, event_id: int, claims: dict = Depends(req
     event_info_data = await get(EVENTS_INTERNAL_BASE, f"eventinfo/{event_id}", headers={"Cookie" : f"access_token={token}"})
     if event_info_data is None or event_info_data.get("valid", True) == False   :
         return templates.TemplateResponse(
-            request=request, name="forms/edit_event.html", context={"form": form, "error": "Event not found.", "display_map": True, "authorized_user": authorized_user}
+            request=request, name="forms/edit_event.html", context={"form": form, 
+                                                                    "error": "Event not found.", 
+                                                                    "display_map": True, 
+                                                                    "authorized_user": authorized_user}
         )
     if event_info_data.get("host") != user:
         return templates.TemplateResponse(
-            request=request, name="forms/edit_event.html", context={"form": form, "error": "You are not the host of this event.", "display_map": True, "authorized_user": authorized_user}
+            request=request, name="forms/edit_event.html", context={"form": form, 
+                                                                    "error": "You are not the host of this event.", 
+                                                                    "display_map": True, 
+                                                                    "authorized_user": authorized_user}
         )
     if event_info_data:
         form.title.data = event_info_data.get("title", "")
@@ -673,7 +726,9 @@ async def my_events(request: Request, claims: dict = Depends(require_frontend_au
     hosting_events = hosting_events_data.get("events", []) if hosting_events_data else []
 
     return templates.TemplateResponse(
-        request=request, name="myevents.html", context={"attending_events": attending_events, "hosting_events": hosting_events}
+        request=request, name="myevents.html", context={"attending_events": attending_events, 
+                                                        "hosting_events": hosting_events,
+                                                        "authorized_user": user}
     )
 
 @app.get("/events/cancel/{event_id}", response_class=HTMLResponse)
@@ -797,7 +852,11 @@ async def get_circle(request: Request, claims: dict = Depends(require_frontend_a
     invitations_sent = invitations_sent_data.get("user_names", []) if invitations_sent_data else [] 
 
     return templates.TemplateResponse(
-        request=request, name="circle.html", context={"friends": friends_list, "circle": circle, "pending_invites": pending_invites, "invitations_sent": invitations_sent}
+        request=request, name="circle.html", context={"friends": friends_list, 
+                                                      "circle": circle, 
+                                                      "pending_invites": pending_invites, 
+                                                      "invitations_sent": invitations_sent,
+                                                      "authorized_user": claims.get("sub")}
     )
 
 @app.get("/circle/invite_to_circle/{username}", response_class=HTMLResponse)
@@ -836,14 +895,17 @@ async def get_groups(request: Request, claims: dict = Depends(require_frontend_a
     friends_groups_data = await get(GROUPS_INTERNAL_BASE, "friends_groups_exclusive", headers={"Cookie" : f"access_token={token}"})
     friends_groups = friends_groups_data.get("group_list", []) if friends_groups_data else []
     return templates.TemplateResponse(
-        request=request, name="groups.html", context={"my_groups": my_groups, "friends_groups": friends_groups, "owned_groups": owned_groups}
+        request=request, name="groups.html", context={"my_groups": my_groups, 
+                                                      "friends_groups": friends_groups, 
+                                                      "owned_groups": owned_groups,
+                                                      "authorized_user": claims.get("sub")}
     )
 
 @app.get("/groups/create_group", response_class=HTMLResponse)
 async def get_create_group(request: Request, claims: dict = Depends(require_frontend_auth)):
     form = GroupForm()
     return templates.TemplateResponse(
-        request=request, name="forms/edit_group.html", context={"form": form}
+        request=request, name="forms/edit_group.html", context={"form": form, "authorized_user": claims.get("sub")}
     )
 
 @app.post("/groups/create_group", response_class=HTMLResponse)
@@ -853,7 +915,7 @@ async def post_create_group(request: Request, claims: dict = Depends(require_fro
 
     if not form.validate():
         return templates.TemplateResponse(
-            request=request, name="forms/edit_group.html", context={"form": form}, status_code=400
+            request=request, name="forms/edit_group.html", context={"form": form, "authorized_user": claims.get("sub")}, status_code=400
         )
     
     token = request.cookies.get("access_token")
@@ -866,7 +928,7 @@ async def post_create_group(request: Request, claims: dict = Depends(require_fro
     if response is None or not response.get("valid", True):
         form.form_errors.append(response.get("message", "Group creation failed."))
         return templates.TemplateResponse(
-            request=request, name="forms/edit_group.html", context={"form": form}, status_code=401
+            request=request, name="forms/edit_group.html", context={"form": form, "authorized_user": claims.get("sub")}, status_code=401
         )
     group_id = response.get("group_id")
     return RedirectResponse(url=f"/groups/group_info/{group_id}", status_code=303)
@@ -877,18 +939,18 @@ async def edit_group(request: Request, group_id: int, claims: dict = Depends(req
     group_info_data = await get(GROUPS_INTERNAL_BASE, f"group_info/{group_id}", headers={"Cookie" : f"access_token={token}"})
     if group_info_data is None or group_info_data.get("valid", True) == False:
         return templates.TemplateResponse(
-            request=request, name="forms/edit_group.html", context={"form": GroupForm(), "error": "Group not found."}
+            request=request, name="forms/edit_group.html", context={"form": GroupForm(), "error": "Group not found.", "authorized_user": claims.get("sub")}
         )
     if group_info_data.get("owner") != claims.get("sub"):
         return templates.TemplateResponse(
-            request=request, name="forms/edit_group.html", context={"form": GroupForm(), "error": "You are not the owner of this group."}
+            request=request, name="forms/edit_group.html", context={"form": GroupForm(), "error": "You are not the owner of this group.", "authorized_user": claims.get("sub")}
         )
     form = GroupForm()
     form.group_name.data = group_info_data.get("group_name", "")
     form.group_desc.data = group_info_data.get("group_desc", "")
     form.is_public.data = not group_info_data.get("is_private", False)
     return templates.TemplateResponse(
-        request=request, name="forms/edit_group.html", context={"form": form}
+        request=request, name="forms/edit_group.html", context={"form": form, "authorized_user": claims.get("sub")}
     )
 
 @app.post("/groups/edit/{group_id}", response_class=HTMLResponse)
@@ -898,7 +960,7 @@ async def post_edit_group(request: Request, group_id: int, claims: dict = Depend
 
     if not form.validate():
         return templates.TemplateResponse(
-            request=request, name="forms/edit_group.html", context={"form": form}, status_code=400
+            request=request, name="forms/edit_group.html", context={"form": form, "authorized_user": claims.get("sub")}, status_code=400
         )
     
     token = request.cookies.get("access_token")
@@ -911,7 +973,7 @@ async def post_edit_group(request: Request, group_id: int, claims: dict = Depend
     if response is None or not response.get("valid", True):
         form.form_errors.append(response.get("message", "Group update failed."))
         return templates.TemplateResponse(
-            request=request, name="forms/edit_group.html", context={"form": form}, status_code=401
+            request=request, name="forms/edit_group.html", context={"form": form, "authorized_user": claims.get("sub")}, status_code=401
         )
     return RedirectResponse(url=f"/groups/group_info/{group_id}", status_code=303)
 
