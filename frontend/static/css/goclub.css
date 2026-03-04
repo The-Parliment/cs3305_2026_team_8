@@ -131,6 +131,14 @@ header p {
   margin-left: 0;
 }
 
+#create_button {
+position: absolute;
+z-index: 9999;
+right: 1em;
+bottom: 1em;
+font-size: 4em;
+text-decoration: none;
+}
 .remove {
   float: right;
   margin-right: 1em;
