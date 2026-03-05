@@ -1,79 +1,55 @@
-# Proximity Service
+# Proximity Service Design
 
-The Proximity Service offers the ability to a user to update its geolocation.
-Holding all the locations of all users, the proximity service allows a specific user to retrieve the location
-of friends in their circle.
+The Proximity Service tracks user locations and answers the question: *which of my circle are nearby right now?* It is the only service that doesn't use the shared PostgreSQL database — it runs entirely on **Valkey** (a Redis-compatible in-memory store), which is the right tool for this job for several reasons.
 
-## Why Valkey Over Standard Database?
+## Why Valkey Instead of a Database?
 
-**Valkey is chosen for the Proximity Service due to its specialized geospatial capabilities:**
+Every other service persists to PostgreSQL. The proximity service is different because location data has completely different characteristics:
 
-1. **Built-in Geospatial Commands**: Valkey provides native `GEOADD`, `GEORADIUS`, and `GEODIST` commands optimized for location-based queries. A standard relational database would require complex mathematical formulas (like calculating distances on a sphere) or special plugins. Basically, you'd have to do a lot of extra work that Valkey already handles for you.
+**It changes constantly.** A user moving around updates their location every few seconds. Writing that to a relational database on disk at that frequency would create a bottleneck fast — Valkey handles millions of writes per second entirely in memory.
 
-2. **Sub-millisecond Performance**: In-memory storage enables extremely fast reads/writes for location updates. Users update locations frequently (every few seconds while moving), the more users updating, the more of a bottleneck writing to the db on disk would becom..
+**It expires naturally.** If a user goes offline, their last known location becomes stale. Valkey supports TTL (time-to-live) expiry natively — you can tell it to delete a location entry automatically after an hour without needing a cleanup job. A database would require a scheduled task or trigger to do the same thing.
 
+**It has built-in geospatial support.** Valkey's `GEOADD`, `GEORADIUS`, and `GEODIST` commands handle the spherical distance maths for you. Finding everyone within 2km of a given point is a single command. In PostgreSQL you'd either need the PostGIS extension or write the haversine formula yourself.
 
-3. **High Write Throughput**: Location updates are write-heavy. Valkey handles millions of writes/second, whereas traditional databases would require more elaborate solutions like connection pooling to handle.
+## Data Model in Valkey
 
-4. **TTL Support**: Locations can auto-expire if users go offline (using `EXPIRE`), keeping data fresh without manual cleanup jobs.
+The service uses two keys:
 
-## Sequence Diagrams
+| Key | Type | Purpose |
+|-----|------|---------|
+| `user:locations` | Sorted Set (GEO) | Stores all user positions as geospatial members |
+| `user:phonebook` | Hash | Maps `user_id → username` to avoid repeated auth service calls |
 
-### Update Location
+`GEOADD user:locations <longitude> <latitude> <username>` stores a location. Note Valkey GEO commands expect **longitude first, then latitude** — the opposite of most mapping conventions.
+
+`GEORADIUS user:locations <longitude> <latitude> <radius> km WITHDIST WITHCOORD` returns everyone within the radius along with their distance and coordinates.
+
+## How `/get_friends` Works
+
 ```mermaid
 sequenceDiagram
-    participant Proximity
-    participant Auth
-    participant Valkey
-    
-    Note right of Proximity: POST /updatelocation received<br/>{user_id, lat, lon}
-    
-    alt Username NOT in local cache
-        Proximity->>Auth: POST /getusername<br/>{user_id}
-        Auth-->>Proximity: {username}
-        Proximity->>Proximity: Store in local cache
-    end
-    
-    Proximity->>Valkey: GEOADD locations:live <lon> <lat> <user_id>
-    Valkey-->>Proximity: OK
-    
-    Note right of Proximity: 200 OK returned
+    actor User
+    participant FE as frontend
+    participant API as api_gateway
+    participant Prox as proximity_service
+    participant Circles as circles_service
+    participant Valkey as valkey
+
+    User->>FE: Opens nearby friends view
+    FE->>API: POST /proximity/get_friends {username, lat, lon, radius}
+    API->>Prox: POST /get_friends {username, lat, lon, radius}
+
+    Prox->>Circles: GET /mycircle (cookie forwarded)
+    Circles-->>Prox: {user_names: ["cillian", "darren", ...]}
+
+    Prox->>Valkey: GEORADIUS user:locations lon lat radius km WITHDIST WITHCOORD
+    Valkey-->>Prox: All users within radius with coords + distance
+
+    Prox->>Prox: Filter: keep only users in circle, exclude caller
+    Prox-->>API: {friends: [...], count: N}
+    API-->>FE: {friends: [...], count: N}
+    FE-->>User: Shows nearby circle members on map
 ```
 
-**Key Design:**
-- **Geospatial key**: `locations:live` (global sorted set storing all user locations)
-- **Username cache key**: `user:phonebook` (hash mapping user_id → username)
-- Valkey command: `GEOADD user:locations <longitude> <latitude> <user_id>`
-  - Note: GEO commands expect longitude first, then latitude
-  - user_id serves as the member identifier in the sorted set
-
-### Get Friends Inside Radius
-```mermaid
-sequenceDiagram
-    participant Proximity
-    participant Circle
-    participant Valkey
-    
-    Note right of Proximity: GET /friendslocation received<br/>{user_id, lat, lon, radius}
-    
-    Proximity->>Circle: GET /mycircle<br/>{user_id}
-    Circle-->>Proximity: [{user_id, username}]
-    
-    Proximity->>Valkey: GEORADIUS live_locations <lon> <lat> <radius> m
-    Valkey-->>Proximity: [user_id_1, user_id_2, ...]
-    
-    Proximity->>Proximity: Filter: circle ∩ nearby
-    
-    Proximity->>Proximity: Return friends within radus
-    
-    Note right of Proximity: 200 OK<br/>[{user_id, username, lat, lon, distance}]
-```
-
-
-```
-
-## Notes
-
-- Location updates should include timestamp expiry (e.g., `EXPIRE user:locations:<user_id> 3600`) to auto-remove stale locations
-- Local username cache in Proximity service reduces Auth service calls
-
+The key step is the intersection — Valkey gives back everyone nearby, the Circles service gives back circle members, and the proximity service returns only the overlap. This keeps each service focused on what it knows: Valkey knows location, Circles knows membership.
