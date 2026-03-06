@@ -1,178 +1,6 @@
-html {
-  background-color: #6EBDC7;
-  height: 100%;
-  margin: 0;
-
-}
-
-body {
-  font-family: Verdana, Geneva, Tahoma, sans-serif;
-  height: 100%;
-  margin: 0;
-}
-
-#main {
-  transition: margin-right 0.3s ease;
-  height: 100%;
-  position: relative;
-}
-
-#submit {
-  background-color: #E4B969;
-  font-size: 1.1em;
-}
-
-#mySidenav img {
-  display: inline;
-  width: 3.5em;
-  height: 3.5em;
-  margin-bottom: -0.5em;
-  margin-left: 0.5em;
-}
-
-header {
-  background-color: #6E2242;
-  padding: 0.4em;
-  border-radius: 0px 0px 5px 5px;
-  border-bottom: 3px solid #5f1e39;
-}
-
-header * {
-  color: #E4B969;
-}
-
-header p {
-  font-size: 1.4em;
-  margin-top: -0.5em;
-}
-
-h2 {
-  color: #6E2242;
-  background-color: #E4B969;
-  padding: 0.3em;
-  border-radius: 3px;
-  border: 2px solid #b19053;
-  margin-top: -10px;
-}
-
-#logo {
-  position: fixed;
-  top: 60%;
-  z-index: 9999;
-}
-
-h3 {
-  color: #1a706d;
-  margin-left: 0.5em;
-}
-
-p, a{
-  margin-left: 0.5em;
-}
-
-a{
-  color: #AE2456;
-  font-size:0.9em;
-}
-
-#changeDetails {
-  position: absolute;
-  top: 95%;
-  left: 89%;
-  color: #AE2456;
-  font-size: 1.1em;
-}
-
-form {
-  margin: 0.5em;
-}
-
-form p {
-  margin: 0.25em;
-}
-
-table{
-  border-collapse:collapse;
-  width:100%;
-}
-th, td{
-  border-bottom: 0.1em solid #1a706d;
-}
-
-th{
-  color:#6E2242;
-  font-size:1.2em;
-  text-align: left;
-  padding:0.5em;
-}
-
-tr:nth-child(even) {
-  background-color: #66b3bd;
-}
-
-.sidenav {
-  height: 100%;
-  width: 0;
-  position: fixed;
-  z-index: 1;
-  top: 0;
-  right: 0;
-  background-color: #E4B969;
-  overflow-x: hidden;
-  transition: 0.5s;
-  padding-top: 60px;
-  z-index: 10000;
-  border-radius: 4px;
-}
-
-
-.sidenav a:hover {
-  color: #AE2456;
-}
-
-.sidenav .closebtn{
-  position: absolute;
-  top: 0;
-  left: 5em;
-  font-size: 36px;
-}
-
-.sidenav .bottom{
-  position: sticky;
-  display:inline;
-  top: 85%;
-  margin-left: 1em;
-  font-size: 1.3em;
-}
-
-#form-on-map {
-    position: absolute;
-    top: 20px;
-    left: 20px;
-    background-color: rgba(255, 255, 255, 0.8);
-    padding: 20px;
-    border-radius: 10px;
-    z-index: 10000;
-}
-
-  
-.sidenav a {
-  padding: 0.5em;
-  text-decoration: none;
-  font-size: 1.5em;
-  color: #6E2242;
-  display: inline-block;
-  transition: 0.3s;
-}
-
-.menu-btn {
-  font-size: 30px;
-  cursor: pointer;
-  position: fixed;
-  right: 20px;
-  top: 10px;
-  z-index: 9999;
-}
+/* =========================================
+   MEDIA QUERIES
+========================================= */
 
 @media screen and (max-width: 768px) {
   body {
@@ -204,4 +32,365 @@ tr:nth-child(even) {
   #logo {
     width: 20px;
   }
+}
+
+
+/* =========================================
+   BASE / GLOBAL
+========================================= */
+
+html {
+  background-color: #6EBDC7;
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  font-family: Verdana, Geneva, Tahoma, sans-serif;
+  height: 100%;
+  margin: 0;
+  font-size: 1.02em;
+}
+
+p,
+a {
+  margin-left: 0.5em;
+}
+
+p {
+  font-size: 1em;
+}
+
+a {
+  color: #AE2456;
+  font-size: 0.9em;
+}
+
+ul {
+  list-style-type: none;
+}
+
+
+/* =========================================
+   TYPOGRAPHY
+========================================= */
+
+h2 {
+  color: #6E2242;
+  background-color: #E4B969;
+  padding: 0.3em;
+  border-radius: 3px;
+  border: 2px solid #b19053;
+  margin-top: -10px;
+}
+
+h3 {
+  color: #1a706d;
+  margin-left: 0.5em;
+}
+
+
+/* =========================================
+   HEADER
+========================================= */
+
+header {
+  background-color: #6E2242;
+  padding: 0.4em;
+  border-radius: 0 0 5px 5px;
+  border-bottom: 3px solid #5f1e39;
+}
+
+header * {
+  color: #E4B969;
+}
+
+header p {
+  font-size: 1.4em;
+  margin-top: -0.5em;
+}
+
+
+/* =========================================
+   LAYOUT
+========================================= */
+
+#main {
+  transition: margin-right 0.3s ease;
+  height: 100%;
+  position: relative;
+}
+
+#logo {
+  position: fixed;
+  top: 60%;
+  z-index: 9999;
+}
+
+#map a {
+  margin-left: 0;
+}
+
+#create_button {
+position: absolute;
+z-index: 9999;
+right: 1em;
+bottom: 1em;
+font-size: 4em;
+text-decoration: none;
+}
+.remove {
+  float: right;
+  margin-right: 1em;
+}
+
+.changeDetails {
+  position: absolute;
+  top: 95%;
+  left: 85%;
+  color: #AE2456;
+  font-size: 1.1em;
+}
+.imgBtn{
+  max-width: none;
+  width:4.5em;
+  height:4.5em;
+  padding: 0%;
+}
+.status{
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+
+.aInvites{
+  background-color: #E4B969;
+  border-radius: 0.5em;
+  padding: 0.3em;
+  margin-right: 0.3em;
+  border: 2px solid #b19053;
+}
+
+/* =========================================
+   FORMS
+========================================= */
+
+form {
+  margin: 2em auto 0;
+  text-align: center;
+  background-color: #E4B969;
+  border: 2px solid #b19053;
+  border-radius: 1.5em;
+  width: 30%;
+  padding: 0.5em;
+}
+
+form p {
+  margin: 0.25em;
+}
+
+#submit {
+  background-color: #6E2242;
+  font-size: 1.1em;
+  color: #E4B969;
+  padding: 0.3em;
+  width: 100%;
+  border-radius: 0.5em;
+}
+
+.form-on-map {
+  position: fixed;
+  top: 5em;
+  left: 0.5em;
+  z-index: 9000;
+  background-color: #e4b969ca;
+  border: 2px solid #b19053d6;
+  border-radius: 1.5em; 
+  width: fit-content;
+  height: fit-content;
+}
+
+.form-on-map *, .list-on-map2 * {
+  width: 95%;
+  border: none;
+  text-align: center;
+}
+.gps{
+  display: none;
+}
+.form-on-map h1, .list-on-map2 h1 {
+  color: #6E2242;
+  width: 100%;
+}
+
+
+.list-on-map, .list-on-map2{
+  position: fixed;
+  width: 21em;
+  height: fit-content;
+  bottom: 2em;
+  z-index: 9999;
+  background-color: #e4b969ca;
+  border: 2px solid #b19053d6;
+  border-radius: 1.5em;
+  left: 0.5em;
+}
+.list-on-map2{
+  left:0.5em;
+  top: 9em;
+
+}
+.list-on-map * {
+  width: 95%;
+  border: none;
+  text-align: center;
+  padding: 0.2em;
+  max-height: 6.5em;
+}
+
+.list-on-map ul, .list-on-map2 ul{
+  list-style-type: none;
+  text-align: left;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-left: 0.4em;
+}
+
+.list-on-map h1 {
+  color: #6E2242;
+  width: 100%;
+  margin-bottom: -0.3em;
+}
+#editting-button * {
+  margin-right: -0.85em;
+}
+
+#community-submit{
+  margin-top: 1em;
+}
+
+.division form {
+  background-color: transparent;
+  text-align: left;
+  border: none;
+  margin: 0;
+  padding: 0;
+}
+
+/* =========================================
+   TABLES
+========================================= */
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+th,
+td {
+  border-bottom: 0.1em solid #1a706d;
+}
+
+th {
+  color: #6E2242;
+  font-size: 1.2em;
+  text-align: left;
+  padding: 0.5em;
+}
+
+tr:nth-child(even) {
+  background-color: #66b3bd;
+}
+
+
+/* =========================================
+   SIDE NAVIGATION
+========================================= */
+
+.sidenav {
+  height: 100%;
+  width: 0;
+  position: fixed;
+  top: 0;
+  right: 0;
+  background-color: #E4B969;
+  overflow-x: hidden;
+  transition: 0.5s;
+  padding-top: 60px;
+  z-index: 10000;
+  border-radius: 4px;
+}
+
+.sidenav a {
+  padding: 0.5em;
+  text-decoration: none;
+  font-size: 1.5em;
+  color: #6E2242;
+  display: inline-block;
+  transition: 0.3s;
+}
+
+.sidenav a:hover {
+  color: #AE2456;
+}
+
+.sidenav .closebtn {
+  position: absolute;
+  top: 0;
+  left: 5em;
+  font-size: 2.25em;
+}
+
+.sidenav .bottom {
+  position: relative;
+  display: inline;
+  margin-left: 1em;
+  font-size: 1.3em;
+  top:28.5em;
+}
+
+.sidenav .logout{
+  position: relative;
+  margin-left: 1em;
+  font-size: 1.3em;
+  top:11em;
+}
+
+#mySidenav img {
+  display: inline;
+  width: 3.5em;
+  height: 3.5em;
+  margin: 0 0 -0.5em 0.5em;
+}
+
+#envelope {
+  position: sticky;
+  display: block;
+  margin: -1.6em 3em 0 -0.2em;
+  font-size: 3.4em;
+}
+
+.menu-btn {
+  font-size: 1.86em;
+  cursor: pointer;
+  position: fixed;
+  right: 20px;
+  top: 10px;
+  z-index: 9999;
+}
+
+#event_button {
+  cursor: pointer;
+  position: fixed;
+  left: 8em;
+  top: 0;
+  z-index: 9999;
+
+}
+
+#friends_button {
+  cursor: pointer;
+  position: fixed;
+  left: 3em;
+  top: 0;
+  z-index: 9999;
 }

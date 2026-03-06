@@ -11,9 +11,10 @@ All endpoints that act on behalf of the logged-in user read identity from the `a
 
 | Method | Endpoint | Request | Response |
 |--------|----------|---------|----------|
+| GET | `/` | — | `message` |
 | POST | `/create` | `title, description, latitude, longitude, datetime_start, datetime_end, public?` | `event_id` |
 | GET | `/eventinfo/{event_id}` | Path: `event_id` | Event info |
-| GET | `/search` | Body: `latitude, longitude, radius, title?, datetime_start?, datetime_end?, host?` | `events[]` |
+| POST | `/search` | Body: `latitude, longitude, radius, title?, datetime_start?, datetime_end?, host?` | `events[]` |
 | POST | `/invite/{username}` | Path: `username` Body: `event_id` | `message` |
 | POST | `/invitecircle/{event_id}` | Path: `event_id` | `message` |
 | POST | `/inviteallfriends/{event_id}` | Path: `event_id` | `message` |

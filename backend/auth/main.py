@@ -107,10 +107,12 @@ async def phone_number_exists(phone_number: UsernameRequest) -> MessageResponse:
     result = get_phone_number_exists(phone_number.username)
     return MessageResponse(message=f"Phone number {phone_number.username} exists: {result}", valid=result)
 
+@app.get("/users/{username}", response_model=UserDetailsResponse)
 @app.get("/users/me", response_model=UserDetailsResponse)
-async def get_user_details(request: Request, authorized_user : str = Depends(get_username_from_request)) -> UserDetailsResponse:
+async def get_user_details(request: Request, username: str = None, authorized_user : str = Depends(get_username_from_request)) -> UserDetailsResponse:
     with get_db() as db:
-        stmt = select(UserDetails).filter_by(username=authorized_user).limit(1)
+        user = username if username else authorized_user
+        stmt = select(UserDetails).filter_by(username=user).limit(1)
         result = db.scalar(stmt)
         return UserDetailsResponse(
             username=result.username,

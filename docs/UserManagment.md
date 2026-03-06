@@ -1,6 +1,6 @@
 # User Management
 
-This document explains how identity and user relationships work across GoClub as a whole. For endpoint-level detail see the [Auth API](auth/auth_api.md) and its [design doc](auth/auth_design.md).
+This document explains how identity and user relationships work across GoClub as a whole. For endpoint-level detail see the [Auth API](auth/auth_api.md), [User API](user/user_api.md), and the auth [design doc](auth/auth_design.md).
 
 ## The User Lifecycle
 

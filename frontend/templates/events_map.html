@@ -2,7 +2,55 @@
 
 {% block main_content %}
 
-<main>
+<main id="main">
+    <div class="form-on-map">
+        <h1>Search Event</h1>
+        <form action="" onsubmit="setLocation()" method="POST" novalidate>
+            <p>{{ form.title.label }}</p>
+            {{ form.title() }}
+            <br/>
+            
+            <p>{{ form.host.label }}</p>
+            {{ form.host() }}
+            <br/>
+            
+            <p>{{ form.datetime_start.label }}</p>
+            {{ form.datetime_start() }}
+            <br/>
+            
+            <p>{{ form.datetime_end.label }}</p>
+            {{ form.datetime_end() }}
+            <br/>
+            <div class="gps">
+            {{ form.latitude(readOnly=true) }}
+            {{ form.longitude(readOnly=true) }}
+            </div>
+            
+            {{ form.radius.label }}
+            {{ form.radius() }}
+            <p>Choose the location by using the map.</p>
+            
+            {% if form.form_errors %}
+                <ul class="error-list">
+                {% for error in form.form_errors %}
+                    <li>{{ error }}</li>
+                {% endfor %}
+                </ul>
+            {% endif %}
+            
+            {{ form.submit() }}
+        </form>
+    </div>
+    {% if all_events %}
+    <div class="list-on-map">
+        <h1>Events</h1>
+        <ul>
+            {% for event in all_events %}
+                <li><a href="/eventinfo/{{ event.id }}">{{ event.title }}</a></li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
     <div id="map"></div>
         {% if display_map|default(false) %}
             <script type="text/javascript">
@@ -16,6 +64,8 @@
         var events = {{ all_events|tojson }};
     </script>
     <script type="text/javascript" src="{{ url_for('static', path='/js/events_map.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', path='/js/event_display.js') }}"></script>
+    <a id="create_button" href="/events/create_event">&#8853;</a>
 </main>
 
 {% endblock %}

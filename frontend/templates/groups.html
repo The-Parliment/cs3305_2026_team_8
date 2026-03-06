@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block main_content %}
+
+<main id="main">
+    <header>
+        <h1>Groups</h1>
+    </header>
+    <h3>Groups you manage</h3>
+    <ul>
+        {% for group in owned_groups %}
+            <li><a href="/groups/group_info/{{ group.group_id }}">{{ group.group_name }}</a></li>
+        {% endfor %}
+    </ul>
+
+    <h3>My Groups</h3>
+    <ul>
+        {% for group in my_groups %}
+            <li><a href="/groups/group_info/{{ group.group_id }}">{{ group.group_name }}</a></li>
+        {% endfor %}
+    </ul>
+
+    <h3>Friends' Groups</h3>
+    <ul>
+        {% for group in friends_groups %}
+            <li><a href="/groups/group_info/{{ group.group_id }}">{{ group.group_name }}</a></li>
+        {% endfor %}
+    </ul>
+
+    <a href="/groups/create_group">Create New Group</a>
+</main>
+
+{% endblock %}

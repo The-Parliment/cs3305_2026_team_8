@@ -2,29 +2,49 @@
 
 {% block main_content %}
 
-<main>
+<main id="main">
+    <header>
+        <h1>Invites</h1>
+    </header>
     <p>
-        <a href="/invites/all">All</a>
-        <a href="/invites/follow_requests">Follow Requests</a>
-        <a href="/invites/circle_invites">Circle Invites</a>
-        <a href="/invites/group_invites">Group Invites</a>
-        <a href="/invites/event_invites">Event Invites</a>
+        <a href="/invites/all" class="aInvites">All</a>
+        <a href="/invites/follow_requests" class="aInvites">Follow Requests</a>
+        <a href="/invites/circle_invites" class="aInvites">Circle Invites</a>
+        <a href="/invites/group_invites" class="aInvites">Group Invites</a>
+        <a href="/invites/group_requests" class="aInvites">Group Requests</a>
+        <a href="/invites/event_invites" class="aInvites">Event Invites</a>
+        <a href="/invites/event_requests" class="aInvites">Event Requests</a>
         <!-- Everything in the <a href=> elements below might change going forward, dont press! -->
         <ul>
             {% for invite in follow_requests %}
-                <li>Follow Request from {{ invite }} - <a href="/accept_follow/{{ invite }}">Accept</a> | <a href="/decline_follow/{{ invite }}">Decline</a></li>
+                <li>Follow Request from 
+                    <p>{{ invite }} <a href="/accept_follow/{{ invite }}">Accept</a> | <a href="/decline_follow/{{ invite }}">Decline</a></p></li>
+                </br> 
             {% endfor %}
             {% for invite in circle_invites %}
-                <li>Circle Invite from {{ invite }} - <a href="/accept_circle_invite/{{ invite }}">Accept</a> | <a href="/decline_circle_invite/{{ invite }}">Decline</a></li>
-            {% endfor %}
-            {% for invite in group_invites %}
-                <li>Group Invite to {{ invite }} - <a href="/accept_group_invite/{{ invite }}">Accept</a> | <a href="/decline_group_invite/{{ invite }}">Decline</a></li>
+                <li>Circle Invite from 
+                    <p>{{ invite }} <a href="/circle/accept/{{ invite }}">Accept</a> | <a href="/circle/decline/{{ invite }}">Decline</a></p></li>
+                </br> 
             {% endfor %}
             {% for invite in event_invites %}
-                <li>Event Invite to {{ invite.title }} - <a href="/events/attend/{{ invite.id }}">Accept</a> | <a href="/events/decline/{{ invite.id }}">Decline</a></li>
+                <li>Event Invite to 
+                    <p>{{ invite.title }} <a href="/events/attend/{{ invite.id }}">Accept</a> | <a href="/events/decline/{{ invite.id }}">Decline</a></p></li>
+                </br> 
             {% endfor %}
-            {% for invite in pending_event_invites %}
-                <li>{{ invite.username }} - Pending Request to RSVP to your event, {{ invite.title }} - <a href="/events/accept/{{ invite.id }}/{{ invite.username }}">Accept</a> | <a href="/events/decline/{{ invite.id }}/{{ invite.username }}">Decline</a></li>
+            {% for invite in event_requests %}
+                <li>{{ invite.username }} - Pending Request to RSVP to your event
+                    <p>{{ invite.title }} <a href="/events/accept/{{ invite.id }}/{{ invite.username }}">Accept</a> | <a href="/events/decline/{{ invite.id }}/{{ invite.username }}">Decline</a></p></li>
+                </br> 
+            {% endfor %}
+            {% for invite in group_invites %}
+                <li>Invite to join group
+                    <p>{{ invite.group_name }} <a href="/groups/accept_invite/{{ invite.group_id }}">Accept</a> | <a href="/groups/decline_invite/{{ invite.group_id }}">Decline</a></p> </li>
+                </br> 
+            {% endfor %}
+            {% for invite in group_requests %}
+                <li>{{ invite.username }} - Pending Request to join your group
+                    <p>{{ invite.group_name }} <a href="/groups/accept_request/{{ invite.group_id }}/{{ invite.username }}">Accept</a> | <a href="/groups/decline_request/{{ invite.group_id }}/{{ invite.username }}">Decline</a></p></li>
+                </br> 
             {% endfor %}
         </ul>
     </p>

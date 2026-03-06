@@ -1,26 +1,20 @@
+# This dockerfile needs ot be run from inside the microservice for BUILD.
+# BUT when running via docker run - we need to run from the root direction.
+# This is becauce currents we are mounting the filesystme into this container
+# See the FYI file for insturctions...
+
 FROM python:3.11-slim
 
 WORKDIR /app
 
-# Copy common module first (shared database code)
-COPY common/ /app/common/
-
-# Copy groups service requirements
 COPY requirements.txt .
-
-# Install Python dependencies (this will install common as editable package)
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy groups service code
-COPY backend/groups/ .
+# Copy auth service code (main.py, settings.py, security.py, structures.py, etc.)
+COPY . .
 
-# Ensure /app is on import path
+# Ensure /app is on import path so /app/common (volume) can be imported
 ENV PYTHONPATH=/app
 
-# Expose port for groups service
 EXPOSE 8003
-
-# Run the application
 CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8003"]
-
-                                            

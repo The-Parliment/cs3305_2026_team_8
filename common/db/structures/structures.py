@@ -1,5 +1,4 @@
 from sqlalchemy import ForeignKey, Column, String, Integer, Float, Boolean, DateTime, Enum
-from sqlalchemy import ForeignKey, Column, String, Integer, Float, Boolean, DateTime
 from datetime import datetime, timezone
 from ..base import Base
 import enum
@@ -8,6 +7,7 @@ class RequestTypes(enum.Enum):
     FOLLOW_REQUEST = "follow_request" # Field1 requests to follow Field2
     CIRCLE_INVITE = "circle_invite" # Field1 invites Field2 into the Circle
     EVENT_INVITE = "event_invite" # Field1 invites Field2 to event Field3
+    GROUP_INVITE = "group_invite" # Field1 invites Field2 to group Field3
 
 class Status(enum.Enum):
     PENDING = "pending"
@@ -44,14 +44,7 @@ class UserDetails(Base):
     last_name = Column("last_name", String, nullable=True)
     email = Column("email", String, nullable=True)
     phone_number = Column("phone_number", String, nullable=True)
-    
-class Venue(Base):
-    __tablename__ = "venues"
 
-    id = Column("id", Integer, autoincrement=True, primary_key=True)
-    name = Column("name", String)
-    latitude = Column("latitude", Float)
-    longitude = Column("longitude", Float)
 
 #Remove this, use UserRequest instead. This is just for testing purposes.
 class Group(Base):
@@ -67,21 +60,10 @@ class Group(Base):
     def __repr__(self):
         return f"<User(group_id={self.group_id}, group_name='{self.group_name}')>"
 
-class GroupMembers(Base):
-    __tablename__ = "groupjoins"
-    join_id = Column(Integer, primary_key=True, autoincrement=True)  # need a real PK
-    username = Column(String, index=True)
-    group_id = Column(Integer, index=True)
-    date_joined = Column(DateTime, default=lambda: datetime.now(timezone.utc))
-
-    def __repr__(self):
-        return f"Joined group {self.group_id}!" 
-
 class Events(Base):
     __tablename__ = "events"
 
     id = Column("id", Integer, autoincrement=True, primary_key=True)
-    venue = Column("venue", String, default="") 
     latitude = Column("latitude", Float, nullable=True)
     longitude = Column("longitude", Float, nullable=True)
     datetime_start = Column("datetime_start", DateTime)
