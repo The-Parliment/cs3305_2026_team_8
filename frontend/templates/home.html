@@ -3,6 +3,27 @@
 {% block main_content %}
 
 <main id="main">
+    <a id="friends_button" href="/home/location"><img src="../static/images/circle.png" class="imgBtn"></a>
+    <a id="event_button" href="/home/events"><img src="../static/images/event.png" class="imgBtn"></a>
+    {% if location_map or events_map %}
+    <div class="list-on-map2">
+        {% if events_map %}
+        <h1>My Events</h1>
+        <ul>
+            {% for event in all_events %}
+                <li><a href="/eventinfo/{{ event.id }}">{{ event.title }}</a></li>
+            {% endfor %}
+        </ul>
+        {% else %}
+        <h1>My Circle</h1>
+        <ul>
+            {% for friend in all_friends %}
+                <li><a href="/profile/{{ friend }}">{{ friend }}</a></li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+    </div>
+    {% endif %}
     <div id="map"></div>
         {% if display_map|default(false) %}
             <script type="text/javascript">
@@ -10,7 +31,18 @@
                 var y = {{ y|default(-6.275954663866795)|tojson }};
                 var authorizedUser = {{ authorized_user|default(None)|tojson }};
             </script>
+            {% if not location_map|default(false) %}
             <script type="text/javascript" src="/static/js/map.js"></script>
+            {% endif %}
+            {% if location_map|default(false) %}
+            <script type="text/javascript" src="/static/js/location_map.js"></script>
+            {% elif events_map|default(false) %}
+            <script type="text/javascript">
+                var events = {{ all_events|tojson }};
+            </script>
+            <script type="text/javascript" src="/static/js/map.js"></script>
+            <script type="text/javascript" src="/static/js/event_display.js"></script>
+            {% endif %}
         {% endif %}
     <img src="../static/images/logo.png" id="logo" alt="go club" style="max-width: none;width:40em;height:25em;">
 </main>

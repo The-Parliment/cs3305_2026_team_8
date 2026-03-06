@@ -5,15 +5,14 @@ site_author: Parliament Team
 docs_dir: ./docs
 site_dir: site
 
+extra_css:          # <-- here
+  - stylesheets/extra.css
+
 theme:
   name: material
-  # Color scheme
-  # Source: https://squidfunk.github.io/mkdocs-material/setup/changing-the-colors/
   palette:
     primary: indigo
     accent: indigo
-  # Navigation and UI features
-  # Source: https://squidfunk.github.io/mkdocs-material/setup/setting-up-navigation/
   features:
     - navigation.tabs
     - navigation.tabs.sticky
@@ -27,15 +26,12 @@ theme:
     - content.code.annotate
 
 markdown_extensions:
-  # Pulled form here for python https://squidfunk.github.io/mkdocs-material/setup/extensions/
   - pymdownx.highlight:
       anchor_linenums: true
       line_spans: __span
       pygments_lang_class: true
   - pymdownx.inlinehilite
   - pymdownx.snippets
-
-    # Robbed from here - https://squidfunk.github.io/mkdocs-material/reference/diagrams/
   - pymdownx.superfences:
       custom_fences:
         - name: mermaid
@@ -53,31 +49,35 @@ markdown_extensions:
 
 plugins:
   - search
-  - mermaid2
+  - mermaid2:
+      javascript: https://unpkg.com/mermaid@10/dist/mermaid.min.js
 
-extra_javascript:
-  - https://unpkg.com/mermaid@10/dist/mermaid.min.js
-
-# Navigation structure
 nav:
   - Home: index.md
   - System Overview:
       - Architecture: Architecture.md
       - End-to-End Flow: end_to_end_flow.md
       - Directory Structure: Directory_structrure.md
-  - Auth Service:
-      - API Reference: auth/auth_api.md
-      - User Management: auth/auth_design.md
-  - Circle Service:
-      - API Reference: circles/circles_api.md
-      - Circle Design: circles/circles_design.md
-  - Events Service:
-      - API Reference: events/events_api.md
-      - Events Design: events/events_design.md
-  - Groups Service:
-      - API Reference: groups/groups_api.md
-      - Groups Design: groups/groups_design.md
-  - Proximity Service:
-      - API Reference: proximity/proximity_api.md
-      - Proximity Design: proximity/proximity_design.md
-
+  - Core Concepts:
+      - User Management: UserManagment.md
+      - The requests Table: request_table.md
+      - Common Library: common_lib.md
+  - Services:
+      - Auth:
+          - API Reference: auth/auth_api.md
+          - Design: auth/auth_design.md
+      - User:
+          - API Reference: user/user_api.md
+          - Design: user/user_design.md
+      - Circles:
+          - API Reference: circles/circles_api.md
+          - Design: circles/circles_design.md
+      - Groups:
+          - API Reference: groups/groups_api.md
+          - Design: groups/groups_design.md
+      - Events:
+          - API Reference: events/events_api.md
+          - Design: events/events_design.md
+      - Proximity:
+          - API Reference: proximity/proximity_api.md
+          - Design: proximity/proximity_design.md

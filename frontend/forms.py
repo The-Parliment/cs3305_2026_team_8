@@ -1,5 +1,6 @@
-from wtforms import BooleanField, DateTimeLocalField, Form, StringField, PasswordField, SubmitField, DateTimeField, FloatField
+from wtforms import BooleanField, DateTimeLocalField, Form, StringField, PasswordField, SubmitField, DateTimeField, FloatField, TextAreaField, IntegerRangeField
 from wtforms.validators import DataRequired, Length, InputRequired
+from wtforms.widgets import HiddenInput
 import datetime
 class LoginForm(Form):
     username = StringField("Username", validators=[DataRequired(), Length(min=2, max=32)])
@@ -21,12 +22,31 @@ class ChangeDetailsForm(Form):
     submit = SubmitField("Submit")
     
 class EventForm(Form):
-    title = StringField("Event Title", validators=[Length(min=2, max=64)])
-    venue = StringField("Event Venue", validators=[Length(min=2, max=128)])   
+    title = TextAreaField("Event Title", validators=[Length(min=2, max=64)])
+    description = TextAreaField("Event Description", validators=[Length(min=2)])
     datetime_start = DateTimeLocalField("Start Time", format=['%Y-%m-%dT%H:%M', '%Y-%m-%dT%H:%M:%S'], validators=[InputRequired()])
     datetime_end = DateTimeLocalField("End Time", format=['%Y-%m-%dT%H:%M', '%Y-%m-%dT%H:%M:%S'], validators=[InputRequired()])
-    latitude = FloatField("Latitude")
-    longitude = FloatField("Longitude")
-    description = StringField("Event Description", validators=[Length(min=2, max=256)])
+    latitude = FloatField("Latitude", widget=HiddenInput())
+    longitude = FloatField("Longitude", widget=HiddenInput())
     is_public = BooleanField("Public Event", default=True)
     submit = SubmitField("Submit")
+
+class GroupForm(Form):
+    group_name = TextAreaField("Group Name", validators=[Length(min=2, max=64), DataRequired()])
+    group_desc = TextAreaField("Group Description", validators=[Length(min=2, max=256), DataRequired()])
+    is_public = BooleanField("Public Group", default=True)
+    submit = SubmitField("Submit")
+    
+class CommunityForm(Form):
+    user = StringField("Username")
+    submit = SubmitField("Submit")
+    
+class SearchEventForm(Form):
+    title = StringField("Title")
+    host = StringField("Host")
+    datetime_start = DateTimeLocalField("Start Time", format=['%Y-%m-%dT%H:%M', '%Y-%m-%dT%H:%M:%S'])
+    datetime_end = DateTimeLocalField("End Time", format=['%Y-%m-%dT%H:%M', '%Y-%m-%dT%H:%M:%S'])
+    latitude = FloatField("Latitude")
+    longitude = FloatField("Longitude")
+    radius = IntegerRangeField("Area", default=5)
+    submit = SubmitField("Search")

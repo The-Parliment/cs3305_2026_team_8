@@ -2,39 +2,36 @@
 
 {% block main_content %}
 
-<main>
+<main id="main">
     <header>
-        <h1>Your circle</h1>
+        <h1>My Circle</h1>
     </header>
-    <h2>My Circle</h2>
-    {% for user in circle %}
-    <p>{{ user }}</p>
-    <a href="/circle/remove_from_circle/{{ user }}">Remove</a>
-
-    {% endfor %}
-    {% if friend not in circle %}
-        <h3>Friends not in circle</h3>
+    <h2>Friends in my circle</h2>
+    <ul>
+        {% for user in circle %}
+            <li>{{ user }} <a href="/circle/remove_from_circle/{{ user }}" class="remove">Remove</a></li>
+        {% endfor %}
+    </ul>
+    <h3>Friends not in circle</h3>
+    <ul>
         {% for friend in friends %}
-            <p>{{ friend }}</p>
-                {% if friend not in invitations_sent %}
-                    <a href="/circle/invite_to_circle/{{ friend }}">Invite</a>
-                {% else %}
-                    <p>Invitation Sent</p>
-                {% endif %}
+            {% if friend not in circle %}
+                <li>{{ friend }} - 
+                    {% if friend not in invitations_sent %}
+                        <a href="/circle/invite_to_circle/{{ friend }}">Invite</a>
+                    {% else %}
+                        Invitation Sent
+                    {% endif %}
+                </li>
+            {% endif %}
         {% endfor %}
-    {% endif %}
-    <table>
-        <tr>
-            <th colspan="3">Pending Invites</th>
-        </tr>
+    </ul>
+    <h3>Pending Invitations</h3>
+    <ul>
         {% for user in pending_invites %}
-            <tr>
-                <td>{{ user }}</td>
-                <td> <a href="/circle/accept/{{ user }}">Accept</a></td>
-                <td><a href="/circle/decline/{{ user }}">Decline</a></td>
-            </tr>
+            <li>{{ user }} - <a href="/circle/accept/{{ user }}">Accept</a> | <a href="/circle/decline/{{ user }}">Decline</a></li>
         {% endfor %}
-    </table>
+    </ul>
 </main>
 
 {% endblock %}
