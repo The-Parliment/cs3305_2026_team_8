@@ -60,25 +60,20 @@ async def get_follow_requests_sent(request: Request, authorized_user : str = Dep
                                                  type=RequestTypes.FOLLOW_REQUEST, status=Status.PENDING)
         users = db.scalars(result).all()
         return UsernameListResponse(user_names=users)
-
-@app.post("/accept_follow_request", response_model=MessageResponse)
-async def accept_follow_request(inbound: UsersRequest) -> MessageResponse:
+    
+@app.get("/is_following/{username}", response_model=bool)
+async def is_following(username: str, request: Request, authorized_user : str = Depends(get_username_from_request)) -> MessageResponse:
     with get_db() as db:
-        stmt = update(UserRequest).values(
-            field1=inbound.inviter,
-            field2=inbound.invitee,
-            type=RequestTypes.FOLLOW_REQUEST,
-            status=Status.ACCEPTED
-        ).where(
-            UserRequest.field1 == inbound.inviter, 
-            UserRequest.field2 == inbound.invitee, 
-            UserRequest.type == RequestTypes.FOLLOW_REQUEST,
-            UserRequest.status == Status.PENDING)
-        db.execute(stmt)
-        db.commit()
-        return MessageResponse(
-            message=f"{inbound.invitee} accepted follow request from {inbound.inviter}."
-        )
+        result = select(UserRequest).filter_by(field1=authorized_user, field2=username, type=RequestTypes.FOLLOW_REQUEST, status=Status.ACCEPTED)
+        is_following = db.scalars(result).first() is not None
+        return is_following
+    
+@app.get("/follow_request_sent/{username}", response_model=bool)
+async def follow_request_sent(username: str, request: Request, authorized_user : str = Depends(get_username_from_request)) -> MessageResponse:
+    with get_db() as db:
+        result = select(UserRequest).filter_by(field1=authorized_user, field2=username, type=RequestTypes.FOLLOW_REQUEST, status=Status.PENDING)
+        request_sent = db.scalars(result).first() is not None
+        return request_sent
 
 @app.post("/decline_follow_request", response_model=MessageResponse)
 async def decline_follow_request(inbound: UsersRequest) -> MessageResponse:
@@ -92,6 +87,20 @@ async def decline_follow_request(inbound: UsersRequest) -> MessageResponse:
         db.commit()
         return MessageResponse(
             message=f"Follow request from {inbound.inviter} has been declined."
+        )
+        
+@app.post("/accept_follow_request", response_model=MessageResponse)
+async def accept_follow_request(inbound: UsersRequest) -> MessageResponse:
+    with get_db() as db:
+        stmt = update(UserRequest).values(status=Status.ACCEPTED).where(
+            UserRequest.field1 == inbound.inviter,
+            UserRequest.field2 == inbound.invitee,
+            UserRequest.type == RequestTypes.FOLLOW_REQUEST,
+            UserRequest.status == Status.PENDING)
+        db.execute(stmt)
+        db.commit()
+        return MessageResponse(
+            message=f"Follow request from {inbound.inviter} has been accepted."
         )
 
 @app.get("/followers", response_model=UsernameListResponse)
@@ -131,6 +140,15 @@ async def get_friends(request:Request, authorized_user : str = Depends(get_usern
             if result:
                 friends.append(name)
         return UsernameListResponse(user_names=friends)
+    
+@app.get("/search_users/{query}", response_model=UsernameListResponse)
+async def search_users(query: str, request: Request, authorized_user : str = Depends(get_username_from_request)) -> UsernameListResponse:
+    if not authorized_user:
+        return MessageResponse(message="Unauthorized", valid=False)
+    with get_db() as db:
+        result = select(User.username).filter(User.username.ilike(f"%{query}%"))
+        names = db.scalars(result).all()
+        return UsernameListResponse(user_names=names)
 
 @app.post("/withdraw_follow_request", response_model=MessageResponse)
 async def withdraw(inbound:UsersRequest) -> MessageResponse:
@@ -155,6 +173,16 @@ async def unfollow(inbound:UsersRequest) -> MessageResponse:
             UserRequest.type == RequestTypes.FOLLOW_REQUEST,
             UserRequest.status == Status.ACCEPTED)
         db.execute(stmt)
+        stmt2 = delete(UserRequest).where(
+            UserRequest.field1 == inbound.inviter,
+            UserRequest.field2 == inbound.invitee,
+            UserRequest.type == RequestTypes.CIRCLE_INVITE)
+        db.execute(stmt2)
+        stmt3 = delete(UserRequest).where(
+            UserRequest.field2 == inbound.inviter,
+            UserRequest.field1 == inbound.invitee,
+            UserRequest.type == RequestTypes.CIRCLE_INVITE)
+        db.execute(stmt3)
         db.commit()
         return MessageResponse(
             message=f"{inbound.invitee} has been unfollowed."

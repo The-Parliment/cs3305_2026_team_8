@@ -4,20 +4,21 @@
 
 <main id="main">
     <header>
-        <h1>Login</h1>
+        <h1>Edit Group Details</h1>
     </header>
     <form action="" method="POST" novalidate>
 
-        <p>{{ form.username.label }}</p>
-        {{ form.username() }}
+        <p>{{ form.group_name.label }}</p>
+        {{ form.group_name() }}
         <br/>
 
-        <p>{{ form.password.label }}</p>
-        {{ form.password() }}
-        <br/>
+        <p>{{ form.group_desc.label }}</p>
+        {{ form.group_desc() }}
         <br/>
         
-       <p>{{ form.submit() }}</p> 
+        <p>{{ form.is_public.label }}</p>
+        {{ form.is_public() }}
+        <br/>
         
         {% if form.form_errors %}
             <ul class="error-list">
@@ -26,6 +27,8 @@
                 {% endfor %}
             </ul>
         {% endif %}
+        
+        <p>{{ form.submit() }}</p>
     </form>
 </main>
 

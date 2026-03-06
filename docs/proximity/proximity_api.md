@@ -11,6 +11,8 @@
 
 | Method | Endpoint | Request Body | Response |
 |--------|----------|--------------|----------|
+| GET | `/` | — | set-style message payload |
+| POST | `/register_user` | `user_id, username` | plain string message |
 | POST | `/update_location` | `username, latitude, longitude` | `message` |
 | POST | `/get_friends` | `username, latitude, longitude, radius` | `friends[], count` |
 | POST | `/get_everyone` | `username, latitude, longitude, radius` | `friends[], count` |

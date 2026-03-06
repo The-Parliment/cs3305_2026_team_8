@@ -1,0 +1,137 @@
+{% extends "base.html" %}
+
+{% block main_content %}
+
+<main id="main">
+    <header>
+        <h1>Group Information</h1>
+    </header>
+    <h2>{{ group["group_name"] }}</h2>
+    <section class="status">
+        <div class="division">
+            <h3>Group Description</h3>
+            <p>{{ group["group_desc"] }}</p>
+            <h3>Group Owner</h3>
+            <p>{{ group["owner"] }}</p>
+        </div>
+        <div class="division">
+            <h3>Members</h3>
+            <ul>
+                {% for member in group_members %}
+                    {% if authorized_user == group["owner"] %}
+                        {% if member != authorized_user %}
+                            <li><a href="/profile/{{ member }}">{{ member }}</a> - <a href="/groups/remove/{{ group['id'] }}/{{ member }}">Remove from Group</a></li>
+                        {% else %}
+                            <li><a href="/profile/{{ member }}">{{ member }}</a></li>
+                        {% endif %}
+                    {% else %}
+                        <li><a href="/profile/{{ member }}">{{ member }}</a></li>
+                    {% endif %}
+                {% endfor %}
+            </ul>
+            
+            {% if authorized_user in group_members %}
+                {% if authorized_user == group["owner"] %}
+                    <a href="/groups/delete/{{ group['id'] }}">Delete Group</a>
+                {% else %}
+                    <p><a href="/groups/leave/{{ group['id'] }}">Leave Group</a></p>
+                {% endif %}
+            {% endif %}
+            
+            {% if authorized_user == group["owner"] %}
+                <a href="/groups/edit/{{ group['id'] }}">Edit Group Details</a>
+                <a href="/groups/delete/{{ group['id'] }}">Delete Group</a>
+                <br>
+                <a href="/groups/invitecircle/{{ group['id'] }}">Invite your Circle</a>
+                <a href="/groups/inviteallfriends/{{ group['id'] }}">Invite all Friends</a>
+                <h3>Friends not in group</h3>
+                <ul class="list-scroll-bar">
+                    {% for friend in friends_list %}
+                        {% if friend not in group_members %}
+                            <li>
+                                {{ friend }} 
+                                {% if friend not in invitees %}
+                                    - <a href="/groups/invite/{{ friend }}/{{ group['id'] }}">Invite</a>
+                                {% else %}
+                                    - Invitation Sent
+                                {% endif %}
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+                </ul>
+
+                <h3>Requests to join Group</h3>
+                <ul class="list-scroll-bar">
+                    {% for request in join_requests %}
+                        <li>{{ request.username }} - <a href="/groups/accept_request/{{ group['id'] }}/{{ request.username }}">Accept</a> | <a href="/groups/decline_request/{{ group['id'] }}/{{ request.username }}">Decline</a></li>
+                    {% endfor %}
+                </ul>
+
+            {% else %}
+
+                {% if user_has_requested %}
+                    <p>Request to join pending</p>
+                {% elif user_is_invited %}
+                    <p><a href="/groups/accept_invite/{{ group['id'] }}">Accept Invitation</a></p>
+                {% elif authorized_user in group_members %}
+                    <a href="/groups/leave/{{ group['id'] }}">Leave Group</a>
+                    <br>
+                    <a href="/groups/invitecircle/{{ group['id'] }}">Invite your Circle</a>
+                    <a href="/groups/inviteallfriends/{{ group['id'] }}">Invite all Friends</a>
+
+                    <h3>Friends not in group</h3>
+                    <ul class="list-scroll-bar">
+                        {% for friend in friends_list %}
+                            {% if friend not in group_members %}
+                                <li>
+                                    {{ friend }} 
+                                    {% if friend not in invitees %}
+                                        - <a href="/groups/invite/{{ friend }}/{{ group['id'] }}">Invite</a>
+                                    {% else %}
+                                        - Invitation Sent
+                                    {% endif %}
+                                </li>
+                            {% endif %}
+                        {% endfor %}
+                    </ul>
+
+                {% else %}
+
+                    {% if group["is_private"] %}
+                        <p><a href="/groups/request/{{ group['id'] }}">Request to Join Group</a></p>
+                    {% else %}
+                        <p><a href="/groups/join/{{ group['id'] }}">Join Group</a></p>
+                    {% endif %}
+
+                {% endif %}
+
+            {% endif %}
+            
+            <h3>Members</h3>
+            <ul class="list-scroll-bar">
+                {% for member in group_members %}
+                    {% if authorized_user == group["owner"] %}
+                        {% if member != authorized_user %}
+                            <li><a href="/profile/{{ member }}">{{ member }}</a> - <a href="/groups/remove/{{ group['id'] }}/{{ member }}">Remove from Group</a></li>
+                        {% else %}
+                            <li><a href="/profile/{{ member }}">{{ member }}</a></li>
+                        {% endif %}
+                    {% else %}
+                        <li><a href="/profile/{{ member }}">{{ member }}</a></li>
+                    {% endif %}
+                {% endfor %}   
+            </ul>   
+            
+            <h3>Friends in group</h3>
+            <ul class="list-scroll-bar">
+                {% for friend in friends_list %}
+                    {% if friend in group_members %}
+                        <li><a href="/profile/{{ friend }}">{{ friend }} </a></li>
+                    {% endif %}
+                {% endfor %}
+            </ul>
+        </div>
+    </section>
+</main>
+
+{% endblock %}

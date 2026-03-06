@@ -5,6 +5,9 @@ site_author: Parliament Team
 docs_dir: ./docs
 site_dir: site
 
+extra_css:          # <-- here
+  - stylesheets/extra.css
+
 theme:
   name: material
   palette:
@@ -63,6 +66,9 @@ nav:
       - Auth:
           - API Reference: auth/auth_api.md
           - Design: auth/auth_design.md
+      - User:
+          - API Reference: user/user_api.md
+          - Design: user/user_design.md
       - Circles:
           - API Reference: circles/circles_api.md
           - Design: circles/circles_design.md

@@ -8,7 +8,6 @@ class CreateRequest(BaseModel):
     longitude: float
     datetime_start: datetime
     datetime_end: datetime
-    venue: str
     host: str | None = ""
     public: bool | None = False
 
@@ -30,7 +29,6 @@ class InfoResponse(BaseModel):
     longitude: float
     datetime_start: datetime
     datetime_end: datetime
-    venue: str
     host:str
     public: bool
 
@@ -61,7 +59,6 @@ class EditRequest(BaseModel):
     datetime_end: datetime
     latitude: float
     longitude: float
-    venue: str
     public: bool | None = False
 
 class SearchRequest(BaseModel):
@@ -71,5 +68,4 @@ class SearchRequest(BaseModel):
     latitude: float
     longitude: float
     radius: float
-    venue: str | None = None
     host: str | None = None

@@ -3,26 +3,22 @@
 <!-- Page needs to include search bar -->
 <!-- Each event should have options to delete/edit/invite (3 options)/show more information-->
 {% block main_content %}   
-<main>
+<main id="main">
     <h1>Events</h1>
+    
+    <a href="/events/create_event">Create Event</a>
     
     <h2>Hosting</h2>
     <ul>
-        {% for event in events %}
+        {% for event in hosting_events %}
             <li><a href="{{ url_for('event_info', event_id=event.id) }}">{{ event.title }}</a></li>
         {% endfor %}
     </ul>
-    <h2>Invited</h2>
+    <h2>Attending</h2>
     <ul>
-        {% for event in invited_events %}
+        {% for event in attending_events %}
             <li><a href="{{ url_for('event_info', event_id=event.id) }}">{{ event.title }}</a></li>
         {% endfor %}
-    </ul>
-    <h2>Public Events</h2>
-    <ul>
-        {% for event in public_events %}
-            <li><a href="{{ url_for('event_info', event_id=event.id) }}">{{ event.title }}</a></li>
-        {% endfor %}    
     </ul>
 </main>
 {% endblock %}
