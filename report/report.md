@@ -663,8 +663,8 @@ While we tried to respect service boundaries, we did "poke" into each other's co
 
 **Joana**
 
-- Enter something here
-- and here again
+- Designed and planned the UI and flow of the user stories, drawing the logos, icons, and choosing an adequate colour palette.
+- Implemented said design using HTML, CSS, and JavaScript, and organized the HTML pages. Overall main frontend developer and frontend designer.
 
 **Darren**
 
