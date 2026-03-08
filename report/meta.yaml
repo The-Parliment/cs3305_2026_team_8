@@ -1,46 +1,59 @@
 ---
-title: "GoClub"
-subtitle: "Architecture of a Location-Aware Social Platform"
-author: CS3305-2025-Team-8 -  University College Cork
-date: "February 2026"
-abstract: |
-  This report documents the architecture of GoClub, a location-aware
-  social platform built as part of CS3305 Team Software Project at University
-  College Cork. It is written in the style of \textit{The Architecture of Open
-  Source Applications} (AOSA) — a format that asks not what a system does, but
-  why it was built the way it was. That distinction is the lens through which
-  every section of this report should be read.
+title: "GoClub Architecture Report"
+subtitle: |
+  Architecture of a Location-Aware Social Platform
+  
+  \href{https://github.com/The-Parliment/cs3305_2026_team_8}{github.com/The-Parliment/cs3305\_2026\_team\_8}
+author: |
+  \begin{tabular}{c} 
+  Joana Mafra (123710151) \\ 
+  Darren Counihan (123411792) \\ 
+  Cillian Ó Riain (123512869) \\ 
+  Róisín Quinn (123350046) \\ 
+  \medskip 
+  Group 8
+  \end{tabular}
+date: "March 2026"
 
-  Full service descriptions, API references, data models, and endpoint
-  documentation are maintained as a living artefact at the project documentation
-  site: \href{https://the-parliment.github.io/cs3305_2026_team_8/}{the-parliment.github.io/cs3305\_2026\_team\_8}.
-  Readers seeking the internals of any individual service should go there. This
-  report does not reproduce that material. It explains the thinking behind the
-  architecture that documentation describes.
-
-  Three decisions shaped this project more than any others. First, how a team
-  of four coordinated parallel development across five services without
-  integration becoming a bottleneck — the answer involves Agile process, Git
-  discipline, and documentation used as a development contract rather than a
-  retrospective deliverable. Second, how a seven-container system was made to
-  run identically on every developer's machine and demo reliably under pressure
-  — the answer is Docker Compose, but the interesting part is the discipline
-  behind it. Third, what happened when the team discovered that GPS coordinate
-  data is fundamentally incompatible with a relational database under real-time
-  load — the answer is Valkey, an in-memory geospatial store arrived at through
-  deliberate research and tool selection rather than custom implementation.
-  These three decisions are where the depth of this report lies. Everything
-  else is supporting context.
-header-includes:
-  - \usepackage{hyperref}
+# Document Settings Restored
 geometry:
   - top=2.5cm
   - bottom=2.5cm
   - left=3.0cm
   - right=3.0cm
 fontsize: 11pt
-linestretch: 0.5
+linestretch: 1.25 # Recommended 1.25 or 1.5; 0.5 is usually too cramped for text
 toc: true
-toc-depth: 3
+toc-depth: 2
 numbersections: true
+
+abstract: |
+  This report documents the architecture of GoClub, a location-aware social 
+  platform built for CS3305 Team Software Project at University College Cork. 
+  It follows the style of \textit{The Architecture of Open Source Applications} 
+  — less concerned with what the system does, more with why it ended up the 
+  way it did.
+
+  The full API documentation, data models, and service internals are kept 
+  separately at the project documentation site: 
+  \href{https://the-parliment.github.io/cs3305_2026_team_8/}{the-parliment.github.io/cs3305\_2026\_team\_8}. 
+  This report doesn't reproduce any of that. What it tries to do is explain 
+  the thinking behind the decisions — the problems the team ran into and why 
+  they were solved the way they were.
+
+  Three things ended up being harder than expected. Getting four developers 
+  building six services in parallel without constantly blocking each other. 
+  Making a seven-container system run the same way on every laptop, including 
+  on demo day. And figuring out what to do when the team realised that GPS 
+  coordinate data just doesn't belong in a relational database. Those three 
+  problems, and the architecture that came out of trying to solve them, are 
+  what this report is about.
+  
+header-includes:
+  - \usepackage{hyperref}
+  - \usepackage{titling}
+  - \pretitle{\begin{center}\LARGE\bfseries}
+  - \posttitle{\par\end{center}\begin{center}\large \thesubtitle \end{center}\vskip 2em}
+  - \preauthor{\begin{center}\large}
+  - \postauthor{\end{center}}
 ---

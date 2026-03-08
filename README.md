@@ -5,9 +5,25 @@ A location-aware social platform that connects users based on proximity, shared 
 
 ---
 
+## TL;DR — Quick Start
+
+Want to skip straight to running the project? This section has everything you need: one command to build and run the entire stack, plus links to the live application and documentation.
+
+**Run the project:**
+```bash
+docker compose up --build
+```
+
+**Access:**
+
+- Frontend: [https://localhost](https://localhost)
+- GoClub Technical Documentation: [https://the-parliment.github.io/cs3305_2026_team_8/](https://the-parliment.github.io/cs3305_2026_team_8/)
+
+---
+
 ## AOSA Report
 
-Official Project Report located — in `report/report.md`
+Official Project Report — [Markdown](report/report.md) | [PDF](report/report.pdf)
 
 ## Website
 
@@ -15,14 +31,54 @@ For an in-depth look at the internals of each microservice, the MkDocs generated
 
 ---
 
+## Note on Mermaid Diagrams
+
+This project uses **Mermaid** (diagram-as-code) throughout the documentation and report. 
+
+- **GitHub** renders Mermaid diagrams automatically in `.md` files
+- **VS Code** requires the Mermaid Preview extension to render diagrams in markdown preview
+- **Other IDEs** may require similar plugins
+
+### Example: What is Mermaid?
+
+Mermaid allows diagrams to be defined as text code, making them version-controllable and easy to update.
+
+**This code:**
+
+````text
+    ```mermaid
+        sequenceDiagram
+            User->>API Gateway: POST /auth/login
+            API Gateway->>Auth Service: Forward request
+            Auth Service->>Auth Service: Validate credentials
+            Auth Service-->>API Gateway: Return JWT token
+            API Gateway-->>User: 200 OK with token
+    ```
+````
+
+**Renders as:**
+```mermaid
+sequenceDiagram
+    User->>API Gateway: POST /auth/login
+    API Gateway->>Auth Service: Forward request
+    Auth Service->>Auth Service: Validate credentials
+    Auth Service-->>API Gateway: Return JWT token
+    API Gateway-->>User: 200 OK with token
+```
+
+> **On GitHub:** You'll see the sequence diagram above rendered automatically.  
+> **In VS Code:** Without the Mermaid extension, you'll only see the code block text.
+
+---
+
 ## Team
 
 | Name | Student ID | GitHub |
 |------|-----------|--------|
-| Cillian | xxxxxxx | @Cillibean |
-| Roisin | xxxxxxx | @roisinquinn-05 |
-| Joana | xxxxxxx | @Joana-0403 |
-| Darren Counihan | 123411792 | @ziller |
+| Cillian | 123512869 | @Cillibean |
+| Roisin | 123350046 | @roisinquinn-05 |
+| Joana | 123710151 | @Joana-0403 |
+| Darren | 123411792 | @ziller |
 
 ---
 
