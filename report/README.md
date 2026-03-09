@@ -1,5 +1,18 @@
 # Note
 
+If you are reading this you most likely unzip this reports directory and are looking at the documentation. Here is a helpful(hopefully) guide.
+
+- REPORT.pdf - a pdf version of our report
+- REPORT.md - a markdown version of same.
+- images/ - directory for screen shots used in report
+
+NOTE - if focused on the markdown, be sure to have mermaid plugin installed in your IDE of choice. We have tested with InteliJ and VSCode. The reason is we are using mermaid - *diagrams as code* - for our technical diagrams. To render this properly so you can view images vs code blocks you need this plugin. Note this is enabled out of box if viewing in GitHub's site. Enabliing in your IDE is a trivial step.
+
+- `generate_pdf.sh` - a simple script to generate a pdf from the markdown.
+
+Turns out pandoc isn't as simple as one may think - so this script gives a repeatable pdf generation step. For more details on padocs complexities see the section below. If you are really interested in generating the doc from me, use this script and make sure your system is set up as documented below.
+
+## Pandocs Info
 `pandoc` is a "Pandoc is a universal document converter. It lets you take text written in one  format (like Markdown) and convert it into many other formats such as PDF, HTML, Word, LaTeX, or EPUB."
 
 If you sqint you may see it as a document compiler. In this project we are using it to go from md to pdf. But interestingly `pandoc` creates an intermediatery format in LaTeX before final pdf generation.
