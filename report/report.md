@@ -656,15 +656,15 @@ While we tried to respect service boundaries, we did "poke" into each other's co
 - Enter something here
 - and here again
 
-**Roisin**
+**Róisín**
 
-- Enter something here
-- and here again
+- Contributed to the design and implementation of both Events and Circles microservices, including writing API endpoints and routes for event creation, editing, deletion and invitations, as well as for inner circle editing and invitations.
+- Assisted in the integration of the Events + Invites backend microservices to the frontend so that they could be reliably accessed through the user interface.
 
 **Joana**
 
-- Enter something here
-- and here again
+- Designed and planned the UI and flow of the user stories, drawing the logos, icons, and choosing an adequate colour palette.
+- Implemented said design using HTML, CSS, and JavaScript, and organized the HTML pages. Overall main frontend developer and frontend designer.
 
 **Darren**
 
