@@ -1,56 +1,70 @@
+# GoClub Architecture Report
+
+### Architecture of a Location-Aware Social Platform
+
+---
+
+**Authors**
+
+| Author | Student ID |
+|--------|-----------|
+| Joana Mafra | 123710151 |
+| Darren Counihan | 123411792 |
+| Cillian Ó Riain | 123512869 |
+| Róisín Quinn | 123350046 |
+
+**Group 8**
+
+March 2026
+
+---
+
+## Abstract
+
+> This report documents the architecture of GoClub, a location-aware social
+> platform built for CS3305 Team Software Project at University College Cork.
+> It follows the style of *The Architecture of Open Source Applications*
+> — less concerned with what the system does, more with why it ended up the
+> way it did.
+>
+> The full API documentation, data models, and service internals are kept
+> separately at the project documentation site:
+> [the-parliment.github.io/cs3305_2026_team_8](https://the-parliment.github.io/cs3305_2026_team_8/).
+> This report doesn't reproduce any of that. What it tries to do is explain
+> the thinking behind the decisions — the problems the team ran into and why
+> they were solved the way they were.
+>
+> Three things ended up being harder than expected. Getting four developers
+> building six services in parallel without constantly blocking each other.
+> Making a seven-container system run the same way on every laptop, including
+> on demo day. And figuring out what to do when the team realised that GPS
+> coordinate data just doesn't belong in a relational database. Those three
+> problems, and the architecture that came out of trying to solve them, are
+> what this report is about.
 
 ---
 
 # Introduction
 
-Most student software projects, at their core, end up being a single service sitting on top
-of a database. GoClub is not that.
+Most student software projects, at their core, end up being a single service sitting on top of a database. GoClub is not that.
 
-It is a location-aware social platform that depends on real-time data from active users, an
-event system with flexible visibility controls, a friend-circle model built around invitation
-state, and a wider community layer for broader group membership. All of these pieces need
-to work together, built by a team of four students under academic time pressure, across
-development environments that ranged from one laptop to another.
+It is a location-aware social platform that depends on real-time data from active users, an event system with flexible visibility controls, a friend-circle model built around invitation state, and a wider community layer for broader group membership. All of these pieces need to work together, built by a team of four students under academic time pressure, across development environments that ranged from one laptop to another.
 
-From early on, the team made a decision that shaped everything else: this project should be
-able to live beyond the deadline. Not as a finished product handed in and forgotten, but as
-something that could actually grow — an open source platform that other developers could
-pick up, extend, and build on. That framing changed how decisions got made. A product
-needs a polished UI. A platform needs clean boundaries, documented APIs, and an
-architecture that doesn't break when someone adds something new. GoClub was built to be
-the second thing.
+From early on, the team made a decision that shaped everything else: this project should be able to live beyond the deadline. Not as a finished product handed in and forgotten, but as something that could actually grow — an open source platform that other developers could pick up, extend, and build on. That framing changed how decisions got made. A product needs a polished UI. A platform needs clean boundaries, documented APIs, and an architecture that doesn't break when someone adds something new. GoClub was built to be the second thing.
 
-Demo day made one thing clear: there are a lot of different ways to build a project. Some
-teams went deep on UI and visual polish, some built games, some leaned into AI libraries
-to create impressive-looking interfaces. GoClub had a working frontend — one person
-handled all of the look and feel, which was no small task — but the team's energy went
-somewhere else. The Jinja2 frontend exists to demonstrate the platform works, not to be
-the final word on how users interact with it. Someone could build a React app on top of the
-same API. Someone else could build an Android client. A third person could add a new
-backend service — a recommendations engine, a notification system, a chat feature — drop
-it behind the NGINX gateway, and the rest of the system would not need to change. Each
-service is its own container with its own boundary. That's the point.
+Demo day made one thing clear: there are a lot of different ways to build a project. Some teams went deep on UI and visual polish, some built games, some leaned into AI libraries to create impressive-looking interfaces. GoClub had a working frontend — one person handled all of the look and feel, which was no small task — but the team's energy went somewhere else. The Jinja2 frontend exists to demonstrate the platform works, not to be the final word on how users interact with it. Someone could build a React app on top of the same API. Someone else could build an Android client. A third person could add a new backend service — a recommendations engine, a notification system, a chat feature — drop it behind the NGINX gateway, and the rest of the system would not need to change. Each service is its own container with its own boundary. That's the point.
 
-At the centre of the application is the idea of the inner circle: a small group of close
-contacts who share live location, making it possible to answer a simple spontaneous
-question — who is nearby right now, and do they want to meet? Layered on top of this are
-Groups (communities based on shared interests) and Events (structured gatherings with RSVP
-and configurable visibility, similar in concept to Eventbrite but aimed at a university
-setting). The proximity feature alone opens up directions the current version doesn't
-explore — live event check-ins, location-triggered notifications, integration with mapping
-APIs for venue discovery. The architecture supports all of it without modification.
+At the centre of the application is the idea of the inner circle: a small group of close contacts who share live location, making it possible to answer a simple spontaneous
+question — who is nearby right now, and do they want to meet? Layered on top of this are Groups (communities based on shared interests) and Events (structured gatherings with RSVP and configurable visibility, similar in concept to Eventbrite but aimed at a university setting). The proximity feature alone opens up directions the current version doesn't explore — live event check-ins, location-triggered notifications, integration with mapping APIs for venue discovery. The architecture supports all of it without modification.
 
-The most interesting part of this project is not the feature set though. It is the engineering
-decisions the team was pushed into making by three problems that turned out to be far more
-difficult than expected:
+The most interesting part of this project is not the feature set though. It is the engineering decisions the team was pushed into making by three problems that turned out to be far more difficult than expected:
 
 - coordinating parallel development across multiple services
 - achieving reproducible environments and deployments
 - handling high-frequency, real-time GPS data that did not fit the assumptions of a
   traditional relational database
 
-This report tells the story of those three problems, and how the architecture evolved in
-response to them.
+This report tells the story of those three problems, and how the architecture evolved in response to them.
 
 # Requirements and Constraints
 
@@ -108,7 +122,7 @@ Each story lived on its own feature branch. Code only reached main through a pul
 
 This is the most underappreciated decision in the project's process story. The team adopted MkDocs not as a documentation deliverable to be produced at the end, but as a coordination tool used during development. Each service owner documented their API design — endpoints, request schemas, response structures — before or alongside implementation.
 
-As the team had already been documenting APIs and designs in a docs/ folder, adding a mkdocs.yaml took minutes — but the benefits far outweighed the effort.
+As the team had already been documenting APIs and designs in a `docs/` folder, adding a `mkdocs.yaml` took minutes — but the benefits far outweighed the effort.
 
 ![he GoClub MkDocs documentation site showing the End-to-End Flow page — each service owner's API design published as a single searchable site, used as a live development contract during the project](images/WebSite.png)
 
@@ -164,6 +178,8 @@ A developer working on a new feature would run their service locally using a Pyt
 
 Local development is faster but tests the service in isolation. Containerised development is slower but tests the service as the system will actually run. Keeping both modes viable avoided slow feedback loops during exploratory work while still catching integration issues before they reached main.
 
+![Swagger UI automatically generated by FastAPI used for microservice testing](images/swagger.png)
+
 ## The Nuclear Option
 
 A multi-container system with persistent state can accumulate artefacts across restarts that mask bugs or produce inconsistent behaviour between team members. The team documented a full state-reset procedure as a first-class operation:
@@ -176,7 +192,7 @@ sudo rm common/app.db
 
 # The Core Services
 
-Six services make up the GoClub backend — Auth, User, Circles, Groups, Events, and Proximity. The first six share a common character: they manage entities that change infrequently, have clear relational structure, and benefit from transactional consistency. Proximity is the exception and is covered in [Challenge Three](#challenge-three---when-the-database-is-the-wrong-tool). This section covers each of the six relational services, focusing on boundary decisions and architecturally notable design choices. Full API references and data model details are available at the MkDocs documentation site.
+Six services make up the GoClub backend — Auth, User, Circles, Groups, Events, and Proximity. The first five share a common character: they manage entities that change infrequently, have clear relational structure, and benefit from transactional consistency. Proximity is the exception and is covered in [Challenge Three](#challenge-three---when-the-database-is-the-wrong-tool). This section covers each of the five relational services, focusing on boundary decisions and architecturally notable design choices. Full API references and data model details are available at the MkDocs documentation site.
 
 ## Auth Service
 
@@ -404,7 +420,7 @@ In terms of what it does, it plays the same role a React app would on the client
 
 The more interesting architectural point is that the frontend is just one possible client. It talks to the backend through the same NGINX gateway an Android app would use, hits the same endpoints, and passes the same JWT tokens. Nothing about the backend knows or cares that the client is Jinja2. Swapping it out for a React frontend or a mobile app would require zero changes to any backend service — the gateway handles everything in between.
 
-WTForms handles form validation server-side, keeping that logic where it belongs and out of the individual backend services. The  require_frontend_auth` dependency gates any route that needs a logged-in user — missing or invalid token gets redirected to login before the handler even runs.
+WTForms handles form validation server-side, keeping that logic where it belongs and out of the individual backend services. The  `require_frontend_auth` dependency gates any route that needs a logged-in user — missing or invalid token gets redirected to login before the handler even runs.
 
 ## Technologies & Tools
 
@@ -642,12 +658,19 @@ While we tried to respect service boundaries, we did "poke" into each other's co
 
 # Conclusion
 
-> **Intent:** Button up the document with a conclusion.
+Eight weeks ago none of us had built anything close to this. A working microservices platform, containerised, documented, with a live demo that actually ran on the day.
+
+It didn't go smoothly. There were nights where the Docker network was broken and nobody knew why, PRs that sat too long and caused merge pain, and more than one moment where the whole stack just refused to come up. The nuclear option got used more than once.
+
+The three challenges this report covers were the ones that shaped everything else — getting parallel development to work without stepping on each other, making the stack run the same way on four different machines, and figuring out that SQLite was the wrong tool for GPS data before it became a much bigger problem. None of those were obvious going in.
+
+GoClub isn't finished. There's a list of open issues on the board that didn't make the cut. But it's in a state where someone could pick it up, read the docs, and understand what they're looking at. For a student project built in eight weeks, that feels like enough.
 
 # Project References
 
-- **GitHub:** <https://github.com/The-Parliment/cs3305_2026_team_8>
-- **Documentation:** <https://the-parliment.github.io/cs3305_2026_team_8/>
+- **GitHub Source:** <https://github.com/The-Parliment/cs3305_2026_team_8>
+- **MkDocs Documentation:** <https://the-parliment.github.io/cs3305_2026_team_8/>
+- **Google Project:** <https://github.com/orgs/The-Parliment/projects/3/views/7>
 
 # Contributors
 

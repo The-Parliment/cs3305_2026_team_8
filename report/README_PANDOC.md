@@ -1,3 +1,20 @@
+# Note
+
+`pandoc` is a "Pandoc is a universal document converter. It lets you take text written in one  format (like Markdown) and convert it into many other formats such as PDF, HTML, Word, LaTeX, or EPUB."
+
+If you sqint you may see it as a document compiler. In this project we are using it to go from md to pdf. But interestingly `pandoc` creates an intermediatery format in LaTeX before final pdf generation.
+
+For simple md you get a crude pdf doc - not very pretty. So if you want to improve the look/feel of the final document you need to intercept the intermediatery LaTeX with LaTeX configuration - this is where the `scripts` folder plays a part.
+These scripts control everything from
+
+- line spacing
+- font selection
+- font size
+- table niceties
+- mermaid diagram generation
+
+The last one is important in this context. For those that advoce for Markdown, then logically leveraging Mermaid is hand-in-glove with this. Mermaid is *diagram-as-code* and offers the huge advantage of multiple collaborators being able to modify diagrams without the laborious steps of opening a diagramming tool, modifying, saving-as and committing essentially a binary object to github. Additionally changes to diagrams can now be tracked to a very fine level of granulaity. Every opensource project of consequence that is interested in quality documents are using this.
+
 If you want to get pandoc generating nicely you need to add a few things to your system:
 
 ```bash
@@ -11,8 +28,14 @@ npx puppeteer browsers install chrome-headless-shell
 export PUPPETEER_EXECUTABLE_PATH="$HOME/.cache/puppeteer/chrome-headless-shell/linux-142.0.7444.61/chrome-headless-shell-linux64/chrome-headless-shell"
 ```
 
-Note - be prepared for some serious pain here - it will require a lot of bouncing around with google/chatgpt to get the exact output you may want.....
+Once the above is installed, generating this document is as simple as running the script `generate_pdf.sh`.
+
+If one looks closely, we do something funky in this script. We strip out the first 30 lines from the `report.md` and us that `temp-report.md` file to generate the document. This is because to generate a nice scientific report **heading** page you need the `meta.yaml` file. But that does not translate well to markdown. So here we simply control the markdown rendering by putting in a dedicated title/abstract section that presents nice in markdown viewers. But when we wnat to generate the pdf, we tear away all this and use the `meta.yaml` instead. The info is duplicated for sure, but the amount of duplication is minimal to justify the final outcome - pretty pdf AND markdown.
+
+Why go to all this effort - well ironically these scripts and experience were build up over a year on various other projects, so you as a reader can benefit from all the pain I suffered :-). This author will not profess to expertise here - a lot of time went into using every tool available - google/AI/blogs to hack all the scripts together in the `scripts` folder.
+
+Note - if you want to reuse this for your own project - there be dragons - be prepared for some serious pain here - it will require a lot of bouncing around with google/chatgpt to get the exact output you may want.....
 
 A lot of time will be spend tailoring these lua scripts to control the final pdf rendering. What is good for this project may not be good for the next. Table layout is particularly painful, along with mermaid image generation - specifically their sizing....
 
-BUT - if you are willing to put up with the pain, you get a really nice document.
+BUT - if you are willing to put up with the pain, you get a really nice document!

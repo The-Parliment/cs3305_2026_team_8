@@ -3,7 +3,7 @@ title: "GoClub Architecture Report"
 subtitle: |
   Architecture of a Location-Aware Social Platform
   
-  \href{https://github.com/The-Parliment/cs3305_2026_team_8}{github.com/The-Parliment/cs3305\_2026\_team\_8}
+  \href{https://github.com/The-Parliment/cs3305_2026_team_8}{https://github.com/The-Parliment/cs3305\_2026\_team\_8}
 author: |
   \begin{tabular}{c} 
   Joana Mafra (123710151) \\ 
@@ -36,7 +36,7 @@ abstract: |
 
   The full API documentation, data models, and service internals are kept 
   separately at the project documentation site: 
-  \href{https://the-parliment.github.io/cs3305_2026_team_8/}{the-parliment.github.io/cs3305\_2026\_team\_8}. 
+  \href{https://the-parliment.github.io/cs3305_2026_team_8/}{https://the-parliment.github.io/cs3305\_2026\_team\_8}. 
   This report doesn't reproduce any of that. What it tries to do is explain 
   the thinking behind the decisions — the problems the team ran into and why 
   they were solved the way they were.
