@@ -667,8 +667,8 @@ GoClub was a genuine team effort. While each person led on specific services and
 
 **Cillian**
 
-- Enter something here
-- and here again
+- Contributed to the creation, development, and finalization of each microservice except for Proximity. This involved writing all CRUD logic in the backend, as well as implementing the correct Jinja structure and syntax in the frontend.
+- Worked with Joana to create the design of the UI and the flow of user stories. Worked with Darren to implement the frontend of the proximity service as well as the Groups microservice. Worked with Roisin to implement the Events and Circles microservices. Designed and implemented the finalized Auth microservice.
 
 **Róisín**
 
