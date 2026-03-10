@@ -23,7 +23,7 @@ March 2026
 
 > This report documents the architecture of GoClub, a location-aware social
 > platform built for CS3305 Team Software Project at University College Cork.
-> It follows the style of *The Architecture of Open Source Applications*
+> It follows the narrative style of *The Architecture of Open Source Applications*
 > — less concerned with what the system does, more with why it ended up the
 > way it did.
 >
@@ -50,9 +50,9 @@ Most student software projects, at their core, end up being a single service sit
 
 It is a location-aware social platform that depends on real-time data from active users, an event system with flexible visibility controls, a friend-circle model built around invitation state, and a wider community layer for broader group membership. All of these pieces need to work together, built by a team of four students under academic time pressure, across development environments that ranged from one laptop to another.
 
-From early on, the team made a decision that shaped everything else: this project should be able to live beyond the deadline. Not as a finished product handed in and forgotten, but as something that could actually grow — an open source platform that other developers could pick up, extend, and build on. That framing changed how decisions got made. A product needs a polished UI. A platform needs clean boundaries, documented APIs, and an architecture that doesn't break when someone adds something new. GoClub was built to be the second thing.
+From early on, the team made a decision that shaped everything else: this project should be able to live beyond the deadline. Not as a finished product handed in and forgotten, but as something that could actually grow — an open source platform that other developers could pick up, extend, and build on. That goal changed how we approached things. A product needs a fancy UI. A platform needs clean boundaries, documented APIs, and an architecture that doesn't break when someone adds something new. GoClub was built to be the second thing.
 
-Demo day made one thing clear: there are a lot of different ways to build a project. Some teams went deep on UI and visual polish, some built games, some leaned into AI libraries to create impressive-looking interfaces. GoClub had a working frontend — one person handled all of the look and feel, which was no small task — but the team's energy went somewhere else. The Jinja2 frontend exists to demonstrate the platform works, not to be the final word on how users interact with it. Someone could build a React app on top of the same API. Someone else could build an Android client. A third person could add a new backend service — a recommendations engine, a notification system, a chat feature — drop it behind the NGINX gateway, and the rest of the system would not need to change. Each service is its own container with its own boundary. That's the point.
+Demo day made one thing clear: there are a lot of different ways to build a project. Some teams went deep on UI and visual polish, some built games, some leaned into AI libraries to create impressive-looking interfaces. GoClub had a working frontend — one person handled all of the look and feel, which was no small task — but the team's energy went somewhere else. The Jinja2 frontend exists to demonstrate the platform works, not to be the final word on how users interact with it. Someone could build a React app on top of the same API. Someone else could build an Android client. A third person could add a new backend service — a recommendations engine, a notification system, a chat feature — drop it behind the NGINX gateway, and the rest of the system would not need to change. Each service is its own container with its own boundary. That separation was one of the main goals of the architecture.
 
 At the centre of the application is the idea of the inner circle: a small group of close contacts who share live location, making it possible to answer a simple spontaneous
 question — who is nearby right now, and do they want to meet? Layered on top of this are Groups (communities based on shared interests) and Events (structured gatherings with RSVP and configurable visibility, similar in concept to Eventbrite but aimed at a university setting). The proximity feature alone opens up directions the current version doesn't explore — live event check-ins, location-triggered notifications, integration with mapping APIs for venue discovery. The architecture supports all of it without modification.
@@ -80,7 +80,7 @@ The proximity feature introduces a constraint that none of the other features sh
 
 ## Non-Functional Constraints
 
-**Team size** was the most consequential constraint. Four developers, each responsible for one or more services, with a fixed academic deadline juggling other course work. This created an immediate tension: microservices architecture enables parallel development, but it also introduces integration complexity and coordination overhead that a monolith avoids. The team had to earn the benefits of microservices by investing in the process and tooling that make parallel development safe.
+**Team size** was the most consequential constraint. Four developers, each responsible for one or more services, with a fixed academic deadline juggling other course work. This created an immediate tension: microservices architecture enables parallel development, but it also introduces integration complexity and coordination overhead that a monolith avoids. Microservices don't give you parallel development for free — you have to set things up so people aren't constantly in each other's way.
 
 **Deployment environment** was the second major constraint. The system needed to run identically on every team member's machine and produce a reliable demo. "It works on my machine" is not a viable outcome for a graded project. This constraint drove the containerisation decisions described in Section [Challenge Two](#challenge-two---reproducible-deployment-of-a-multi-service-stack).
 
@@ -96,19 +96,19 @@ GoClub is composed of six backend microservices, an API gateway, a shared common
 
 Each service is a self-contained Python FastAPI application packaged as a Docker container, communicating with the outside world exclusively through the NGINX gateway. The common library is not a service; it is a shared Python package mounted into each service container at runtime, providing database session management, SQLAlchemy base models, and JWT processing utilities.
 
-The gateway routes requests by URL path prefix: any request to `/auth/*` is forwarded to the Auth service, `/circles/*` to the Circles service, and so on. This design means adding a new service requires one additional to the NGINX configuration block.
+The gateway routes requests by URL path prefix. /auth/* goes to the Auth service, /circles/* goes to Circles, and so on. Adding a new service ended up being surprisingly simple — it mostly meant adding another rule to the NGINX config.
 
 Valkey sits alongside the relational database as a second data tier, serving exclusively the Proximity service. Its role and the reasoning behind its selection are the subject of Section [Challenge Three](#challenge-three---when-the-database-is-the-wrong-tool).
 
 # Challenge One — Coordinating Parallel Development
 
-The microservices decomposition was not chosen because it is architecturally trendy. It was chosen because the team needed to build six microservices simultaneously without each developer's work becoming a bottleneck for everyone else. That goal is only achievable if the coordination problem is solved. A microservices architecture with poor coordination is worse than a monolith: all the integration headache, none of the parallel development.
+The microservices split wasn't originally about architecture trendiness. It came from a practical problem: four people trying to build six features at the same time without constantly waiting on each other. In earlier projects we had all experienced working on the same codebase and ended up blocking teammates during merges, so we deliberately tried something different here.
 
 The team's response was three-layered: Agile process to align work to service boundaries, Git discipline to protect integration points, and documentation as a contract that enabled work to proceed before all services existed.
 
 ## Agile Process and the Mapping of Stories to Services
 
-The team used Google [Projects](https://github.com/orgs/The-Parliment/projects/3) to track work using epics and user stories. The team tried to make sure story boundaries matched service boundaries. An epic for "Proximity Feature" decomposed into stories that could each be owned by a single developer: the Valkey integration, the location update endpoint, the nearby-users query, and the frontend map component. These stories could be worked on in parallel because their integration points were agreed upfront as API contracts, not figured out the hard way when everything tried to merge at once.
+The team used [GitHub Projects](https://github.com/orgs/The-Parliment/projects/3) to track work using epics and user stories. The team tried to make sure story boundaries matched service boundaries. An epic for "Proximity Feature" decomposed into stories that could each be owned by a single developer: the Valkey integration, the location update endpoint, the nearby-users query, and the frontend map component. These stories could be worked on in parallel because their integration points were agreed upfront as API contracts, not figured out the hard way when everything tried to merge at once.
 
 ![GitHub Projects board showing the Proximity Feature epic decomposed into individual user stories, each mapped to a single developer and a single service boundary](images/Epic_to_Stories.png)
 
@@ -120,14 +120,14 @@ Each story lived on its own feature branch. Code only reached main through a pul
 
 ## MkDocs as a Development Contract
 
-This is the most underappreciated decision in the project's process story. The team adopted MkDocs not as a documentation deliverable to be produced at the end, but as a coordination tool used during development. Each service owner documented their API design — endpoints, request schemas, response structures — before or alongside implementation.
+This ended up being one of the more useful process decisions in the project. The team adopted MkDocs not as a documentation deliverable to be produced at the end, but as a coordination tool used during development. Each service owner documented their API design — endpoints, request schemas, response structures — before or alongside implementation.
 
 As the team had already been documenting APIs and designs in a `docs/` folder, adding a `mkdocs.yaml` took minutes — but the benefits far outweighed the effort.
 
-![he GoClub MkDocs documentation site showing the End-to-End Flow page — each service owner's API design published as a single searchable site, used as a live development contract during the project](images/WebSite.png)
+![The GoClub MkDocs documentation site showing the End-to-End Flow page — each service owner's API design published as a single searchable site, used as a live development contract during the project](images/WebSite.png)
 
-The real power of MkDocs here was that it packaged everyone's APIs and designs into a single searchable site — one place to check rather than hunting through files or waiting on a teammate to reply.
-The consequence was significant: a developer building the Events service could code against the Circles API without the Circles service being complete, because the contract was written down and easily searchable. The documentation site became a substitute for a developer being physically available to answer questions. In a team working across different schedules and locations, this is not a minor convenience — it is the difference between parallel work and sequential work.
+MkDocs ended up being more useful than we expected because it packaged everyone's APIs into one searchable site — one place to check rather than hunting through files or waiting on a teammate to reply.
+The consequence was significant: a developer building the Events service could code against the Circles API without the Circles service being complete, because the contract was written down and easily searchable. The documentation site became a substitute for a developer being physically available to answer questions. In a team working across different schedules and locations, this mattered more than it sounds — instead of waiting on someone to reply, you just checked the docs.
 
 It sounds obvious but it's easy to get wrong — documentation only works as a coordination tool if it exists before someone needs it, not after.
 
@@ -143,7 +143,7 @@ Containerisation also helped prevent the kind of wasteful duplication that can p
 
 The common library is the one shared element. Rather than being installed as a package, it is bind-mounted into each service container from the repository root. A change to the common library is immediately reflected in all running services without a container rebuild — important during the early stages when the shared data models were evolving rapidly.
 
-The learning curve with Docker Compose was real, but the consistency, isolation, and conflict-free collaboration it enabled made it one of the more consequential early decisions the team made.
+The learning curve with Docker Compose was real. In the first week we broke the network configuration several times and spent a full evening trying to figure out why containers could not see each other. Once it stabilised though, it became one of the most valuable parts of the project because everyone could run the exact same stack with a single command.
 
 ## NGINX as the Unifying Gateway
 
@@ -462,6 +462,8 @@ GPS coordinates do not fit this model. Understanding why, and finding a better t
 
 ## The Problem with GPS Location in a Relational Database
 
+Early on we briefly considered putting location data into SQLite alongside the other services. After a quick prototype it became obvious that this was a bad idea — writes started blocking almost immediately once multiple users updated locations.
+
 Every active user sends a position update at high frequency — potentially every few seconds. In a realistic scenario with twenty concurrent active users, that is twenty writes per second.  SQLite uses file-level locking — only one write at a time. With twenty users pinging updates every few seconds, they'd be queuing behind each other, and that latency would be immediately visible.
 
 The read side is equally problematic. A proximity query — "which of my circle members are within 500 metres?" — requires computing the spherical distance between the querying user's coordinates and every other active user's coordinates. This involves expensive mathematical operations across every row in the active-user set. Without a spatial index this becomes a full-table scan on every proximity request.
@@ -519,7 +521,7 @@ sequenceDiagram
 
     Proximity->>Proximity: Filter: circle ∩ nearby
 
-    Proximity->>Proximity: Return friends within radus
+    Proximity->>Proximity: Return friends within radius
 
     Note right of Proximity: 200 OK<br/>[{user_id, username, lat, lon, distance}]
 ```
@@ -532,7 +534,7 @@ The Valkey integration pushed the project toward two separate data tiers.
 
 **Valkey** serves short-lived, high-frequency, spatially-indexed data: the current position of active users. Data carries a TTL and expires automatically when a user goes offline. No explicit delete logic is required.
 
-This is a multi-database architecture — different storage engines for data with genuinely different needs. In practice it made more sense to use an existing tool rather than building our own implementation.
+In practice, this gave the project two data tiers: SQLite for durable relational data, and Valkey for short-lived geospatial data. It made more sense to use an existing tool rather than building our own implementation.
 
 # Cross-Cutting Concerns
 
@@ -564,30 +566,20 @@ The answer is an event bus. Auth publishes a `user.deleted` event. Every other s
 
 The infrastructure is already there — Valkey supports pub/sub natively and is already running in the stack. The event bus is the natural next step as GoClub moves toward each service truly owning its data.
 
-## NGINX as a Future Control Plane
+## NGINX Could Do a Lot More
 
-Today the NGINX gateway does one thing: it receives a request, matches the path prefix, and forwards it to the correct service. It is a reverse proxy in the purest sense — useful, but passive.
+At the moment NGINX just routes traffic. It doesn't validate tokens, it doesn't rate limit, it doesn't do anything clever. Each service checks the JWT itself, which means a bad request travels all the way to a service before getting rejected.
 
-That is not a limitation of NGINX. That's just all the project needed at the time.
-
-The gateway sits in front of every request that enters the system, which makes it the natural place to enforce policy as GoClub grows. Two extensions stand out as immediate next steps.
-
-**Load balancing** is the simpler of the two. If a particular service comes under heavy demand — the Proximity service during a large event, for example — NGINX can distribute traffic across multiple instances of that service with a single configuration change. The rest of the stack sees nothing different. No service code changes, no architectural rework. Spinning up additional containers and registering them in the upstream block is all that is required.
-
-**Traffic inspection and JWT validation** is the more impactful change. Currently each service independently validates the JWT on every request. This works, but it means an unauthenticated or malformed request travels all the way to a service before being rejected. Moving JWT verification to the gateway changes that — unauthenticated traffic is stopped at the perimeter before it touches any internal service. Combined with rate limiting, this turns the gateway into a meaningful defence against DDOS attacks on the backend. A flood of unauthenticated requests gets dropped at NGINX without ever reaching the services behind it.
-
-Both of these are standard NGINX capabilities. The architecture already supports them. They were descoped not because they were hard, but because they were not necessary to meet the project's requirements.
+Moving token validation to the gateway would fix that, and adding rate limiting on top would give some basic protection against being flooded with requests. Neither of these is complicated — we just ran out of time.
 
 ## Proximity Service — Caching Circle Membership
 
 Every call to `/get_friends` makes a blocking HTTP request to the Circles service to fetch the caller's circle membership before it can filter the nearby users returned from Valkey. This happens on every single proximity request — even though circle membership almost never changes. A user's circle is something they set up once and rarely modify. Calling across a service boundary to retrieve the same data repeatedly is unnecessary work.
 
-The fix is already sitting in the stack. Valkey supports TTL-based expiry natively, and the Proximity service already has a Valkey client. Crcle membership for a given user can be written into Valkey on first request and given a TTL — say, five minutes. On subsequent requests, Proximity reads from the local cache and skips the network call entirely. When the TTL expires, the next request goes to Circles, refreshes the
+The fix is already sitting in the stack. Valkey supports TTL-based expiry natively, and the Proximity service already has a Valkey client. Circle membership for a given user can be written into Valkey on first request and given a TTL — say, five minutes. On subsequent requests, Proximity reads from the local cache and skips the network call entirely. When the TTL expires, the next request goes to Circles, refreshes the
 cache, and the cycle repeats.
 
 The result is that the Circles service is called occasionally rather than constantly, and the proximity hot path — which is called at high frequency by active users — no longer depends on a cross-service round trip on every invocation. The data served is at most five minutes stale, which is an entirely acceptable trade-off for data that changes as infrequently as circle membership does.
-
-This is a small change with a meaningful payoff, and it follows naturally from the same reasoning that led the team to Valkey in the first place: if something barely ever changes, stop querying it like it does.
 
 ## Common Library — From Bind Mount to Published Package
 
@@ -602,8 +594,6 @@ RUN pip install /common
 ```
 
 The result is that each service image becomes self-contained. No bind mount, no assumption about the host, no Docker Compose dependency. An image pushed to DockerHub would run anywhere — a teammate's machine, a cloud VM, a Kubernetes cluster — without modification.
-
-This is the natural next step if GoClub were to move beyond a single-machine Docker Compose deployment toward independently deployable services.
 
 ## Priority Two API Completion
 
@@ -671,7 +661,7 @@ GoClub isn't finished. There's a list of open issues on the board that didn't ma
 
 - **GitHub Source:** <https://github.com/The-Parliment/cs3305_2026_team_8>
 - **MkDocs Documentation:** <https://the-parliment.github.io/cs3305_2026_team_8/>
-- **Google Project:** <https://github.com/orgs/The-Parliment/projects/3/views/7>
+- **GitHub Project:** <https://github.com/orgs/The-Parliment/projects/3/views/7>
 
 # Contributors
 

@@ -30,7 +30,7 @@ numbersections: true
 abstract: |
   This report documents the architecture of GoClub, a location-aware social 
   platform built for CS3305 Team Software Project at University College Cork. 
-  It follows the style of \textit{The Architecture of Open Source Applications} 
+  It follows the narrative style of \textit{The Architecture of Open Source Applications} 
   — less concerned with what the system does, more with why it ended up the 
   way it did.
 
