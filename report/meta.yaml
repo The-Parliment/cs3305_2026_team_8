@@ -1,0 +1,61 @@
+---
+title: "GoClub Architecture Report"
+subtitle: |
+  Architecture of a Location-Aware Social Platform
+  
+  \href{https://github.com/The-Parliment/cs3305_2026_team_8}{https://github.com/The-Parliment/cs3305\_2026\_team\_8}
+author: |
+  \begin{tabular}{c} 
+  Joana Mafra (123710151) \\ 
+  Darren Counihan (123411792) \\ 
+  Cillian Ó Riain (123512869) \\ 
+  Róisín Quinn (123350046) \\ 
+  \medskip 
+  Group 8
+  \end{tabular}
+date: "March 2026"
+
+# Document Settings Restored
+geometry:
+  - top=2.5cm
+  - bottom=2.5cm
+  - left=3.0cm
+  - right=3.0cm
+fontsize: 11pt
+linestretch: 1.25 # Recommended 1.25 or 1.5; 0.5 is usually too cramped for text
+toc: true
+toc-depth: 2
+numbersections: true
+
+abstract: |
+  This report documents the architecture of GoClub, a location-aware social 
+  platform built for CS3305 Team Software Project at University College Cork. 
+  It follows the narrative style of \textit{The Architecture of Open Source Applications} 
+  — less concerned with what the system does, more with why it ended up the 
+  way it did.
+
+  The full API documentation, data models, and service internals are kept 
+  separately at the project documentation site: 
+  \href{https://the-parliment.github.io/cs3305_2026_team_8/}{https://the-parliment.github.io/cs3305\_2026\_team\_8}. 
+  This report doesn't reproduce any of that. What it tries to do is explain 
+  the thinking behind the decisions — the problems the team ran into and why 
+  they were solved the way they were.
+
+  Three things ended up being harder than expected. Getting four developers 
+  building six services in parallel without constantly blocking each other. 
+  Making a seven-container system run the same way on every laptop, including 
+  on demo day. And figuring out what to do when the team realised that GPS 
+  coordinate data just doesn't belong in a relational database. Those three 
+  problems, and the architecture that came out of trying to solve them, are 
+  what this report is about.
+
+  **All work presented is original and complies with university academic integrity standards.**
+  
+header-includes:
+  - \usepackage{hyperref}
+  - \usepackage{titling}
+  - \pretitle{\begin{center}\LARGE\bfseries}
+  - \posttitle{\par\end{center}\begin{center}\large \thesubtitle \end{center}\vskip 2em}
+  - \preauthor{\begin{center}\large}
+  - \postauthor{\end{center}}
+---
