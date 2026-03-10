@@ -54,7 +54,7 @@ From early on, the team made a decision that shaped everything else: this projec
 
 Demo day made one thing clear: there are a lot of different ways to build a project. Some teams went deep on UI and visual polish, some built games, some leaned into AI libraries to create impressive-looking interfaces. GoClub had a working frontend — one person handled all of the look and feel, which was no small task — but the team's energy went somewhere else. The Jinja2 frontend exists to demonstrate the platform works, not to be the final word on how users interact with it. Someone could build a React app on top of the same API. Someone else could build an Android client. A third person could add a new backend service — a recommendations engine, a notification system, a chat feature — drop it behind the NGINX gateway, and the rest of the system would not need to change. Each service is its own container with its own boundary. That separation was one of the main goals of the architecture.
 
-At the centre of the application is the idea of the inner circle: a small group of close contacts who share live location, making it possible to answer a simple spontaneous
+At the centre of the application is the idea of the *inner circle*: a small group of close contacts who share live location, making it possible to answer a simple spontaneous
 question — who is nearby right now, and do they want to meet? Layered on top of this are Groups (communities based on shared interests) and Events (structured gatherings with RSVP and configurable visibility, similar in concept to Eventbrite but aimed at a university setting). The proximity feature alone opens up directions the current version doesn't explore — live event check-ins, location-triggered notifications, integration with mapping APIs for venue discovery. The architecture supports all of it without modification.
 
 The most interesting part of this project is not the feature set though. It is the engineering decisions the team was pushed into making by three problems that turned out to be far more difficult than expected:
@@ -128,8 +128,6 @@ As the team had already been documenting APIs and designs in a `docs/` folder, a
 
 MkDocs ended up being more useful than we expected because it packaged everyone's APIs into one searchable site — one place to check rather than hunting through files or waiting on a teammate to reply.
 The consequence was significant: a developer building the Events service could code against the Circles API without the Circles service being complete, because the contract was written down and easily searchable. The documentation site became a substitute for a developer being physically available to answer questions. In a team working across different schedules and locations, this mattered more than it sounds — instead of waiting on someone to reply, you just checked the docs.
-
-It sounds obvious but it's easy to get wrong — documentation only works as a coordination tool if it exists before someone needs it, not after.
 
 # Challenge Two - Reproducible Deployment of a Multi-Service Stack
 
