@@ -204,7 +204,7 @@ JWT tokens are signed with a shared secret. Any service can verify a token local
 
 ### Login Flow
 
-```{.mermaid fig-cap="Auth's Login sequence flow"scale="1.0"}
+```mermaid
 sequenceDiagram
     actor User
     participant FE as frontend
@@ -233,7 +233,7 @@ The User service manages the social graph: follows, accepted follows, and derive
 
 ### Database Schema
 
-```{.mermaid fig-cap="User Service's Database Schema"}
+```mermaid
 erDiagram
     users {
         string username PK
@@ -284,7 +284,7 @@ The interesting architectural choice is that the Circles service owns no tables.
 
 ### Invite Flow
 
-```{.mermaid fig-cap="Circle Service Invite Flow" scale="1.0"}
+```mermaid
 sequenceDiagram
     actor Darren
     actor Cillian
@@ -315,7 +315,7 @@ Groups follow the same `requests` table pattern as Circles, with one addition: `
 
 ### Groups' Database Schema
 
-```{.mermaid fig-cap="Group Service's Database Schema" scale="0.5"}
+```mermaid
 erDiagram
     users {
         string username PK
@@ -367,7 +367,7 @@ Events is the most complex of the six services because it has two axes of variat
 
 ### Events' Database Schema
 
-```{.mermaid fig-cap="Event Service's Database Schema" scale="0.5"}
+```mermaid
 erDiagram
     users {
         string username PK
@@ -483,7 +483,7 @@ We chose Valkey over Redis because it felt more in line with the spirit of the p
 
 ### Update Location
 
-```{.mermaid fig-cap="Proximity Service's User GPS Location Update Flow"}
+```mermaid
 sequenceDiagram
     participant Proximity
     participant Auth
@@ -505,7 +505,7 @@ sequenceDiagram
 
 ### Get Friends Inside Radius
 
-```{.mermaid fig-cap="Proximity Service's Friends Radar Service"}
+```mermaid
 sequenceDiagram
     participant Proximity
     participant Circle
@@ -671,7 +671,6 @@ GoClub was a genuine team effort. While each person led on specific services and
 
 - Contributed to the creation, development, and finalization of each microservice except for Proximity. This involved writing all CRUD logic in the backend, as well as implementing the correct Jinja structure and syntax in the frontend.
 - Worked with Joana to create the design of the UI and the flow of user stories. Worked with Darren to implement the frontend of the proximity service as well as the Groups microservice. Worked with Roisin to implement the Events and Circles microservices. Designed and implemented the finalized Auth microservice.
-
 
 **Róisín**
 
