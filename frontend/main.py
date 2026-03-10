@@ -554,7 +554,20 @@ async def search_events(request: Request, claims: dict = Depends(require_fronten
                                                               "display_map": True, 
                                                               "authorized_user": authorized_user}, status_code=400
         )
-    
+        
+    if isinstance(form.datetime_start.data, str) and form.datetime_start.data:
+        try:
+            form.datetime_start.data = datetime.fromisoformat(form.datetime_start.data.replace("Z", "+00:00"))
+        except Exception as e:
+            print(f"DEBUG: Failed to parse datetime_start: {e}")
+            form.datetime_start.data = None
+
+    if isinstance(form.datetime_end.data, str) and form.datetime_end.data:
+        try:
+            form.datetime_end.data = datetime.fromisoformat(form.datetime_end.data.replace("Z", "+00:00"))
+        except Exception as e:
+            print(f"DEBUG: Failed to parse datetime_end: {e}")
+            form.datetime_end.data = None
     token = request.cookies.get("access_token")
     search_params = {
         "title": form.title.data,
