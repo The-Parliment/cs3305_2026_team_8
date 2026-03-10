@@ -41,6 +41,8 @@ March 2026
 > coordinate data just doesn't belong in a relational database. Those three
 > problems, and the architecture that came out of trying to solve them, are
 > what this report is about.
+>
+> **All work presented is original and complies with university academic integrity standards**
 
 ---
 
@@ -669,6 +671,7 @@ GoClub was a genuine team effort. While each person led on specific services and
 
 - Contributed to the creation, development, and finalization of each microservice except for Proximity. This involved writing all CRUD logic in the backend, as well as implementing the correct Jinja structure and syntax in the frontend.
 - Worked with Joana to create the design of the UI and the flow of user stories. Worked with Darren to implement the frontend of the proximity service as well as the Groups microservice. Worked with Roisin to implement the Events and Circles microservices. Designed and implemented the finalized Auth microservice.
+
 
 **Róisín**
 

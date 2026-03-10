@@ -48,6 +48,8 @@ abstract: |
   coordinate data just doesn't belong in a relational database. Those three 
   problems, and the architecture that came out of trying to solve them, are 
   what this report is about.
+
+  **All work presented is original and complies with university academic integrity standards.**
   
 header-includes:
   - \usepackage{hyperref}
