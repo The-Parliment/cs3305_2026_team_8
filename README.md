@@ -19,6 +19,7 @@ docker compose up --build
 **Access:**
 
 - Frontend: [https://localhost](https://localhost)
+- use username/password - darren/counihan - to get you started.
 - GoClub Technical Documentation: [https://the-parliment.github.io/cs3305_2026_team_8/](https://the-parliment.github.io/cs3305_2026_team_8/)
 
 ---
